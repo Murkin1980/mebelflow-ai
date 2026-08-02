@@ -61,21 +61,21 @@
 
 ## Этап 3 — SVG
 
-- [ ] Wall
-- [ ] Lower row
-- [ ] Countertop
-- [ ] Apron
-- [ ] Upper row
-- [ ] Mezzanine
-- [ ] Appliances
-- [ ] Labels
-- [ ] Dimensions
-- [ ] Selection
-- [ ] Warnings
-- [ ] Style colors
-- [ ] Mobile
-- [ ] PNG/SVG export
-- [ ] Visual regression
+- [x] Wall
+- [x] Lower row
+- [x] Countertop
+- [x] Apron
+- [x] Upper row
+- [x] Mezzanine
+- [x] Appliances
+- [x] Labels
+- [x] Dimensions
+- [x] Selection
+- [x] Warnings
+- [x] Style colors
+- [x] Mobile
+- [x] PNG/SVG export
+- [x] Visual regression
 
 ## Этап 4 — Text AI
 

@@ -102,4 +102,4 @@ npm.cmd ci
 npm.cmd run check
 ```
 
-Stage 0/1/2 реализованы в `packages/project-state`, `packages/command-schema` и `packages/layout-engine`. Текущий набор проверок включает typecheck и 115 unit/property-based тестов.
+Stage 0/1/2/3 реализованы в `packages/project-state`, `packages/command-schema`, `packages/layout-engine` и `packages/svg-renderer`. Текущий набор проверок включает typecheck и 131 unit/property/snapshot тест.

@@ -115,3 +115,27 @@ Stage 0 и Stage 1 приняты по самопроверке. Следующ�
 ### Следующий безопасный шаг
 
 Stage 3 — SVG Renderer с обязательным локальным UI skill и визуальной приёмкой.
+
+## 2026-08-02 — Stage 3 SVG Renderer
+
+### Выполнено
+
+- Реализован pure responsive SVG front-view renderer.
+- Добавлены стена, пол, нижний/верхний ряд, антресоли, столешница, фартук, размеры, техника, остаток, selection и warnings.
+- Добавлены ARIA title/description и описания модулей.
+- Добавлены SVG data URL и browser PNG export.
+- Создан изолированный visual-review demo с design tokens и disclaimer.
+- Создан обязательный UI review по `mebelflow-conversational-interface`.
+
+### Проверки
+
+- 131/131 тест — успешно.
+- SVG snapshot — успешно.
+- Mobile 360×800 и desktop screenshots — сохранены.
+- Keyboard, focus-visible, reduced motion, offline и screen-reader snapshot — успешно.
+- PNG browser smoke — `image/png`, 28 002 bytes.
+- Console — 0 ошибок.
+
+### Следующий безопасный шаг
+
+Stage 4 — Text AI только через fake provider и строгий command contract до подключения реального API.

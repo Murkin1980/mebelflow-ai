@@ -1,3 +1,5 @@
 # SVG Renderer
 
-Модуль запланирован. Реализация должна следовать `FOUNDATION.md`, `ARCHITECTURE.md` и `TECH_SPEC.md`.
+Pure SVG front-view renderer для Project State. Отрисовывает стену, нижний и верхний ряд, столешницу, фартук, размеры, технику, остаток, выбранный модуль и предупреждения. Возвращает доступный SVG с `title`, `desc` и ARIA-описаниями.
+
+Публичная точка входа: `src/index.ts`.

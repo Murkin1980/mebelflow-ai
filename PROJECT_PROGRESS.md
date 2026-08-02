@@ -12,7 +12,7 @@
 Pascal Core spike           ██████████ 100%
 Domain Core                 ██████████ 100%
 Layout Engine               ██████████ 100%
-SVG Renderer                ░░░░░░░░░░   0%
+SVG Renderer                ██████████ 100%
 Text AI                     ░░░░░░░░░░   0%
 Voice                       ░░░░░░░░░░   0%
 Pricing and Styles          ░░░░░░░░░░   0%
@@ -23,7 +23,7 @@ Pilot                       ░░░░░░░░░░   0%
 
 ## Current phase
 
-**Stage 0/1/2 приняты. Следующий этап: Stage 3 — SVG Renderer**
+**Stage 0/1/2/3 приняты. Следующий этап: Stage 4 — Text AI**
 
 ## Completed
 
@@ -52,13 +52,18 @@ Pilot                       ░░░░░░░░░░   0%
 - [x] Реализованы верхний ряд и антресоли
 - [x] Общая history поддерживает Stage 2, undo/redo и idempotency
 - [x] Проходят 115 unit/property-based тестов
+- [x] Реализован доступный responsive SVG Renderer
+- [x] Добавлены selected/warning/empty состояния и экспорт SVG/PNG
+- [x] Mobile 360×800, desktop, keyboard, reduced-motion и offline проверены
+- [x] Добавлен SVG snapshot baseline и UI review PASS
+- [x] Проходят 131 unit/property/snapshot тест
 
 ## Next actions
 
-1. Начать Stage 3 с SVG-контракта и front-view стены.
-2. Отрисовать нижний ряд, размеры и остаток.
-3. Добавить selected/warning states и accessibility metadata.
-4. Настроить visual regression и mobile 360×800 evidence.
+1. Создать provider abstraction и fake provider.
+2. Зафиксировать prompt/command contract и compact state.
+3. Реализовать clarification/confidence/rejection без реального API.
+4. Добавить conversation contract tests.
 
 ## Risks
 
