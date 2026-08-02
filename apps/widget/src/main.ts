@@ -6,6 +6,20 @@ import { renderKitchenSvg } from "../../../packages/svg-renderer/src/index.js";
 const API_URL = "https://mebelflow-api-staging-1013284205128.europe-central2.run.app";
 const TENANT_ID = "salamat-mebel-pilot";
 type IntentEnvelope = { intent: { type?: "CLARIFY"; question?: string; options?: string[]; command?: unknown; confidence?: number; explanation?: string }; cost?: { kzt?: number } };
+type SpeechRecognitionEventLike = { results: ArrayLike<{ 0?: { transcript?: string } }> };
+type SpeechRecognitionErrorLike = { error?: string };
+type SpeechRecognitionLike = {
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  maxAlternatives: number;
+  start(): void;
+  stop(): void;
+  onresult?: (event: SpeechRecognitionEventLike) => void;
+  onend?: () => void;
+  onerror?: (event: SpeechRecognitionErrorLike) => void;
+};
+type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
 
 const byId = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const form = byId<HTMLFormElement>("command-form");
@@ -21,6 +35,8 @@ let sessionId = `session_${crypto.randomUUID().replaceAll("-", "")}`;
 let turnstileToken = "";
 let pendingCommand: unknown;
 let totalCost = 0;
+let activeRecognition: SpeechRecognitionLike | null = null;
+let speechWasRecognized = false;
 
 function render() {
   const state = history.present;
@@ -105,12 +121,66 @@ confirm.addEventListener("click", () => { if (pendingCommand) apply(pendingComma
 undo.addEventListener("click", () => { history = applyLayoutCommandToHistory(history, { commandId: crypto.randomUUID(), type: "UNDO" }); render(); setStatus("Последнее изменение отменено.", "success"); });
 
 mic.addEventListener("click", () => {
-  const Recognition = (window as typeof window & { webkitSpeechRecognition?: new () => { lang: string; interimResults: boolean; start(): void; onresult?: (e: { results: ArrayLike<{ 0: { transcript: string } }> }) => void; onend?: () => void; onerror?: () => void } }).webkitSpeechRecognition;
-  if (!Recognition) { setStatus("Голосовой ввод не поддерживается этим браузером. Напишите команду текстом.", "error"); return; }
-  const recognition = new Recognition(); recognition.lang = "ru-RU"; recognition.interimResults = false; mic.classList.add("listening"); mic.setAttribute("aria-label", "Идёт запись"); setStatus("Слушаю… Нажимать повторно не нужно.");
-  recognition.onresult = event => { commandInput.value = event.results[0]?.[0]?.transcript ?? ""; send.disabled = !turnstileToken || !commandInput.value.trim(); setStatus("Распознанный текст можно проверить и исправить."); };
-  recognition.onend = () => { mic.classList.remove("listening"); mic.setAttribute("aria-label", "Начать голосовой ввод"); };
-  recognition.onerror = () => setStatus("Голос не распознан. Попробуйте ещё раз или напишите текстом.", "error"); recognition.start();
+  if (activeRecognition) {
+    activeRecognition.stop();
+    setStatus("Запись остановлена. Распознанный текст можно проверить.");
+    return;
+  }
+
+  const speechWindow = window as typeof window & {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+  };
+  const Recognition = speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
+  if (!Recognition) {
+    setStatus("В этом браузере голосовой ввод недоступен. Откройте страницу в Chrome или напишите пожелание текстом.", "error");
+    return;
+  }
+
+  speechWasRecognized = false;
+  activeRecognition = new Recognition();
+  activeRecognition.lang = "ru-RU";
+  activeRecognition.interimResults = false;
+  activeRecognition.continuous = false;
+  activeRecognition.maxAlternatives = 1;
+  mic.classList.add("listening");
+  mic.setAttribute("aria-label", "Остановить голосовой ввод");
+  mic.title = "Остановить запись";
+  setStatus("Слушаю… Скажите размер стены или пожелание к кухне.");
+
+  activeRecognition.onresult = event => {
+    const transcript = event.results[0]?.[0]?.transcript?.trim() ?? "";
+    speechWasRecognized = Boolean(transcript);
+    commandInput.value = transcript;
+    send.disabled = !turnstileToken || !transcript;
+    setStatus(transcript ? "Готово. Проверьте распознанный текст и примените его к схеме." : "Речь не распознана. Попробуйте ещё раз.", transcript ? "success" : "error");
+  };
+  activeRecognition.onerror = event => {
+    const messages: Record<string, string> = {
+      "not-allowed": "Разрешите доступ к микрофону для ai.salamat-mebel.kz в настройках браузера и нажмите микрофон ещё раз.",
+      "service-not-allowed": "Браузер запретил сервис распознавания речи. Разрешите микрофон или используйте Chrome.",
+      "audio-capture": "Микрофон не найден или занят другой программой. Проверьте микрофон и повторите.",
+      network: "Сервис распознавания речи временно недоступен. Проверьте интернет или введите пожелание текстом.",
+      "no-speech": "Речь не услышана. Нажмите микрофон и говорите после появления надписи «Слушаю…».",
+      aborted: "Голосовой ввод остановлен.",
+    };
+    setStatus(messages[event.error ?? ""] ?? "Не удалось распознать голос. Попробуйте ещё раз или напишите текстом.", "error");
+  };
+  activeRecognition.onend = () => {
+    activeRecognition = null;
+    mic.classList.remove("listening");
+    mic.setAttribute("aria-label", "Начать голосовой ввод");
+    mic.title = "Голосовой ввод";
+    if (!speechWasRecognized && status.textContent?.startsWith("Слушаю")) setStatus("Речь не услышана. Нажмите микрофон и попробуйте ещё раз.", "error");
+  };
+
+  try {
+    activeRecognition.start();
+  } catch {
+    activeRecognition = null;
+    mic.classList.remove("listening");
+    setStatus("Не удалось включить микрофон. Обновите страницу и разрешите доступ к нему.", "error");
+  }
 });
 
 fetch(`${API_URL}/warmup`, { mode: "cors" }).catch(() => {});
