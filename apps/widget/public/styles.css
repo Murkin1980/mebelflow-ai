@@ -45,6 +45,14 @@ button, textarea { font: inherit; }
 .guide-icon { color: var(--clay); font-size: 24px; }
 .guide strong { font-family: Prata, serif; font-size: clamp(25px, 2.2vw, 35px); font-weight: 400; line-height: 1.15; }
 .guide p { margin: 12px 0 0; color: var(--muted); line-height: 1.6; }
+.conversation-log { display: grid; gap: 12px; max-height: 250px; margin: 18px 0; padding-right: 5px; overflow-y: auto; scrollbar-width: thin; }
+.chat-message { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; align-items: start; max-width: 92%; }
+.chat-message > span { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--green); color: white; font-size: 9px; font-weight: 700; }
+.chat-message p { margin: 0; padding: 11px 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 13px; line-height: 1.55; }
+.chat-message.user { grid-template-columns: minmax(0, 1fr) 28px; justify-self: end; }
+.chat-message.user > span { grid-column: 2; background: var(--clay); color: var(--ink); }
+.chat-message.user p { grid-column: 1; grid-row: 1; border-color: var(--green); background: var(--green); color: white; }
+.chat-message.thinking p::after { content: ""; display: inline-block; width: 16px; height: 4px; margin-left: 8px; border-radius: 4px; background: var(--clay); animation: thinking 1s ease-in-out infinite alternate; vertical-align: middle; }
 .examples { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 28px; }
 .examples button { border: 0; border-bottom: 1px solid var(--line); background: transparent; padding: 7px 2px; color: var(--muted); font-size: 11px; cursor: pointer; }
 .examples button:hover, .examples button:focus-visible { color: var(--green); border-color: var(--green); outline: none; }
@@ -88,6 +96,9 @@ label { display: block; margin-bottom: 9px; font-size: 10px; font-weight: 700; l
 .scheme-head h2 { margin: 7px 0 0; font-family: Prata, serif; font-size: clamp(30px, 3vw, 46px); font-weight: 400; }
 .scheme-head button { min-height: 44px; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
 .scheme-head button:disabled { opacity: .35; }
+.view-switcher { position: relative; z-index: 2; display: flex; gap: 4px; align-self: flex-start; margin-top: 18px; padding: 4px; border: 1px solid var(--line); background: rgba(255,247,255,.72); }
+.view-switcher button { min-height: 38px; padding: 0 14px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
+.view-switcher button.active { background: var(--green); color: white; }
 .scheme { position: relative; z-index: 1; display: grid; place-items: center; flex: 1; min-height: 380px; padding: 28px 0; }
 .scheme-empty { display: grid; justify-items: center; gap: 8px; color: var(--green); text-align: center; }
 .scheme-empty::before { content: "↔"; display: grid; place-items: center; width: 72px; height: 72px; margin-bottom: 10px; border: 1px solid var(--clay); border-radius: 50%; color: var(--clay); font-size: 34px; }
@@ -107,6 +118,7 @@ footer a:hover, footer a:focus-visible { color: var(--green); }
 @keyframes breathe { 50% { box-shadow: 0 0 0 8px rgba(199,154,59,.24); } }
 @keyframes record-ring { 70% { box-shadow: 0 0 0 9px rgba(199,154,59,0); } 100% { box-shadow: 0 0 0 0 rgba(199,154,59,0); } }
 @keyframes wave { from { height: 5px; } to { height: 20px; } }
+@keyframes thinking { from { opacity: .3; transform: scaleX(.55); } to { opacity: 1; transform: scaleX(1); } }
 @media (max-width: 920px) {
   .intro { grid-template-columns: 1fr; }
   .intro h1 { grid-row: auto; }

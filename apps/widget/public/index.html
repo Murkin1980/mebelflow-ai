@@ -37,6 +37,10 @@
           <div><strong>Начнём с длины стены</strong><p id="assistant-message">Напишите, например: «Стена 3 метра, высота 2,7».</p></div>
         </div>
 
+        <div class="conversation-log" id="conversation-log" aria-live="polite" aria-label="Диалог с MebelFlow AI">
+          <article class="chat-message ai"><span>AI</span><p>Здравствуйте! Опишите кухню обычными словами. Начнём с длины стены.</p></article>
+        </div>
+
         <div class="examples" aria-label="Примеры команд">
           <button type="button" data-example="Стена 3 метра, высота комнаты 2700 мм">Стена 3 м · высота 2,7</button>
           <button type="button" data-example="Добавь справа мойку 600 мм">Добавить мойку 600</button>
@@ -72,7 +76,12 @@
       </div>
 
       <div class="scheme-panel">
-        <div class="scheme-head"><div><span class="kicker">Схема, вид спереди</span><h2>Ваша кухня</h2></div><button id="undo" type="button" disabled>↶ Отменить</button></div>
+        <div class="scheme-head"><div><span class="kicker">Интерактивная схема</span><h2>Ваша кухня</h2></div><button id="undo" type="button" disabled>↶ Отменить</button></div>
+        <div class="view-switcher" role="group" aria-label="Вид схемы">
+          <button class="active" type="button" data-view="front">Фасад</button>
+          <button type="button" data-view="top">Сверху</button>
+          <button type="button" data-view="perspective">Перспектива</button>
+        </div>
         <div class="scheme" id="scheme" aria-live="polite"></div>
         <div class="metrics"><div><span>Длина стены</span><strong id="wall-metric">—</strong></div><div><span>Свободно</span><strong id="remaining-metric">—</strong></div><div><span>AI-запрос</span><strong id="cost-metric">0 ₸</strong></div></div>
         <p class="disclaimer">Предварительная схема не является производственным чертежом. Размеры, материалы и итоговую цену подтверждает мебельщик после замера.</p>

@@ -2,7 +2,6 @@ import { compactProjectState } from "../../../packages/intent-parser/src/index.j
 import { applyLayoutCommandToHistory, calculateRemainingWidth } from "../../../packages/layout-engine/src/index.js";
 import { createHistory, createInitialProject, type ProjectHistory } from "../../../packages/project-state/src/index.js";
 import { renderKitchenSvg } from "../../../packages/svg-renderer/src/index.js";
-import { parseLocalWallWidth } from "./local-intent.js";
 
 const API_URL = "https://mebelflow-api-staging-1013284205128.europe-central2.run.app";
 const TENANT_ID = "salamat-mebel-pilot";
@@ -34,6 +33,7 @@ const assistant = byId<HTMLParagraphElement>("assistant-message");
 const voiceTranscript = byId<HTMLElement>("voice-transcript");
 const voiceStateLabel = byId<HTMLElement>("voice-state-label");
 const transcriptPreview = byId<HTMLParagraphElement>("transcript-preview");
+const conversationLog = byId<HTMLElement>("conversation-log");
 let history: ProjectHistory = createHistory(createInitialProject(crypto.randomUUID(), TENANT_ID));
 let sessionId = `session_${crypto.randomUUID().replaceAll("-", "")}`;
 let turnstileToken = "";
@@ -42,11 +42,40 @@ let totalCost = 0;
 let activeRecognition: SpeechRecognitionLike | null = null;
 let speechWasRecognized = false;
 let speechInitialText = "";
+let currentView: "front" | "top" | "perspective" = "front";
+
+function addChatMessage(role: "ai" | "user", text: string, thinking = false) {
+  const message = document.createElement("article");
+  message.className = `chat-message ${role}${thinking ? " thinking" : ""}`;
+  const avatar = document.createElement("span");
+  avatar.textContent = role === "ai" ? "AI" : "Вы";
+  const body = document.createElement("p");
+  body.textContent = text;
+  message.append(avatar, body);
+  conversationLog.append(message);
+  conversationLog.scrollTop = conversationLog.scrollHeight;
+  return message;
+}
+
+const moduleLabel = (type: string) => type === "sink_cabinet" ? "Мойка" : type.startsWith("dishwasher") ? "ПММ" : "Модуль";
+
+function renderTopView(state: ProjectHistory["present"]) {
+  const wall = state.room.wallWidth ?? 3000;
+  const modules = state.lowerRow.modules.map(module => `<g><rect x="${module.position}" y="110" width="${module.width}" height="560" rx="8" fill="#f6e9fe" stroke="#5b347f" stroke-width="8"/><text x="${module.position + module.width / 2}" y="410" text-anchor="middle" font-family="Manrope" font-size="54" fill="#1f1927">${moduleLabel(module.type)}</text><text x="${module.position + module.width / 2}" y="720" text-anchor="middle" font-family="Manrope" font-size="42" fill="#4b444f">${module.width}</text></g>`).join("");
+  return `<svg viewBox="-100 0 ${wall + 200} 850" role="img" aria-label="План кухни сверху"><path d="M0 70H${wall}" stroke="#431b67" stroke-width="18"/>${modules}<text x="${wall / 2}" y="820" text-anchor="middle" font-family="Manrope" font-size="48" fill="#431b67">Стена ${wall} мм</text></svg>`;
+}
+
+function renderPerspective(state: ProjectHistory["present"]) {
+  const wall = state.room.wallWidth ?? 3000;
+  const depth = Math.max(90, wall * .055);
+  const modules = state.lowerRow.modules.map(module => { const x = module.position; const w = module.width; return `<g><rect x="${x}" y="120" width="${w}" height="530" fill="#f6e9fe" stroke="#5b347f" stroke-width="7"/><polygon points="${x},120 ${x + depth},${120 - depth} ${x + w + depth},${120 - depth} ${x + w},120" fill="#fff1c9" stroke="#5b347f" stroke-width="7"/><polygon points="${x + w},120 ${x + w + depth},${120 - depth} ${x + w + depth},${650 - depth} ${x + w},650" fill="#e5d1ef" stroke="#5b347f" stroke-width="7"/><text x="${x + w / 2}" y="410" text-anchor="middle" font-family="Manrope" font-size="52" fill="#1f1927">${moduleLabel(module.type)}</text></g>`; }).join("");
+  return `<svg viewBox="-120 -20 ${wall + depth + 240} 820" role="img" aria-label="Эскиз кухни в перспективе"><path d="M0 90H${wall}" stroke="#c79a3b" stroke-width="12"/>${modules}<path d="M0 650H${wall}" stroke="#431b67" stroke-width="12"/></svg>`;
+}
 
 function render() {
   const state = history.present;
   byId("scheme").innerHTML = state.room.wallWidth
-    ? renderKitchenSvg(state, { title: "Предварительная схема кухни", description: "Схема обновляется после подтверждённых команд." })
+    ? currentView === "front" ? renderKitchenSvg(state, { title: "Предварительная схема кухни", description: "Схема обновляется после подтверждённых команд." }) : currentView === "top" ? renderTopView(state) : renderPerspective(state)
     : '<div class="scheme-empty"><strong>Укажите длину кухни</strong><span>Например: «кухня 3 метра»</span></div>';
   const remaining = calculateRemainingWidth(state);
   byId("wall-metric").textContent = state.room.wallWidth ? `${state.room.wallWidth} мм` : "не задана";
@@ -78,10 +107,21 @@ document.querySelectorAll<HTMLButtonElement>("[data-example]").forEach(button =>
 
 async function callAi(utterance: string) {
   const idempotencyKey = `request_${crypto.randomUUID().replaceAll("-", "")}`;
-  const response = await fetch(`${API_URL}/v1/intent`, {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 20_000);
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}/v1/intent`, {
     method: "POST", headers: { "content-type": "application/json" },
     body: JSON.stringify({ tenantId: TENANT_ID, sessionId, idempotencyKey, turnstileToken, locale: "ru-KZ", utterance, projectSummary: compactProjectState(history.present) }),
-  });
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (controller.signal.aborted) throw new Error("AI-сервис не ответил за 20 секунд. Попробуйте ещё раз.");
+    throw error;
+  } finally {
+    window.clearTimeout(timeout);
+  }
   const body = await response.json() as IntentEnvelope & { error?: { message?: string } };
   if (!response.ok) throw new Error(body.error?.message ?? "Сервис временно недоступен.");
   return body;
@@ -98,18 +138,12 @@ form.addEventListener("submit", async event => {
   event.preventDefault();
   const utterance = commandInput.value.trim();
   if (!utterance) return;
-  const localIntent = parseLocalWallWidth(utterance);
-  if (localIntent) {
-    apply(localIntent.command, localIntent.explanation);
-    commandInput.value = "";
-    send.disabled = true;
-    commandInput.focus();
-    return;
-  }
   if (!turnstileToken) {
     setStatus("Для сложного AI-запроса дождитесь проверки безопасности и нажмите «Отправить» ещё раз.", "error");
     return;
   }
+  addChatMessage("user", utterance);
+  const thinkingMessage = addChatMessage("ai", "Обрабатываю запрос…", true);
   send.disabled = true; commandInput.disabled = true; confirm.classList.add("hidden");
   setStatus("AI проверяет пожелание и готовит безопасную команду…");
   assistant.textContent = `Вы сказали: «${utterance}»`;
@@ -119,18 +153,29 @@ form.addEventListener("submit", async event => {
     byId("cost-metric").textContent = `${totalCost.toFixed(2)} ₸`;
     if (result.intent.type === "CLARIFY") {
       assistant.textContent = result.intent.question ?? "Нужно уточнение.";
+      thinkingMessage.querySelector("p")!.textContent = assistant.textContent;
+      thinkingMessage.classList.remove("thinking");
       setStatus("AI не менял схему: требуется уточнение.");
     } else if (result.intent.command) {
       if ((result.intent.confidence ?? 0) < .9) {
         pendingCommand = result.intent.command;
         confirm.classList.remove("hidden");
         assistant.textContent = result.intent.explanation ?? "Проверьте предложенное изменение.";
+        thinkingMessage.querySelector("p")!.textContent = `${assistant.textContent} Подтвердите изменение кнопкой ниже.`;
+        thinkingMessage.classList.remove("thinking");
         setStatus("Изменение ещё не применено — подтвердите его.");
-      } else apply(result.intent.command, result.intent.explanation);
+      } else {
+        apply(result.intent.command, result.intent.explanation);
+        thinkingMessage.querySelector("p")!.textContent = result.intent.explanation ?? "Изменение применено. Что добавим дальше?";
+        thinkingMessage.classList.remove("thinking");
+      }
     }
     commandInput.value = "";
   } catch (error) {
-    setStatus(error instanceof Error ? error.message : "Команда не обработана. Схема сохранена.", "error");
+    const message = error instanceof Error ? error.message : "Команда не обработана. Схема сохранена.";
+    thinkingMessage.querySelector("p")!.textContent = message;
+    thinkingMessage.classList.remove("thinking");
+    setStatus(message, "error");
   } finally {
     commandInput.disabled = false; resetTurnstile(); commandInput.focus();
   }
@@ -138,6 +183,11 @@ form.addEventListener("submit", async event => {
 
 confirm.addEventListener("click", () => { if (pendingCommand) apply(pendingCommand); pendingCommand = undefined; confirm.classList.add("hidden"); });
 undo.addEventListener("click", () => { history = applyLayoutCommandToHistory(history, { commandId: crypto.randomUUID(), type: "UNDO" }); render(); setStatus("Последнее изменение отменено.", "success"); });
+document.querySelectorAll<HTMLButtonElement>("[data-view]").forEach(button => button.addEventListener("click", () => {
+  currentView = button.dataset.view as typeof currentView;
+  document.querySelectorAll("[data-view]").forEach(item => item.classList.toggle("active", item === button));
+  render();
+}));
 
 mic.addEventListener("click", () => {
   if (activeRecognition) {
