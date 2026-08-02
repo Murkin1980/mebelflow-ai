@@ -17,13 +17,13 @@ Text AI                     ██████████ 100%
 Voice                       ██████████ 100%
 Pricing and Styles          ██████████ 100%
 Admin and Lead              ██████████ 100%
-PDF                         ░░░░░░░░░░   0%
+PDF                         ██████████ 100%
 Pilot                       ░░░░░░░░░░   0%
 ```
 
 ## Current phase
 
-**Stage 0/1/2/3/4/5/6/7 приняты. Следующий этап: Stage 8 — PDF**
+**Stage 0/1/2/3/4/5/6/7/8 приняты. Следующий этап: Stage 9 — Pilot**
 
 ## Completed
 
@@ -78,13 +78,18 @@ Pilot                       ░░░░░░░░░░   0%
 - [x] Status transitions, comments и Telegram notification adapter покрыты тестами
 - [x] Tenant settings, hard limits, opaque resume tokens и RBAC реализованы
 - [x] 190 unit/property/snapshot/contract тестов проходят
+- [x] Brief model содержит branding, contact, SVG scheme, modules, style, price и disclaimer
+- [x] Реализованы пять PDF policy modes и payment/credit-on-order boundary
+- [x] Secure tenant-bound download grants поддерживают expiry, revoke и audit
+- [x] Двухстраничный sample PDF отрендерен и визуально принят
+- [x] 197 unit/property/snapshot/contract тестов проходят
 
 ## Next actions
 
-1. Реализовать deterministic brief/PDF document model.
-2. Добавить tenant branding, scheme, modules, style, price и disclaimer.
-3. Реализовать policy modes и payment boundary.
-4. Добавить audit, secure download token и rendering tests.
+1. Подготовить tenant pilot configuration и embeddable landing contract.
+2. Добавить analytics/error/cost event collectors.
+3. Реализовать controlled-session and prospect tracking.
+4. Сформировать funnel report и go/no-go decision model.
 
 ## Risks
 

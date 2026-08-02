@@ -138,18 +138,18 @@
 
 ## Этап 8 — PDF
 
-- [ ] Template
-- [ ] Disclaimer
-- [ ] Scheme
-- [ ] Modules
-- [ ] Style
-- [ ] Price
-- [ ] Tenant branding
-- [ ] Policy modes
-- [ ] Payment boundary
-- [ ] Credit-on-order
-- [ ] Audit
-- [ ] Secure download
+- [x] Template
+- [x] Disclaimer
+- [x] Scheme
+- [x] Modules
+- [x] Style
+- [x] Price
+- [x] Tenant branding
+- [x] Policy modes
+- [x] Payment boundary
+- [x] Credit-on-order
+- [x] Audit
+- [x] Secure download
 
 ## Этап 9 — Pilot
 

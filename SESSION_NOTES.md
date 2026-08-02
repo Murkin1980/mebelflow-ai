@@ -225,3 +225,25 @@ Stage 7 — Lead and Admin.
 ### Следующий безопасный шаг
 
 Stage 8 — PDF.
+
+## 2026-08-02 — Stage 8 PDF
+
+### Выполнено
+
+- Создана document model для tenant-branded предварительного ТЗ.
+- Включены контакт, SVG-схема, размеры, модули, стиль, цена, warnings и disclaimer.
+- Реализованы free/after_contact/after_order/paid/credited_to_order policies.
+- Payment provider остаётся безопасной внешней границей; credit-on-order учитывается отдельно.
+- Secure download grants tenant-bound, ограничены временем, отзываются и пишут audit events.
+- Создан и визуально принят двухстраничный PDF sample.
+
+### Проверки
+
+- `npm run check` — успешно.
+- 197/197 тестов — успешно.
+- PDF: A4, 2 страницы, кириллица/таблицы/footer/disclaimer визуально PASS.
+- Реальные payment/storage вызовы и секреты отсутствуют.
+
+### Следующий безопасный шаг
+
+Stage 9 — Pilot.
