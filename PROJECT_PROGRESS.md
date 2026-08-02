@@ -11,7 +11,7 @@
 Архитектура                 ██████████ 100%
 Pascal Core spike           ██████████ 100%
 Domain Core                 ██████████ 100%
-Layout Engine               ░░░░░░░░░░   0%
+Layout Engine               ██████████ 100%
 SVG Renderer                ░░░░░░░░░░   0%
 Text AI                     ░░░░░░░░░░   0%
 Voice                       ░░░░░░░░░░   0%
@@ -23,7 +23,7 @@ Pilot                       ░░░░░░░░░░   0%
 
 ## Current phase
 
-**Stage 0/1 приняты. Следующий этап: Stage 2 — Layout Engine**
+**Stage 0/1/2 приняты. Следующий этап: Stage 3 — SVG Renderer**
 
 ## Completed
 
@@ -47,13 +47,18 @@ Pilot                       ░░░░░░░░░░   0%
 - [x] Настроен GitHub Actions CI
 - [x] Чистая установка и 74 unit-теста проходят
 - [x] Локальный UI skill валиден и установлен в Codex
+- [x] Реализован deterministic Layout Engine прямой кухни
+- [x] Добавлены операции ряда, правила доборов и техники
+- [x] Реализованы верхний ряд и антресоли
+- [x] Общая history поддерживает Stage 2, undo/redo и idempotency
+- [x] Проходят 115 unit/property-based тестов
 
 ## Next actions
 
-1. Начать Stage 2 с правил прямой стены и расчёта остатка.
-2. Добавить `INSERT_BEFORE` и перемещение внутри ряда.
-3. Реализовать filler и appliance rules.
-4. Добавить property-based тесты Layout Engine.
+1. Начать Stage 3 с SVG-контракта и front-view стены.
+2. Отрисовать нижний ряд, размеры и остаток.
+3. Добавить selected/warning states и accessibility metadata.
+4. Настроить visual regression и mobile 360×800 evidence.
 
 ## Risks
 

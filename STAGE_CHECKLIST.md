@@ -43,21 +43,21 @@
 
 ## Этап 2 — Layout Engine
 
-- [ ] Wall width
-- [ ] Room height
-- [ ] Add module
-- [ ] Remove module
-- [ ] Insert before
-- [ ] Insert after
-- [ ] Move left/right
-- [ ] Change width
-- [ ] Remaining width
-- [ ] Filler rules
-- [ ] Appliance rules
-- [ ] Upper row
-- [ ] Mezzanine rules
-- [ ] Warnings
-- [ ] Property-based tests
+- [x] Wall width
+- [x] Room height
+- [x] Add module
+- [x] Remove module
+- [x] Insert before
+- [x] Insert after
+- [x] Move left/right
+- [x] Change width
+- [x] Remaining width
+- [x] Filler rules
+- [x] Appliance rules
+- [x] Upper row
+- [x] Mezzanine rules
+- [x] Warnings
+- [x] Property-based tests
 
 ## Этап 3 — SVG
 

@@ -15,6 +15,7 @@ function reduceState(state:FurnitureProjectState,command:Exclude<Command,{type:"
   case"INSERT_AFTER":{const i=modules.findIndex(m=>m.id===command.referenceId);if(i<0)throw new DomainError("Опорный модуль не найден.");if(modules.some(m=>m.id===command.payload.id))throw new DomainError("ID модуля уже существует.");if(!isAllowedModuleWidth(command.payload.moduleType,command.payload.width))throw new DomainError("Ширина не разрешена для этого типа модуля.");modules.splice(i+1,0,createModule(command.payload.id,command.payload.moduleType,command.payload.width));break}
   case"MOVE_TO_EDGE":{const i=modules.findIndex(m=>m.id===command.payload.id);if(i<0)throw new DomainError("Модуль не найден.");const[module]=modules.splice(i,1);if(!module)throw new DomainError("Модуль не найден.");command.payload.edge==="left"?modules.unshift(module):modules.push(module);break}
   case"CHANGE_WIDTH":{const module=modules.find(m=>m.id===command.payload.id);if(!module)throw new DomainError("Модуль не найден.");if(!isAllowedModuleWidth(module.type,command.payload.width))throw new DomainError("Ширина не разрешена для этого типа модуля.");module.width=command.payload.width;break}
+  default:throw new DomainError("Команда должна применяться через Layout Engine.");
  }
  next.lowerRow.modules=positions(modules);next.historyMeta.revision+=1;next.historyMeta.appliedCommandIds.push(command.commandId);validateLayout(next);return FurnitureProjectStateSchema.parse(next)
 }

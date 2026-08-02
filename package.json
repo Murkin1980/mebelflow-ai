@@ -1,1 +1,1 @@
-{"name":"mebelflow-ai","version":"0.1.0","private":true,"type":"module","scripts":{"build":"tsc --noEmit","test":"vitest run","check":"npm run build && npm test"},"dependencies":{"zod":"^4.0.14"},"devDependencies":{"typescript":"^5.9.2","vitest":"^3.2.4"}}
+{"name":"mebelflow-ai","version":"0.1.0","private":true,"type":"module","scripts":{"build":"tsc --noEmit","test":"vitest run","check":"npm run build && npm test"},"dependencies":{"zod":"^4.0.14"},"devDependencies":{"fast-check":"^4.9.0","typescript":"^5.9.2","vitest":"^3.2.4"}}

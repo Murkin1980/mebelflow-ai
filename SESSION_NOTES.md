@@ -92,3 +92,26 @@
 ### Решение
 
 Stage 0 и Stage 1 приняты по самопроверке. Следующий безопасный шаг — Stage 2 Layout Engine без UI и AI.
+
+## 2026-08-02 — Stage 2 Layout Engine
+
+### Выполнено
+
+- Расширен белый список команд: `INSERT_BEFORE`, `MOVE_LEFT`, `MOVE_RIGHT`, верхний ряд и антресоли.
+- Реализован pure Layout Engine для прямой стены.
+- Добавлены расчёт остатка, нормализация позиций, правила доборов и техники.
+- Добавлены предупреждения и правила верхнего ряда.
+- Layout Engine интегрирован с общей history, idempotency и undo/redo.
+- Добавлены unit и property-based тесты.
+- GitHub Actions обновлён до `checkout@v5` и `setup-node@v5`.
+
+### Проверки
+
+- `npm run check` — успешно.
+- 115/115 тестов — успешно.
+- 200 сгенерированных property cases — успешно.
+- Scope UI/AI/SVG/backend не расширен.
+
+### Следующий безопасный шаг
+
+Stage 3 — SVG Renderer с обязательным локальным UI skill и визуальной приёмкой.
