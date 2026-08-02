@@ -43,6 +43,7 @@ let activeRecognition: SpeechRecognitionLike | null = null;
 let speechWasRecognized = false;
 let speechInitialText = "";
 let currentView: "front" | "top" | "perspective" = "front";
+let autoSubmitAfterTranscription = false;
 
 function addChatMessage(role: "ai" | "user", text: string, thinking = false) {
   const message = document.createElement("article");
@@ -68,8 +69,16 @@ function renderTopView(state: ProjectHistory["present"]) {
 function renderPerspective(state: ProjectHistory["present"]) {
   const wall = state.room.wallWidth ?? 3000;
   const depth = Math.max(90, wall * .055);
-  const modules = state.lowerRow.modules.map(module => { const x = module.position; const w = module.width; return `<g><rect x="${x}" y="120" width="${w}" height="530" fill="#f6e9fe" stroke="#5b347f" stroke-width="7"/><polygon points="${x},120 ${x + depth},${120 - depth} ${x + w + depth},${120 - depth} ${x + w},120" fill="#fff1c9" stroke="#5b347f" stroke-width="7"/><polygon points="${x + w},120 ${x + w + depth},${120 - depth} ${x + w + depth},${650 - depth} ${x + w},650" fill="#e5d1ef" stroke="#5b347f" stroke-width="7"/><text x="${x + w / 2}" y="410" text-anchor="middle" font-family="Manrope" font-size="52" fill="#1f1927">${moduleLabel(module.type)}</text></g>`; }).join("");
-  return `<svg viewBox="-120 -20 ${wall + depth + 240} 820" role="img" aria-label="Эскиз кухни в перспективе"><path d="M0 90H${wall}" stroke="#c79a3b" stroke-width="12"/>${modules}<path d="M0 650H${wall}" stroke="#431b67" stroke-width="12"/></svg>`;
+  const occupied = state.lowerRow.modules.reduce((sum, module) => sum + module.width, 0);
+  const previewModules: Array<{ position: number; width: number; type: string; preview?: boolean }> = [...state.lowerRow.modules];
+  let previewPosition = occupied;
+  while (wall - previewPosition >= 300) {
+    const width = wall - previewPosition >= 600 ? 600 : wall - previewPosition;
+    previewModules.push({ position: previewPosition, width, type: "preview", preview: true });
+    previewPosition += width;
+  }
+  const modules = previewModules.map(module => { const x = module.position; const w = module.width; const preview = module.preview; return `<g opacity="${preview ? ".58" : "1"}"><rect x="${x}" y="120" width="${w}" height="530" fill="${preview ? "#fff7ff" : "#f6e9fe"}" stroke="#5b347f" stroke-width="7" ${preview ? 'stroke-dasharray="22 14"' : ""}/><polygon points="${x},120 ${x + depth},${120 - depth} ${x + w + depth},${120 - depth} ${x + w},120" fill="#fff1c9" stroke="#5b347f" stroke-width="7"/><polygon points="${x + w},120 ${x + w + depth},${120 - depth} ${x + w + depth},${650 - depth} ${x + w},650" fill="#e5d1ef" stroke="#5b347f" stroke-width="7"/><text x="${x + w / 2}" y="390" text-anchor="middle" font-family="Manrope" font-size="48" fill="#1f1927">${preview ? "Секция" : moduleLabel(module.type)}</text><text x="${x + w / 2}" y="465" text-anchor="middle" font-family="Manrope" font-size="38" fill="#4b444f">${w} мм</text></g>`; }).join("");
+  return `<svg viewBox="-180 -120 ${wall + depth + 360} 980" role="img" aria-label="Автоматический предварительный контур кухни в перспективе"><defs><linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff7ff"/><stop offset="1" stop-color="#f3e7d1"/></linearGradient></defs><rect x="-${depth}" y="-${depth}" width="${wall + depth * 2}" height="${780 + depth}" fill="#fff7ff" stroke="#cdc3d1" stroke-width="6"/><polygon points="-${depth},650 ${wall + depth},650 ${wall + depth * 2},850 -${depth * 2},850" fill="url(#floor)" stroke="#c79a3b" stroke-width="6"/><path d="M0 90H${wall}" stroke="#c79a3b" stroke-width="12"/>${modules}<path d="M0 650H${wall}" stroke="#431b67" stroke-width="12"/><text x="${wall / 2}" y="790" text-anchor="middle" font-family="Manrope" font-size="46" fill="#431b67">Предварительный контур · ${wall} мм</text></svg>`;
 }
 
 function render() {
@@ -100,6 +109,10 @@ window.addEventListener("turnstile-success", event => {
   turnstileToken = (event as CustomEvent<string>).detail;
   send.disabled = !commandInput.value.trim();
   setStatus("Проверка пройдена. Команду можно отправить.", "success");
+  if (autoSubmitAfterTranscription && commandInput.value.trim()) {
+    autoSubmitAfterTranscription = false;
+    form.requestSubmit();
+  }
 });
 window.addEventListener("turnstile-expired", () => { resetTurnstile(); setStatus("Проверка истекла — пройдите её ещё раз.", "error"); });
 commandInput.addEventListener("input", () => { send.disabled = !commandInput.value.trim(); });
@@ -234,7 +247,8 @@ mic.addEventListener("click", async () => {
         commandInput.value = text;
         transcriptPreview.textContent = text;
         voiceStateLabel.textContent = "Расшифровка готова";
-        setStatus("Проверьте расшифровку и нажмите «Отправить».", "success");
+        autoSubmitAfterTranscription = true;
+        setStatus("Расшифровка готова. Передаю команду AI…", "success");
       } catch (error) {
         const message = error instanceof Error ? error.message : "AI не смог расшифровать запись.";
         transcriptPreview.textContent = message;
