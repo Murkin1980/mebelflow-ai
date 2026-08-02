@@ -109,17 +109,17 @@
 
 ## Этап 6 — Styles and Pricing
 
-- [ ] 5 styles
-- [ ] 3 palettes each
-- [ ] 6 facade presets
-- [ ] Tenant styles
-- [ ] Per-meter pricing
-- [ ] Per-module pricing
-- [ ] Hybrid pricing
-- [ ] Min/max estimate
-- [ ] Breakdown
-- [ ] Formula version
-- [ ] Recalculation tests
+- [x] 5 styles
+- [x] 3 palettes each
+- [x] 6 facade presets
+- [x] Tenant styles
+- [x] Per-meter pricing
+- [x] Per-module pricing
+- [x] Hybrid pricing
+- [x] Min/max estimate
+- [x] Breakdown
+- [x] Formula version
+- [x] Recalculation tests
 
 ## Этап 7 — Lead/Admin
 

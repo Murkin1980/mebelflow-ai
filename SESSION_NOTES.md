@@ -183,3 +183,24 @@ Stage 5 Voice через fake STT provider до подключения реал�
 ### Следующий безопасный шаг
 
 Stage 6 — Styles and Pricing с tenant-controlled preset catalog и детерминированными формулами.
+
+## 2026-08-02 — Stage 6 Styles and Pricing
+
+### Выполнено
+
+- Добавлены 5 стилей, 15 палитр и 6 фасадных пресетов.
+- Tenant filter ограничивает доступные стили; несовместимые палитры и фасады отклоняются.
+- Реализованы per-meter, per-module и hybrid pricing strategies.
+- Результат содержит min/max KZT, breakdown, uncertainty reasons и formula version.
+- Цена всегда отображается как предварительная с обязательным disclaimer.
+- Добавлены recalculation tests для ширины, модулей, верхнего ряда и фасадного коэффициента.
+
+### Проверки
+
+- `npm run check` — успешно.
+- 180/180 тестов — успешно.
+- AI не участвует в арифметике цены и не может менять tenant pricing.
+
+### Следующий безопасный шаг
+
+Stage 7 — Lead and Admin.

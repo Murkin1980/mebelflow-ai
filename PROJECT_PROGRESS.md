@@ -15,7 +15,7 @@ Layout Engine               ██████████ 100%
 SVG Renderer                ██████████ 100%
 Text AI                     ██████████ 100%
 Voice                       ██████████ 100%
-Pricing and Styles          ░░░░░░░░░░   0%
+Pricing and Styles          ██████████ 100%
 Admin and Lead              ░░░░░░░░░░   0%
 PDF                         ░░░░░░░░░░   0%
 Pilot                       ░░░░░░░░░░   0%
@@ -23,7 +23,7 @@ Pilot                       ░░░░░░░░░░   0%
 
 ## Current phase
 
-**Stage 0/1/2/3/4/5 приняты. Следующий этап: Stage 6 — Styles and Pricing**
+**Stage 0/1/2/3/4/5/6 приняты. Следующий этап: Stage 7 — Lead and Admin**
 
 ## Completed
 
@@ -68,13 +68,18 @@ Pilot                       ░░░░░░░░░░   0%
 - [x] Cancel/retry, offline recovery и текстовая альтернатива сохраняют данные пользователя
 - [x] STT cost ledger считает оплачиваемые секунды и ориентировочную стоимость в KZT
 - [x] Android voice view contract и 168 тестов проходят
+- [x] Добавлены 5 style presets с тремя палитрами каждый и 6 facade presets
+- [x] Tenant settings ограничивают доступные стили, палитры и фасады
+- [x] Реализованы per-meter, per-module и hybrid pricing strategies
+- [x] Диапазон KZT содержит breakdown, причины неопределённости и formula version
+- [x] Recalculation и trust presentation покрыты тестами; 180 тестов проходят
 
 ## Next actions
 
-1. Реализовать style, palette и facade preset catalogs.
-2. Добавить tenant-controlled доступность стилей.
-3. Реализовать per-meter, per-module и hybrid pricing strategies.
-4. Добавить диапазон, breakdown, formula version и recalculation tests.
+1. Зафиксировать Lead schema, event history и status transitions.
+2. Реализовать contact form boundary с OTP/CAPTCHA adapters.
+3. Добавить tenant limits, resume token и RBAC.
+4. Подготовить Telegram notification adapter без реальной отправки.
 
 ## Risks
 
