@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { LOWER_MODULE_TYPES } from "../../project-state/src/schema.js";
+export const COMMAND_TYPES=["SET_WALL_WIDTH","SET_ROOM_HEIGHT","ADD_MODULE","REMOVE_MODULE","INSERT_AFTER","INSERT_BEFORE","MOVE_TO_EDGE","MOVE_LEFT","MOVE_RIGHT","CHANGE_WIDTH","SET_APRON_HEIGHT","GENERATE_UPPER_ROW","SET_MEZZANINE_HEIGHT","UNDO","REDO"]as const;
 const Base=z.object({commandId:z.string().min(1)});const Width=z.number().int().positive();const Id=z.object({id:z.string().min(1)});const ModulePayload=z.object({id:z.string().min(1),moduleType:z.enum(LOWER_MODULE_TYPES),width:Width});
 export const CommandSchema=z.discriminatedUnion("type",[
  Base.extend({type:z.literal("SET_WALL_WIDTH"),payload:z.object({width:Width})}),Base.extend({type:z.literal("SET_ROOM_HEIGHT"),payload:z.object({height:Width})}),

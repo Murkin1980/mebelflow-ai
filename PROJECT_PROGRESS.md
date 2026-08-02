@@ -13,7 +13,7 @@ Pascal Core spike           ██████████ 100%
 Domain Core                 ██████████ 100%
 Layout Engine               ██████████ 100%
 SVG Renderer                ██████████ 100%
-Text AI                     ░░░░░░░░░░   0%
+Text AI                     ██████████ 100%
 Voice                       ░░░░░░░░░░   0%
 Pricing and Styles          ░░░░░░░░░░   0%
 Admin and Lead              ░░░░░░░░░░   0%
@@ -23,7 +23,7 @@ Pilot                       ░░░░░░░░░░   0%
 
 ## Current phase
 
-**Stage 0/1/2/3 приняты. Следующий этап: Stage 4 — Text AI**
+**Stage 0/1/2/3/4 приняты. Следующий этап: Stage 5 — Voice**
 
 ## Completed
 
@@ -57,13 +57,19 @@ Pilot                       ░░░░░░░░░░   0%
 - [x] Mobile 360×800, desktop, keyboard, reduced-motion и offline проверены
 - [x] Добавлен SVG snapshot baseline и UI review PASS
 - [x] Проходят 131 unit/property/snapshot тест
+- [x] Реализованы provider abstraction и fake provider
+- [x] Зафиксированы versioned prompt и канонический TECH_SPEC contract
+- [x] Реализованы confidence, clarification, validation и rejection
+- [x] Safe apply сохраняет state при provider/domain errors
+- [x] Token ledger интегрирован в IntentSession
+- [x] Сквозной conversation replay и 158 тестов проходят
 
 ## Next actions
 
-1. Создать provider abstraction и fake provider.
-2. Зафиксировать prompt/command contract и compact state.
-3. Реализовать clarification/confidence/rejection без реального API.
-4. Добавить conversation contract tests.
+1. Создать STT provider abstraction и fake provider.
+2. Реализовать permission/record/stop/transcript state machine.
+3. Добавить confirm/cancel/retry и cost tracking.
+4. Проверить poor-network и Android voice flow.
 
 ## Risks
 

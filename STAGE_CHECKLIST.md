@@ -79,18 +79,18 @@
 
 ## Этап 4 — Text AI
 
-- [ ] Provider abstraction
-- [ ] Prompt versioning
-- [ ] Compact state
-- [ ] Command parser
-- [ ] Confidence
-- [ ] Clarification
-- [ ] Validation
-- [ ] Rejection
-- [ ] Safe apply
-- [ ] Error recovery
-- [ ] Token accounting
-- [ ] Conversation tests
+- [x] Provider abstraction
+- [x] Prompt versioning
+- [x] Compact state
+- [x] Command parser
+- [x] Confidence
+- [x] Clarification
+- [x] Validation
+- [x] Rejection
+- [x] Safe apply
+- [x] Error recovery
+- [x] Token accounting
+- [x] Conversation tests
 
 ## Этап 5 — Voice
 

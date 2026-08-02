@@ -139,3 +139,26 @@ Stage 3 — SVG Renderer с обязательным локальным UI skill
 ### Следующий безопасный шаг
 
 Stage 4 — Text AI только через fake provider и строгий command contract до подключения реального API.
+
+## 2026-08-02 — Stage 4 Text AI Contract
+
+### Выполнено
+
+- Созданы `IntentProvider`, `FakeIntentProvider` и `IntentSession`.
+- Prompt v1 содержит явный белый список команд и защитные ограничения.
+- Compact state передаёт только необходимые размеры, IDs, остаток и stage.
+- Parser принимает канонический top-level формат TECH_SPEC и временный nested fake format.
+- Confidence ниже 0.9 требует подтверждения; `CLARIFY` ограничен тремя вариантами.
+- Safe apply выполняется только через Layout Engine и сохраняет state при ошибке.
+- Token usage валидируется и автоматически накапливается.
+- Добавлен сквозной conversation replay с undo.
+
+### Проверки
+
+- 158/158 тестов — успешно.
+- Реальные AI/API вызовы — отсутствуют.
+- Секреты и платные зависимости — отсутствуют.
+
+### Следующий безопасный шаг
+
+Stage 5 Voice через fake STT provider до подключения реального сервиса.
