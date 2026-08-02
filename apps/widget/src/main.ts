@@ -2,6 +2,7 @@ import { compactProjectState } from "../../../packages/intent-parser/src/index.j
 import { applyLayoutCommandToHistory, calculateRemainingWidth } from "../../../packages/layout-engine/src/index.js";
 import { createHistory, createInitialProject, type ProjectHistory } from "../../../packages/project-state/src/index.js";
 import { renderKitchenSvg } from "../../../packages/svg-renderer/src/index.js";
+import { parseLocalWallWidth } from "./local-intent.js";
 
 const API_URL = "https://mebelflow-api-staging-1013284205128.europe-central2.run.app";
 const TENANT_ID = "salamat-mebel-pilot";
@@ -44,7 +45,9 @@ let speechInitialText = "";
 
 function render() {
   const state = history.present;
-  byId("scheme").innerHTML = renderKitchenSvg(state, { title: "Предварительная схема кухни", description: "Схема обновляется после подтверждённых команд." });
+  byId("scheme").innerHTML = state.room.wallWidth
+    ? renderKitchenSvg(state, { title: "Предварительная схема кухни", description: "Схема обновляется после подтверждённых команд." })
+    : '<div class="scheme-empty"><strong>Укажите длину кухни</strong><span>Например: «кухня 3 метра»</span></div>';
   const remaining = calculateRemainingWidth(state);
   byId("wall-metric").textContent = state.room.wallWidth ? `${state.room.wallWidth} мм` : "не задана";
   byId("remaining-metric").textContent = remaining === null ? "—" : `${remaining} мм`;
@@ -59,7 +62,7 @@ function setStatus(message: string, kind: "normal" | "error" | "success" = "norm
 
 function resetTurnstile() {
   turnstileToken = "";
-  send.disabled = true;
+  send.disabled = !commandInput.value.trim();
   const api = (window as typeof window & { turnstile?: { reset(): void } }).turnstile;
   api?.reset();
 }
@@ -70,8 +73,8 @@ window.addEventListener("turnstile-success", event => {
   setStatus("Проверка пройдена. Команду можно отправить.", "success");
 });
 window.addEventListener("turnstile-expired", () => { resetTurnstile(); setStatus("Проверка истекла — пройдите её ещё раз.", "error"); });
-commandInput.addEventListener("input", () => { send.disabled = !turnstileToken || !commandInput.value.trim(); });
-document.querySelectorAll<HTMLButtonElement>("[data-example]").forEach(button => button.addEventListener("click", () => { commandInput.value = button.dataset.example ?? ""; commandInput.focus(); send.disabled = !turnstileToken; }));
+commandInput.addEventListener("input", () => { send.disabled = !commandInput.value.trim(); });
+document.querySelectorAll<HTMLButtonElement>("[data-example]").forEach(button => button.addEventListener("click", () => { commandInput.value = button.dataset.example ?? ""; commandInput.focus(); send.disabled = !commandInput.value.trim(); }));
 
 async function callAi(utterance: string) {
   const idempotencyKey = `request_${crypto.randomUUID().replaceAll("-", "")}`;
@@ -94,7 +97,19 @@ function apply(command: unknown, explanation?: string) {
 form.addEventListener("submit", async event => {
   event.preventDefault();
   const utterance = commandInput.value.trim();
-  if (!utterance || !turnstileToken) return;
+  if (!utterance) return;
+  const localIntent = parseLocalWallWidth(utterance);
+  if (localIntent) {
+    apply(localIntent.command, localIntent.explanation);
+    commandInput.value = "";
+    send.disabled = true;
+    commandInput.focus();
+    return;
+  }
+  if (!turnstileToken) {
+    setStatus("Для сложного AI-запроса дождитесь проверки безопасности и нажмите «Отправить» ещё раз.", "error");
+    return;
+  }
   send.disabled = true; commandInput.disabled = true; confirm.classList.add("hidden");
   setStatus("AI проверяет пожелание и готовит безопасную команду…");
   assistant.textContent = `Вы сказали: «${utterance}»`;

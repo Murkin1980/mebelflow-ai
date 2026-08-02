@@ -89,6 +89,10 @@ label { display: block; margin-bottom: 9px; font-size: 10px; font-weight: 700; l
 .scheme-head button { min-height: 44px; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
 .scheme-head button:disabled { opacity: .35; }
 .scheme { position: relative; z-index: 1; display: grid; place-items: center; flex: 1; min-height: 380px; padding: 28px 0; }
+.scheme-empty { display: grid; justify-items: center; gap: 8px; color: var(--green); text-align: center; }
+.scheme-empty::before { content: "↔"; display: grid; place-items: center; width: 72px; height: 72px; margin-bottom: 10px; border: 1px solid var(--clay); border-radius: 50%; color: var(--clay); font-size: 34px; }
+.scheme-empty strong { font-family: Prata, serif; font-size: clamp(22px, 2.5vw, 34px); font-weight: 400; }
+.scheme-empty span { color: var(--muted); font-size: 13px; }
 .scheme svg { width: 100%; max-height: 410px; filter: drop-shadow(0 22px 22px rgba(42,38,31,.10)); }
 .metrics { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--ink); }
 .metrics div { padding: 15px 10px 0 0; }
