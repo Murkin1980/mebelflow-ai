@@ -25,7 +25,16 @@ export class OpenAiIntentProvider implements IntentProvider {
     this.apiKey = config.apiKey; this.model = config.model ?? "gpt-5-mini"; this.endpoint = config.endpoint ?? "https://api.openai.com/v1/responses"; this.sender = config.sender;
   }
   async complete(request: ProviderRequest): Promise<ProviderResponse> {
-    const outputContract = "For a command return exactly {command:{commandId:string,type:allowed command,payload?:object,referenceId?:string},confidence:number,explanation?:string}. For clarification return exactly {type:'CLARIFY',question:string,options?:string[],confidence:number}. Never return a bare command.";
+    const outputContract = [
+      "For a command return exactly {command:{commandId:string,type:allowed command,payload?:object,referenceId?:string},confidence:number,explanation?:string}. Never return a bare command.",
+      "SET_WALL_WIDTH payload is {width: integer millimeters}.",
+      "SET_ROOM_HEIGHT payload is {height: integer millimeters}.",
+      "ADD_MODULE payload is {id: short unique ASCII slug, moduleType: exact catalog value, width: integer millimeters, edge:'left'|'right'}.",
+      "Use moduleType sink_cabinet for a sink cabinet, dishwasher_450 or dishwasher_600 for a dishwasher, base_cabinet_drawers for drawers, base_cabinet_doors for a normal base cabinet, oven_base for an oven, cooktop_base for a cooktop, washing_machine for a washer, fridge for a refrigerator.",
+      "INSERT_BEFORE and INSERT_AFTER require referenceId plus the same module payload without edge.",
+      "For clarification return exactly {type:'CLARIFY',question:string,options?:string[],confidence:number}.",
+      "Interpret Russian furniture phrases semantically. Example: 'добавь справа мойку 600 мм' means ADD_MODULE with moduleType sink_cabinet, width 600, edge right.",
+    ].join(" ");
     const response = await this.sender({
       url: this.endpoint, method: "POST", headers: { authorization: `Bearer ${this.apiKey}`, "content-type": "application/json" },
       body: {

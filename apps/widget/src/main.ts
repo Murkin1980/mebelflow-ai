@@ -189,7 +189,73 @@ document.querySelectorAll<HTMLButtonElement>("[data-view]").forEach(button => bu
   render();
 }));
 
-mic.addEventListener("click", () => {
+let mediaRecorder: MediaRecorder | null = null;
+let recordingStream: MediaStream | null = null;
+let audioChunks: Blob[] = [];
+
+async function transcribeAudio(audio: Blob) {
+  const bytes = new Uint8Array(await audio.arrayBuffer());
+  let binary = "";
+  for (let index = 0; index < bytes.length; index += 0x8000) binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
+  const idempotencyKey = `transcribe_${crypto.randomUUID().replaceAll("-", "")}`;
+  const response = await fetch(`${API_URL}/v1/transcribe`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ audioBase64: btoa(binary), mimeType: audio.type || "audio/webm", turnstileToken, idempotencyKey }),
+  });
+  const result = await response.json() as { text?: string; error?: { message?: string } };
+  if (!response.ok || !result.text) throw new Error(result.error?.message ?? "AI не смог расшифровать запись.");
+  return result.text;
+}
+
+mic.addEventListener("click", async () => {
+  if (mediaRecorder?.state === "recording") {
+    mediaRecorder.stop();
+    return;
+  }
+  if (!turnstileToken) {
+    setStatus("Дождитесь проверки безопасности и нажмите микрофон ещё раз.", "error");
+    return;
+  }
+  try {
+    recordingStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioChunks = [];
+    mediaRecorder = new MediaRecorder(recordingStream, { mimeType: MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus" : "audio/webm" });
+    mediaRecorder.ondataavailable = event => { if (event.data.size) audioChunks.push(event.data); };
+    mediaRecorder.onstop = async () => {
+      mic.classList.remove("listening");
+      voiceTranscript.classList.remove("is-listening");
+      recordingStream?.getTracks().forEach(track => track.stop());
+      voiceStateLabel.textContent = "AI расшифровывает запись";
+      transcriptPreview.textContent = "Обрабатываю голос…";
+      setStatus("AI расшифровывает голосовую команду…");
+      try {
+        const text = await transcribeAudio(new Blob(audioChunks, { type: mediaRecorder?.mimeType || "audio/webm" }));
+        commandInput.value = text;
+        transcriptPreview.textContent = text;
+        voiceStateLabel.textContent = "Расшифровка готова";
+        setStatus("Проверьте расшифровку и нажмите «Отправить».", "success");
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "AI не смог расшифровать запись.";
+        transcriptPreview.textContent = message;
+        setStatus(message, "error");
+      } finally {
+        resetTurnstile();
+      }
+    };
+    mediaRecorder.start();
+    mic.classList.add("listening");
+    voiceTranscript.classList.remove("hidden");
+    voiceTranscript.classList.add("is-listening");
+    voiceStateLabel.textContent = "Идёт запись";
+    transcriptPreview.textContent = "Говорите. Нажмите «Стоп», когда закончите.";
+    setStatus("Записываю голос для AI-расшифровки…");
+  } catch {
+    setStatus("Не удалось включить микрофон. Разрешите доступ в настройках браузера.", "error");
+  }
+});
+
+mic.addEventListener("legacy-speech-disabled", () => {
   if (activeRecognition) {
     activeRecognition.stop();
     setStatus("Запись остановлена. Распознанный текст можно проверить.");
