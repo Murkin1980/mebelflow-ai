@@ -138,6 +138,7 @@ Pilot                       ████░░░░░░  40%
 - [x] 19 test files, 235/235 tests и runtime build проходят.
 - [x] Владелец явно разрешил публичный invocation; `allUsers` получил только `roles/run.invoker` для staging-сервиса.
 - [x] Публичный smoke: warmup 200/0 AI calls, dummy Turnstile 403, foreign origin 403.
+- [x] Поддомен `ai.salamat-mebel.kz` создан в Cloudflare и отвечает по HTTPS; публикация MebelFlow landing остаётся следующим шагом.
 
 
 | Риск | Вероятность | Влияние | Митигирование |

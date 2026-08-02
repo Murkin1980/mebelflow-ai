@@ -392,3 +392,9 @@ Stage 9C реализовал Firestore-backed lease locks, idempotency, RPM и 
 - `POST /v1/intent` с разрешённым origin и dummy Turnstile вернул `403 TURNSTILE_REJECTED`.
 - Тот же маршрут с `https://evil.example` вернул `403 ORIGIN_NOT_ALLOWED`.
 - Реальный browser token ещё не проверен end-to-end: для этого требуется встроить widget на `salamat-mebel.kz` или согласованный поддомен.
+## 2026-08-02 — MebelFlow AI subdomain reserved
+
+- В Cloudflare создана proxied CNAME-запись `ai.salamat-mebel.kz` → `salamat-mebel.kz`, TTL Auto.
+- Внешняя DNS-проверка вернула адреса Cloudflare; HTTPS отвечает `200`.
+- Пока поддомен показывает существующий сайт и его маршрут авторизации; MebelFlow widget ещё не развёрнут на этом hostname.
+- Перед browser E2E необходимо добавить `ai.salamat-mebel.kz` в Turnstile widget hostnames, обновить Cloud Run allowed origin/expected hostname и опубликовать landing.
