@@ -66,6 +66,15 @@ function renderTopView(state: ProjectHistory["present"]) {
   return `<svg viewBox="-100 0 ${wall + 200} 850" role="img" aria-label="План кухни сверху"><path d="M0 70H${wall}" stroke="#431b67" stroke-width="18"/>${modules}<text x="${wall / 2}" y="820" text-anchor="middle" font-family="Manrope" font-size="48" fill="#431b67">Стена ${wall} мм</text></svg>`;
 }
 
+function perspectiveFeature(type: string, x: number, width: number, depth: number) {
+  const center = x + width / 2;
+  if (type === "sink_cabinet") return `<g aria-label="Чаша мойки и смеситель"><ellipse cx="${center + depth / 2}" cy="${120 - depth / 2}" rx="${Math.min(width * .26, 150)}" ry="${Math.max(depth * .2, 24)}" fill="#fff7ff" stroke="#431b67" stroke-width="8"/><path d="M${center} ${105 - depth / 2}v-${Math.max(depth * .38, 54)}q0-42 48-42h38" fill="none" stroke="#431b67" stroke-width="12" stroke-linecap="round"/></g>`;
+  if (type.startsWith("dishwasher")) return `<g aria-label="Фасад посудомоечной машины"><rect x="${x + width * .12}" y="190" width="${width * .76}" height="390" rx="18" fill="#fff7ff" stroke="#431b67" stroke-width="8"/><path d="M${x + width * .2} 250h${width * .6}" stroke="#c79a3b" stroke-width="12"/><circle cx="${center}" cy="430" r="${Math.min(width * .16, 80)}" fill="none" stroke="#5b347f" stroke-width="8"/></g>`;
+  if (type === "oven_base") return `<g aria-label="Духовой шкаф"><rect x="${x + width * .12}" y="205" width="${width * .76}" height="350" rx="16" fill="#1f1927" stroke="#431b67" stroke-width="8"/><rect x="${x + width * .22}" y="315" width="${width * .56}" height="170" rx="8" fill="#f6e9fe"/><circle cx="${x + width * .3}" cy="260" r="18" fill="#c79a3b"/><circle cx="${x + width * .7}" cy="260" r="18" fill="#c79a3b"/></g>`;
+  if (type === "cooktop_base") return `<g aria-label="Варочная панель"><ellipse cx="${center - width * .18 + depth / 2}" cy="${120 - depth / 2}" rx="44" ry="18" fill="none" stroke="#431b67" stroke-width="8"/><ellipse cx="${center + width * .18 + depth / 2}" cy="${120 - depth / 2}" rx="44" ry="18" fill="none" stroke="#431b67" stroke-width="8"/></g>`;
+  return "";
+}
+
 function renderPerspective(state: ProjectHistory["present"]) {
   const wall = state.room.wallWidth ?? 3000;
   const depth = Math.max(90, wall * .055);
@@ -77,7 +86,7 @@ function renderPerspective(state: ProjectHistory["present"]) {
     previewModules.push({ position: previewPosition, width, type: "preview", preview: true });
     previewPosition += width;
   }
-  const modules = previewModules.map(module => { const x = module.position; const w = module.width; const preview = module.preview; return `<g opacity="${preview ? ".58" : "1"}"><rect x="${x}" y="120" width="${w}" height="530" fill="${preview ? "#fff7ff" : "#f6e9fe"}" stroke="#5b347f" stroke-width="7" ${preview ? 'stroke-dasharray="22 14"' : ""}/><polygon points="${x},120 ${x + depth},${120 - depth} ${x + w + depth},${120 - depth} ${x + w},120" fill="#fff1c9" stroke="#5b347f" stroke-width="7"/><polygon points="${x + w},120 ${x + w + depth},${120 - depth} ${x + w + depth},${650 - depth} ${x + w},650" fill="#e5d1ef" stroke="#5b347f" stroke-width="7"/><text x="${x + w / 2}" y="390" text-anchor="middle" font-family="Manrope" font-size="48" fill="#1f1927">${preview ? "Секция" : moduleLabel(module.type)}</text><text x="${x + w / 2}" y="465" text-anchor="middle" font-family="Manrope" font-size="38" fill="#4b444f">${w} мм</text></g>`; }).join("");
+  const modules = previewModules.map(module => { const x = module.position; const w = module.width; const preview = module.preview; return `<g opacity="${preview ? ".58" : "1"}"><rect x="${x}" y="120" width="${w}" height="530" fill="${preview ? "#fff7ff" : "#f6e9fe"}" stroke="#5b347f" stroke-width="7" ${preview ? 'stroke-dasharray="22 14"' : ""}/><polygon points="${x},120 ${x + depth},${120 - depth} ${x + w + depth},${120 - depth} ${x + w},120" fill="#fff1c9" stroke="#5b347f" stroke-width="7"/><polygon points="${x + w},120 ${x + w + depth},${120 - depth} ${x + w + depth},${650 - depth} ${x + w},650" fill="#e5d1ef" stroke="#5b347f" stroke-width="7"/>${preview ? "" : perspectiveFeature(module.type, x, w, depth)}<text x="${x + w / 2}" y="${preview ? 390 : 610}" text-anchor="middle" font-family="Manrope" font-size="${preview ? 48 : 34}" fill="#1f1927">${preview ? "Секция" : moduleLabel(module.type)}</text><text x="${x + w / 2}" y="${preview ? 465 : 690}" text-anchor="middle" font-family="Manrope" font-size="34" fill="#4b444f">${w} мм</text></g>`; }).join("");
   return `<svg viewBox="-180 -120 ${wall + depth + 360} 980" role="img" aria-label="Автоматический предварительный контур кухни в перспективе"><defs><linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff7ff"/><stop offset="1" stop-color="#f3e7d1"/></linearGradient></defs><rect x="-${depth}" y="-${depth}" width="${wall + depth * 2}" height="${780 + depth}" fill="#fff7ff" stroke="#cdc3d1" stroke-width="6"/><polygon points="-${depth},650 ${wall + depth},650 ${wall + depth * 2},850 -${depth * 2},850" fill="url(#floor)" stroke="#c79a3b" stroke-width="6"/><path d="M0 90H${wall}" stroke="#c79a3b" stroke-width="12"/>${modules}<path d="M0 650H${wall}" stroke="#431b67" stroke-width="12"/><text x="${wall / 2}" y="790" text-anchor="middle" font-family="Manrope" font-size="46" fill="#431b67">Предварительный контур · ${wall} мм</text></svg>`;
 }
 
@@ -170,18 +179,9 @@ form.addEventListener("submit", async event => {
       thinkingMessage.classList.remove("thinking");
       setStatus("AI не менял схему: требуется уточнение.");
     } else if (result.intent.command) {
-      if ((result.intent.confidence ?? 0) < .9) {
-        pendingCommand = result.intent.command;
-        confirm.classList.remove("hidden");
-        assistant.textContent = result.intent.explanation ?? "Проверьте предложенное изменение.";
-        thinkingMessage.querySelector("p")!.textContent = `${assistant.textContent} Подтвердите изменение кнопкой ниже.`;
-        thinkingMessage.classList.remove("thinking");
-        setStatus("Изменение ещё не применено — подтвердите его.");
-      } else {
-        apply(result.intent.command, result.intent.explanation);
-        thinkingMessage.querySelector("p")!.textContent = result.intent.explanation ?? "Изменение применено. Что добавим дальше?";
-        thinkingMessage.classList.remove("thinking");
-      }
+      apply(result.intent.command, result.intent.explanation);
+      thinkingMessage.querySelector("p")!.textContent = result.intent.explanation ?? "Изменение применено. Что добавим дальше?";
+      thinkingMessage.classList.remove("thinking");
     }
     commandInput.value = "";
   } catch (error) {
