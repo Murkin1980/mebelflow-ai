@@ -275,3 +275,120 @@ Stage 9 — Pilot.
 ### Следующий безопасный шаг
 
 Развернуть adapters на pilot environment и начать контролируемые сессии по runbook.
+
+## 2026-08-02 — Stage 9A GPT-5 mini / Cloud Run Gateway
+
+### Решения
+
+- Основная intent-модель зафиксирована как GPT-5 mini.
+- Self-hosted Qwen/GPU отложены до подтверждённого объёма и quality benchmark.
+- Google Cloud Run используется как центральный MebelFlow Gateway без GPU.
+- Landing warmup не создаёт AI-сессию, не включает микрофон и не вызывает OpenAI.
+- Голос начинается только по явному действию; основной дешёвый flow — STT → видимый транскрипт → GPT-5 mini.
+- Принят ADR-004 и подготовлено техническое ТЗ Stage 9A.
+
+### Выполнено
+
+- Добавлен `OpenAiIntentProvider` для Responses API через injected network sender.
+- Добавлены compact request, versioned GPT-5 mini pricing и cached-token accounting.
+- Добавлен `AiGateway` с warmup, одним in-flight запросом на session, лимитами calls/tokens, tenant budget и global concurrency.
+- Добавлен contract load test для 100 одновременных независимых клиентов.
+
+### Проверки
+
+- `npm run check` — успешно.
+- 16 test files, 211/211 тестов — успешно.
+- Реальные API-вызовы, секреты и изменения Google Cloud отсутствуют.
+
+### Ограничения
+
+- Текущие locks и ledger in-memory; перед несколькими Cloud Run instances нужен distributed adapter.
+- HTTP routing, Secret Manager, staging deploy и реальные STT/OpenAI smoke остаются Stage 9B.
+
+### Следующий безопасный шаг
+
+Stage 9B — HTTP Cloud Run adapter, distributed idempotency/rate limiting и persistent cost ledger без изменения доменной логики.
+
+## 2026-08-02 — Stage 9B HTTP / Cloud Run pilot adapter
+
+### Выполнено
+
+- Добавлен strict HTTP handler для `/warmup` и `/v1/intent`.
+- Prompt, GPT-5 mini model и pricing исключены из client input.
+- Добавлены tenant origin allowlist, idempotency/RPM gate и повторная Zod-проверка provider output.
+- `GatewayStore` вынесен как общий async contract для lock и usage/cost state.
+- Добавлены runtime TypeScript build, Node HTTP server, multi-stage Dockerfile и Cloud Run template с Secret Manager reference.
+- Cloud Run template ограничен `maxScale: 1` до managed distributed store; concurrency 100 покрывает pilot spike одним I/O-bound instance.
+
+### Проверки
+
+- `npm run check` — успешно.
+- `npm run build:runtime` — успешно вне ограниченного sandbox Windows.
+- Warmup HTTP smoke — `200`, `{status: ready, billableAiCalls: 0}`.
+- Docker image build не запускался: Docker отсутствует в текущем окружении.
+- Live OpenAI call не выполнялся; временный environment key не был прочитан или выведен.
+
+### Следующий безопасный шаг
+
+Stage 9C реализовал Firestore-backed lease locks, idempotency, RPM и usage/cost ledgers. Cloud Run template допускает `maxScale: 20`. Следующий шаг — atomic tenant-budget reservation, staging deploy, TTL setup и live provider smoke.
+
+## 2026-08-02 — Stage 9C Firestore coordination
+
+- Добавлен `FirestoreCoordinationStore` на Native Firestore transactions.
+- Boolean lock заменён lease token: старый запрос не может снять новую блокировку после TTL.
+- Node runtime использует единое хранилище для gateway usage, idempotency и RPM.
+- Document IDs хешируются; для ephemeral records добавлено поле `ttlAt`.
+- Template масштабируется до 20 instances.
+- Добавлен reservation ledger: до provider call атомарно резервируется консервативный максимум, после ответа резерв заменяется фактической стоимостью.
+- Provider failure возвращает резерв, а abandoned reservation очищается при следующей транзакции после 120 секунд.
+- Следующий шаг — staging deploy, Firestore TTL setup и two-instance/live provider smoke.
+- Подготовлены read-only prerequisite checker и Stage 9D staging runbook.
+- Локальная проверка установила, что `gcloud` отсутствует в PATH; внешние Google Cloud ресурсы не создавались и не изменялись.
+
+## 2026-08-02 — Stage 9D private Google Cloud staging
+
+- Portable Google Cloud CLI 577.0.0 установлен отдельно от репозитория; официальный SHA-256 совпал.
+- Создан project `mebelflow-ai-pilot`, подключён billing и включены минимальные APIs.
+- Firestore Native `(default)` создан в `europe-central2` с delete protection; Artifact Registry `mebelflow` размещён там же.
+- Runtime identity `mebelflow-api` получил `roles/datastore.user` и accessor только для `mebelflow-openai-api-key`.
+- Невалидная secret version 1 отключена; user-created version 2 включена. Значение ключа не читалось и не выводилось.
+- Cloud Build images `stage9d-20260802-1` и исправленный `stage9d-20260802-2` собраны успешно.
+- Public unauthenticated deploy был отклонён как риск; staging развёрнут приватно revision `00003-z7c`, min 0, max 20.
+- Warmup smoke: HTTP 200, `billableAiCalls=0`.
+- Первый live smoke выявил слишком общий structured-output schema и был безопасно отклонён без изменения state.
+- После исправления contract live GPT-5 mini smoke вернул `SET_WALL_WIDTH=3000`; 407 input, 81 output token, 0.12 KZT.
+- Следующий шаг: two-instance contention smoke, затем edge abuse protection до публичного доступа.
+- TTL policies для sessions, requests и rate windows подтверждены как `ACTIVE`.
+- Two-instance smoke временно использовал min/max 2 и concurrency 1: получены ровно `200 OK` и `409 SESSION_REQUEST_IN_PROGRESS`.
+- После smoke сервис возвращён на экономичные параметры min 0, max 20, concurrency 100; active revision `00005-fqh`.
+- Следующий шаг: edge abuse protection до публичного доступа и landing integration.
+
+## 2026-08-02 — Turnstile Spin foundation
+
+- Создан managed widget `MebelFlow AI Spin` для `localhost`, `127.0.0.1`, `salamat-mebel.kz`.
+- Public sitekey: `0x4AAAAAAEEX-k_-HA_wm4nv`; widget secret сохранён только как Worker secret binding.
+- Развёрнут стандартный Spin Worker `turnstile-siteverify-mebelflow-ai`; CORS ограничен `https://salamat-mebel.kz`.
+- Health, dummy rejection, managed metadata, hostname registration и CORS validation — PASS.
+- `apps/widget/src/turnstile.ts` gates существующий AI submit callback только после `success=true`.
+- 19 test files, 230/230 tests проходят.
+- Turnstile Spin bundle сохранён в `.claude/skills/turnstile-spin`.
+- Ограничение: frontend gate нельзя считать server authorization; Cloud Run остаётся private до trusted edge proof/proxy.
+## 2026-08-02 — Stage 9E server-side Turnstile enforcement
+
+- Одноразовый Turnstile token больше не проверяется браузером: widget передаёт его Cloud Run API.
+- API вызывает стандартный Spin Worker и требует `success=true`, hostname `salamat-mebel.kz` и action `turnstile-spin-v1`.
+- Проверка выполняется до idempotency/RPM gate, резервирования бюджета и вызова GPT; сбои закрывают доступ с 503.
+- Cloud Build image `stage9e-20260802-1` собран успешно.
+- Приватный Cloud Run revision `mebelflow-api-staging-00006-6xw` обслуживает 100% staging-трафика; min 0, max 20, concurrency 100.
+- Authenticated smoke: warmup `200` и `billableAiCalls=0`; отсутствующий token — `400`; dummy token — `403 TURNSTILE_REJECTED`.
+- 19 test files, 235/235 tests и runtime build проходят.
+- Публичный unauthenticated доступ по-прежнему не включён; следующий шаг — встроить widget на разрешённый landing/subdomain и провести браузерный end-to-end smoke с настоящим token.
+## 2026-08-02 — Public invocation enabled
+
+- Владелец проекта явно разрешил публичный вызов `mebelflow-api-staging`.
+- IAM binding: `allUsers` → `roles/run.invoker`; остальные проектные и secret-права не расширялись.
+- Публичный URL: `https://mebelflow-api-staging-1013284205128.europe-central2.run.app`.
+- Smoke без Google identity token: `/warmup` вернул `200` и `billableAiCalls=0`.
+- `POST /v1/intent` с разрешённым origin и dummy Turnstile вернул `403 TURNSTILE_REJECTED`.
+- Тот же маршрут с `https://evil.example` вернул `403 ORIGIN_NOT_ALLOWED`.
+- Реальный browser token ещё не проверен end-to-end: для этого требуется встроить widget на `salamat-mebel.kz` или согласованный поддомен.

@@ -240,13 +240,16 @@ interface SceneStoreAdapter {
 
 ## 9. Deployment
 
-- Widget: Cloudflare Pages;
-- API: Pages Functions или Workers;
-- Database: D1;
-- Storage: R2;
-- Queue: Cloudflare Queues позднее;
-- Rate limiting: Worker/D1 counters;
-- PDF: Worker-compatible HTML-to-PDF service или внешний контролируемый renderer.
+- Widget: статический CDN/landing embed;
+- AI/API Gateway: Google Cloud Run без GPU;
+- Intent provider: OpenAI GPT-5 mini;
+- STT provider: GPT-4o mini Transcribe;
+- Database/storage/queue: подключаемые production adapters; конкретный managed backend фиксируется перед deploy;
+- Rate limiting: Gateway + общий distributed counter/lock;
+- PDF: контролируемый renderer за tenant policy;
+- Landing warmup: отдельный endpoint без AI-вызова.
+
+Подробности и экономические ограничения: `docs/decisions/ADR-004-GPT5-MINI-CLOUD-RUN-GATEWAY.md`.
 
 ## 10. Нефункциональные требования
 

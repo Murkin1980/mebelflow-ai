@@ -154,6 +154,23 @@
 ## Этап 9 — Pilot
 
 - [x] Tenant configured
+- [x] GPT-5 mini / Cloud Run architecture accepted
+- [x] OpenAI production-compatible adapter
+- [x] Warmup without AI call
+- [x] Per-session concurrency and cost gates
+- [x] 100-client contract load test
+- [x] Stage 9B strict HTTP intent contract
+- [x] Runtime build and Node Cloud Run adapter
+- [x] Secret Manager and Cloud Run service templates
+- [x] Shared GatewayStore/RequestGate contracts
+- [x] Atomic managed distributed store for leases/idempotency/RPM/usage
+- [x] Multi-instance autoscaling enabled in deployment template
+- [x] Atomic tenant budget reservation before provider call
+- [x] Private staging deploy and live provider smoke
+- [x] Two-instance Firestore contention smoke
+- [x] Public edge abuse protection and explicit unauthenticated-access approval
+- [x] Turnstile widget, managed siteverify Worker and frontend submit gate
+- [x] Trusted server-side Turnstile proof before rate limit, budget reservation and GPT
 - [ ] Landing embedded
 - [x] Analytics events
 - [x] Error monitoring

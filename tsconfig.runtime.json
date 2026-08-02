@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "rootDir": ".",
+    "outDir": "dist",
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": ["packages/**/*.ts"],
+  "exclude": ["node_modules", "**/*.test.ts", "**/*.property.test.ts", "**/__snapshots__/**", "packages/svg-renderer/demo/**"]
+}

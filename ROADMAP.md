@@ -100,6 +100,9 @@
 
 ## Этап 9. Pilot
 
+- зафиксировать GPT-5 mini и Cloud Run Gateway без GPU;
+- реализовать OpenAI adapter, warmup contract и cost/rate gates;
+- проверить всплеск 100 одновременных клиентов contract-тестом;
 - one tenant;
 - one landing;
 - real mobile users;
