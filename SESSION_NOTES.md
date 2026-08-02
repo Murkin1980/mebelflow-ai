@@ -1,0 +1,94 @@
+# SESSION NOTES — MebelFlow AI
+
+## 2026-08-02 — Формирование продукта
+
+### Решения
+
+- Новый проект создаётся отдельно.
+- Рабочее название: MebelFlow AI.
+- Репозиторий: `mebelflow-ai`.
+- Основная ценность: разговорная квалификация и вовлечение клиента.
+- Отказ от полноценного 3D и CAD-экспорта.
+- Отказ от плагинов SketchUp и PRO100 в MVP.
+- Первая категория: прямая кухня.
+- Визуализация: SVG.
+- Голос и текст преобразуются в строгие команды.
+- Геометрия выполняется детерминированным движком.
+- Pascal рассматривается только как state/core foundation.
+- Выбран вариант B: Pascal-style Core + собственный SVG Renderer.
+- Вводится SceneStoreAdapter, чтобы не зависеть от Pascal напрямую.
+- PDF может быть бесплатным, платным или выдаваться после заявки.
+- Цена предварительная и задаётся диапазоном.
+- Мебельщик настраивает правила и лимиты.
+
+### Репозитории-доноры
+
+- `furniture-intake-agent`
+- `furniture-orders-mvp`
+- `furniture-configurator`
+- `interactive-kp`
+- `Furniture-web-platform-V2`
+
+### Следующий шаг
+
+Выполнить Pascal Core spike и принять решение:
+
+- use;
+- adapt;
+- reject.
+
+## 2026-08-02 — Новый интерфейсный skill
+
+### Решение
+
+- Рассмотрены специализированные frontend/UI skills.
+- Основой выбран Microsoft `frontend-design-review`.
+- Создан локальный адаптированный skill `mebelflow-conversational-interface`.
+- Зафиксировано дизайн-направление «Спокойная мастерская».
+- Введены три review pillars:
+  - Frictionless;
+  - Quality Craft;
+  - Trustworthy.
+- UI review стал обязательным gate.
+- Для voice-команд закреплён цикл:
+  `INPUT → TRANSCRIPT → INTERPRETATION → VALIDATION → APPLY → EXPLAIN → NEXT`.
+- Закреплены WCAG 2.2 AA, mobile 360×800, touch targets 44px и прозрачность AI.
+
+## 2026-08-02 — Старт Stage 0/1
+
+### Выполнено
+
+- Создан минимальный TypeScript-проект с Zod, Vitest и строгой проверкой типов.
+- Выполнен spike `@pascal-app/core@0.9.2`.
+- Решение по Pascal: `ADAPT`, без runtime-зависимости в MVP.
+- Созданы Project State v1, Command Schema v1 и `SceneStoreAdapter`.
+- Реализованы pure reducer, domain validation, idempotency, undo/redo.
+- 39 unit-тестов проходят.
+
+### Ограничения
+
+- Android smoke Pascal Core отложен до появления browser harness.
+- State migrations и corrupted-state recovery ещё не реализованы.
+
+## 2026-08-02 — Закрытие Stage 0/1
+
+### Выполнено
+
+- Добавлены module catalog v1 и строгие правила ширин техники.
+- Добавлена нормализация `mm/cm/m` в целые миллиметры.
+- Добавлены migration и recovery повреждённого состояния с предупреждением.
+- Idempotency расширена на `UNDO/REDO` и пустые команды.
+- Реализован in-memory `SceneStoreAdapter`: CRUD, metadata, undo/redo, serialization.
+- Настроен GitHub Actions CI.
+- Локальный `mebelflow-conversational-interface` валидирован, дополнен `agents/openai.yaml` и установлен в Codex skills.
+
+### Проверки
+
+- `npm ci` — успешно, 0 vulnerabilities.
+- `npm run check` — успешно.
+- 74/74 unit-теста — успешно.
+- Browser bundle core — успешно; browser globals/WebGPU отсутствуют.
+
+### Решение
+
+Stage 0 и Stage 1 приняты по самопроверке. Следующий безопасный шаг — Stage 2 Layout Engine без UI и AI.

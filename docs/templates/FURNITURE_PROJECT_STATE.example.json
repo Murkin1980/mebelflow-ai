@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "projectId": "project_demo_001",
+  "tenantId": "tenant_demo",
+  "stage": "lower_row_ready",
+  "room": {
+    "wallWidth": 3000,
+    "roomHeight": 2700,
+    "ceilingGap": 30
+  },
+  "lowerRow": {
+    "totalHeight": 900,
+    "modules": [
+      {
+        "id": "sink-1",
+        "type": "sink_cabinet",
+        "width": 800,
+        "height": 720,
+        "depth": 560,
+        "position": 0
+      },
+      {
+        "id": "dw-1",
+        "type": "dishwasher_600",
+        "width": 600,
+        "height": 820,
+        "depth": 560,
+        "position": 800
+      },
+      {
+        "id": "drawers-1",
+        "type": "base_cabinet_drawers",
+        "width": 600,
+        "height": 720,
+        "depth": 560,
+        "position": 1400,
+        "metadata": {
+          "drawerCount": 3
+        }
+      }
+    ]
+  },
+  "upperRow": {
+    "enabled": true,
+    "apronHeight": 600,
+    "mainCabinetHeight": 800,
+    "mezzanineHeight": 400,
+    "repeatLowerWidths": true
+  },
+  "style": {
+    "presetId": "japandi-03",
+    "lowerFront": "cashmere",
+    "upperFront": "warm_white",
+    "woodAccent": "light_oak",
+    "countertop": "light_stone",
+    "facadePreset": "smooth"
+  },
+  "pricing": {
+    "currency": "KZT",
+    "estimateMin": 900000,
+    "estimateMax": 1100000,
+    "formulaVersion": 1,
+    "status": "preliminary"
+  },
+  "warnings": []
+}

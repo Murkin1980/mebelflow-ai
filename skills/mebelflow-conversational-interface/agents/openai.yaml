@@ -1,0 +1,6 @@
+interface:
+  display_name: "MebelFlow Conversational Interface"
+  short_description: "Создание и ревью разговорного UI MebelFlow"
+  default_prompt: "Use $mebelflow-conversational-interface to create or review a mobile-first conversational furniture interface."
+policy:
+  allow_implicit_invocation: true

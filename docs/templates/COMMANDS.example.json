@@ -1,0 +1,29 @@
+{
+  "commands": [
+    {
+      "commandId": "cmd-001",
+      "type": "SET_WALL_WIDTH",
+      "payload": {
+        "width": 3000
+      }
+    },
+    {
+      "commandId": "cmd-002",
+      "type": "ADD_MODULE",
+      "payload": {
+        "moduleType": "sink_cabinet",
+        "width": 800,
+        "edge": "left"
+      }
+    },
+    {
+      "commandId": "cmd-003",
+      "type": "INSERT_AFTER",
+      "referenceId": "sink-1",
+      "payload": {
+        "moduleType": "dishwasher_600",
+        "width": 600
+      }
+    }
+  ]
+}
