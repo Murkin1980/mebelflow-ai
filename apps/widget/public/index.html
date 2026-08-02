@@ -47,14 +47,17 @@
           <label for="command">Ваше пожелание</label>
           <div class="composer">
             <textarea id="command" rows="2" maxlength="2000" placeholder="Напишите размер или пожелание…" required></textarea>
-            <button class="mic" id="mic" type="button" aria-label="Начать голосовой ввод" title="Голосовой ввод">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a4 4 0 0 0 4-4V5a4 4 0 1 0-8 0v6a4 4 0 0 0 4 4Zm-7-4a7 7 0 0 0 14 0M12 18v3m-4 0h8"/></svg>
-            </button>
           </div>
           <div class="human-check">
             <div class="cf-turnstile" data-sitekey="0x4AAAAAAEEX-k_-HA_wm4nv" data-action="turnstile-spin-v1" data-callback="onTurnstileSuccess" data-expired-callback="onTurnstileExpired"></div>
           </div>
-          <button class="primary" id="send" type="submit" disabled><span>Применить к схеме</span><span aria-hidden="true">→</span></button>
+          <div class="composer-actions">
+            <button class="mic" id="mic" type="button" aria-label="Начать голосовой ввод" title="Голосовой ввод">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a4 4 0 0 0 4-4V5a4 4 0 1 0-8 0v6a4 4 0 0 0 4 4Zm-7-4a7 7 0 0 0 14 0M12 18v3m-4 0h8"/></svg>
+              <span class="mic-label">Говорить</span>
+            </button>
+            <button class="primary" id="send" type="submit" disabled><span>Отправить</span><span aria-hidden="true">→</span></button>
+          </div>
           <button class="confirm hidden" id="confirm" type="button">Да, применить предложенное изменение</button>
           <p class="status" id="status" aria-live="polite">Защищённое соединение · AI ничего не меняет без проверки</p>
         </form>

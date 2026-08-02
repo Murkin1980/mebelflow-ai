@@ -6,7 +6,7 @@ import { renderKitchenSvg } from "../../../packages/svg-renderer/src/index.js";
 const API_URL = "https://mebelflow-api-staging-1013284205128.europe-central2.run.app";
 const TENANT_ID = "salamat-mebel-pilot";
 type IntentEnvelope = { intent: { type?: "CLARIFY"; question?: string; options?: string[]; command?: unknown; confidence?: number; explanation?: string }; cost?: { kzt?: number } };
-type SpeechRecognitionEventLike = { results: ArrayLike<{ 0?: { transcript?: string } }> };
+type SpeechRecognitionEventLike = { results: ArrayLike<{ 0?: { transcript?: string }; isFinal?: boolean }> };
 type SpeechRecognitionErrorLike = { error?: string };
 type SpeechRecognitionLike = {
   lang: string;
@@ -37,6 +37,7 @@ let pendingCommand: unknown;
 let totalCost = 0;
 let activeRecognition: SpeechRecognitionLike | null = null;
 let speechWasRecognized = false;
+let speechInitialText = "";
 
 function render() {
   const state = history.present;
@@ -138,22 +139,29 @@ mic.addEventListener("click", () => {
   }
 
   speechWasRecognized = false;
+  speechInitialText = commandInput.value.trim();
   activeRecognition = new Recognition();
   activeRecognition.lang = "ru-RU";
-  activeRecognition.interimResults = false;
-  activeRecognition.continuous = false;
+  activeRecognition.interimResults = true;
+  activeRecognition.continuous = true;
   activeRecognition.maxAlternatives = 1;
   mic.classList.add("listening");
   mic.setAttribute("aria-label", "Остановить голосовой ввод");
   mic.title = "Остановить запись";
+  const micLabel = mic.querySelector<HTMLElement>(".mic-label");
+  if (micLabel) micLabel.textContent = "Стоп";
   setStatus("Слушаю… Скажите размер стены или пожелание к кухне.");
 
   activeRecognition.onresult = event => {
-    const transcript = event.results[0]?.[0]?.transcript?.trim() ?? "";
+    const parts = Array.from(event.results, result => result[0]?.transcript?.trim() ?? "").filter(Boolean);
+    const transcript = parts.join(" ").trim();
+    const visibleText = [speechInitialText, transcript].filter(Boolean).join(" ");
     speechWasRecognized = Boolean(transcript);
-    commandInput.value = transcript;
-    send.disabled = !turnstileToken || !transcript;
-    setStatus(transcript ? "Готово. Проверьте распознанный текст и примените его к схеме." : "Речь не распознана. Попробуйте ещё раз.", transcript ? "success" : "error");
+    commandInput.value = visibleText;
+    commandInput.scrollTop = commandInput.scrollHeight;
+    send.disabled = !turnstileToken || !visibleText;
+    const hasInterimResult = Array.from(event.results).some(result => !result.isFinal);
+    setStatus(hasInterimResult ? "Записываю и расшифровываю… Текст уже можно видеть в поле." : "Текст распознан. Проверьте его или продолжайте говорить.", hasInterimResult ? "normal" : "success");
   };
   activeRecognition.onerror = event => {
     const messages: Record<string, string> = {
@@ -171,7 +179,10 @@ mic.addEventListener("click", () => {
     mic.classList.remove("listening");
     mic.setAttribute("aria-label", "Начать голосовой ввод");
     mic.title = "Голосовой ввод";
+    const micLabel = mic.querySelector<HTMLElement>(".mic-label");
+    if (micLabel) micLabel.textContent = "Говорить";
     if (!speechWasRecognized && status.textContent?.startsWith("Слушаю")) setStatus("Речь не услышана. Нажмите микрофон и попробуйте ещё раз.", "error");
+    else if (speechWasRecognized) setStatus("Расшифровка готова. Проверьте текст и нажмите «Отправить».", "success");
   };
 
   try {
