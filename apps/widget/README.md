@@ -1,3 +1,3 @@
 # Widget
 
-Модуль запланирован. Реализация должна следовать `FOUNDATION.md`, `ARCHITECTURE.md` и `TECH_SPEC.md`.
+Production UI adapter запланирован поверх принятых domain/view-model packages. Stage 9 добавляет origin-allowlisted embed contract и pilot telemetry; фактический landing embed остаётся внешним шагом развертывания.

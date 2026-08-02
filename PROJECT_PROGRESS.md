@@ -18,12 +18,12 @@ Voice                       ██████████ 100%
 Pricing and Styles          ██████████ 100%
 Admin and Lead              ██████████ 100%
 PDF                         ██████████ 100%
-Pilot                       ░░░░░░░░░░   0%
+Pilot                       ████░░░░░░  40%
 ```
 
 ## Current phase
 
-**Stage 0/1/2/3/4/5/6/7/8 приняты. Следующий этап: Stage 9 — Pilot**
+**Stage 0/1/2/3/4/5/6/7/8 приняты. Stage 9 readiness готов; требуется полевой Pilot**
 
 ## Completed
 
@@ -83,13 +83,18 @@ Pilot                       ░░░░░░░░░░   0%
 - [x] Secure tenant-bound download grants поддерживают expiry, revoke и audit
 - [x] Двухстраничный sample PDF отрендерен и визуально принят
 - [x] 197 unit/property/snapshot/contract тестов проходят
+- [x] Pilot tenant и origin-allowlisted landing embed contract настроены
+- [x] Privacy-safe analytics, sanitized error events и cost dashboard реализованы
+- [x] Controlled/real session registry, interview validation и funnel formulas реализованы
+- [x] Go/no-go gate не принимает решение без полной реальной выборки
+- [x] 204 unit/property/snapshot/contract теста проходят
 
 ## Next actions
 
-1. Подготовить tenant pilot configuration и embeddable landing contract.
-2. Добавить analytics/error/cost event collectors.
-3. Реализовать controlled-session and prospect tracking.
-4. Сформировать funnel report и go/no-go decision model.
+1. Развернуть production adapters и встроить widget на разрешённый landing origin.
+2. Провести 20 controlled sessions и исправить подтверждённые blockers.
+3. Провести 5 real prospect sessions и 5 интервью без PII в analytics.
+4. Сформировать фактический funnel report и принять GO/NO_GO.
 
 ## Risks
 

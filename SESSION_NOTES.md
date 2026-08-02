@@ -247,3 +247,31 @@ Stage 8 — PDF.
 ### Следующий безопасный шаг
 
 Stage 9 — Pilot.
+
+## 2026-08-02 — Stage 9 Pilot Readiness
+
+### Выполнено
+
+- Подготовлены pilot tenant config и origin-allowlisted embed contract.
+- Добавлены privacy-safe analytics events и sanitized error codes.
+- Реализован cost dashboard с tenant budget hard stop.
+- Добавлены controlled/real session registry и interview-note validation.
+- Реализованы funnel formulas и GO/NO_GO gate с обязательной полной выборкой.
+- Создан `docs/pilot/PILOT_RUNBOOK.md`.
+
+### Проверки
+
+- `npm run check` — успешно.
+- 204/204 теста — успешно.
+- При пустой выборке решение строго `WAITING_FOR_DATA`.
+
+### Не завершено внешне
+
+- Production landing embed.
+- 20 controlled sessions.
+- 5 real prospects и 5 интервью.
+- Фактический funnel report и GO/NO_GO.
+
+### Следующий безопасный шаг
+
+Развернуть adapters на pilot environment и начать контролируемые сессии по runbook.

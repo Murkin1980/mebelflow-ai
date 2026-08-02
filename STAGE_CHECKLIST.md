@@ -153,11 +153,11 @@
 
 ## Этап 9 — Pilot
 
-- [ ] Tenant configured
+- [x] Tenant configured
 - [ ] Landing embedded
-- [ ] Analytics events
-- [ ] Error monitoring
-- [ ] Cost dashboard
+- [x] Analytics events
+- [x] Error monitoring
+- [x] Cost dashboard
 - [ ] 20 controlled sessions
 - [ ] 5 real prospects
 - [ ] Interview notes
