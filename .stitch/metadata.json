@@ -1,9 +1,24 @@
 {
   "projectId": "15036351447255177670",
   "title": "MebelFlow AI — Voice Kitchen Architect",
-  "screens": [],
+  "screens": [
+    {
+      "id": "a91f01667acd4e3d868a67ee880ef000",
+      "title": "MebelFlow AI Workspace",
+      "deviceType": "DESKTOP",
+      "html": ".stitch/designs/mebelflow-workspace.html"
+    },
+    {
+      "id": "5c37b9787b0a400d98ab69b41d515cbe",
+      "title": "MebelFlow AI Logo",
+      "deviceType": "DESKTOP",
+      "screenshot": ".stitch/designs/mebelflow-logo.png"
+    }
+  ],
   "designSystem": {
-    "status": "awaiting_user_confirmation",
-    "source": ".stitch/DESIGN.md"
+    "status": "active",
+    "assetId": "f37d2c3d7fe04366b0d1eaf9e61fe6a4",
+    "source": ".stitch/DESIGN.md",
+    "derivedFrom": "MebelDocs Unified"
   }
 }
