@@ -40,7 +40,7 @@ button, textarea { font: inherit; }
 .progress li.active { border-color: var(--clay); color: var(--ink); }
 
 .workspace { display: grid; grid-template-columns: minmax(330px, .72fr) minmax(560px, 1.28fr); min-height: 650px; border-bottom: 1px solid var(--line); }
-.conversation { position: relative; display: flex; flex-direction: column; padding: clamp(34px, 4vw, 64px) clamp(24px, 4vw, 58px) 42px 0; border-right: 1px solid var(--line); }
+.conversation { position: relative; z-index: 3; display: flex; flex-direction: column; margin: 24px 24px 30px 0; padding: clamp(30px, 3.5vw, 52px) clamp(24px, 3.5vw, 46px) 36px; border: 1px solid rgba(91,52,127,.22); border-radius: 12px; background: var(--surface); box-shadow: 0 24px 60px rgba(67,27,103,.16), 0 6px 18px rgba(31,25,39,.08); }
 .guide { display: grid; grid-template-columns: 34px 1fr; gap: 16px; margin-bottom: 28px; }
 .guide-icon { color: var(--clay); font-size: 24px; }
 .guide strong { font-family: Prata, serif; font-size: clamp(25px, 2.2vw, 35px); font-weight: 400; line-height: 1.15; }
@@ -124,7 +124,7 @@ footer a:hover, footer a:focus-visible { color: var(--green); }
   .intro h1 { grid-row: auto; }
   .lead { margin-top: 24px; }
   .workspace { grid-template-columns: 1fr; }
-  .conversation { min-height: 570px; padding-right: 0; border-right: 0; border-bottom: 1px solid var(--line); }
+  .conversation { min-height: 570px; margin: 22px 0 30px; padding-inline: clamp(22px, 5vw, 40px); }
   .scheme-panel { min-height: 560px; padding-left: 0; }
 }
 @media (max-width: 520px) {
@@ -137,7 +137,7 @@ footer a:hover, footer a:focus-visible { color: var(--green); }
   .lead { font-size: 14px; }
   .progress li { color: transparent; }
   .progress li.active { color: var(--ink); }
-  .conversation { min-height: 600px; padding-top: 34px; }
+  .conversation { min-height: 600px; margin: 16px 0 24px; padding: 28px 18px 30px; box-shadow: 0 18px 42px rgba(67,27,103,.15), 0 4px 14px rgba(31,25,39,.07); }
   .guide { grid-template-columns: 24px 1fr; }
   .guide strong { font-size: 27px; }
   .examples { flex-wrap: nowrap; overflow-x: auto; }
