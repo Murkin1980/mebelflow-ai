@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f2eee5">
+  <meta name="description" content="MebelFlow AI — создайте предварительное техническое задание на кухню в диалоге.">
+  <title>MebelFlow AI — кухня в диалоге</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Prata&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="masthead">
+    <a class="brand" href="/" aria-label="MebelFlow AI, главная"><span class="brand-mark">MF</span><span>MebelFlow <i>AI</i></span></a>
+    <div class="mast-actions">
+      <span class="pilot-badge">Пилот · Алматы</span>
+      <a class="main-site-link" href="https://salamat-mebel.kz">Основной сайт <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="intro" aria-labelledby="title">
+      <p class="eyebrow">Предварительное ТЗ без регистрации</p>
+      <h1 id="title">Опишите кухню.<br><em>Схема появится сама.</em></h1>
+      <p class="lead">Говорите обычными словами — AI переведёт пожелания в безопасные команды конструктора. Каждое изменение можно отменить.</p>
+      <ol class="progress" aria-label="Этапы проекта">
+        <li class="active"><span>01</span> Размеры</li><li><span>02</span> Компоновка</li><li><span>03</span> Стиль</li><li><span>04</span> Результат</li>
+      </ol>
+    </section>
+
+    <section class="workspace" aria-label="Конструктор кухни">
+      <div class="conversation">
+        <div class="guide">
+          <span class="guide-icon" aria-hidden="true">✦</span>
+          <div><strong>Начнём с длины стены</strong><p id="assistant-message">Напишите, например: «Стена 3 метра, высота 2,7».</p></div>
+        </div>
+
+        <div class="examples" aria-label="Примеры команд">
+          <button type="button" data-example="Стена 3 метра, высота комнаты 2700 мм">Стена 3 м · высота 2,7</button>
+          <button type="button" data-example="Добавь справа мойку 600 мм">Добавить мойку 600</button>
+          <button type="button" data-example="После мойки добавь посудомойку 600 мм">ПММ после мойки</button>
+        </div>
+
+        <form id="command-form" novalidate>
+          <label for="command">Ваше пожелание</label>
+          <div class="composer">
+            <textarea id="command" rows="2" maxlength="2000" placeholder="Напишите размер или пожелание…" required></textarea>
+            <button class="mic" id="mic" type="button" aria-label="Начать голосовой ввод" title="Голосовой ввод">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a4 4 0 0 0 4-4V5a4 4 0 1 0-8 0v6a4 4 0 0 0 4 4Zm-7-4a7 7 0 0 0 14 0M12 18v3m-4 0h8"/></svg>
+            </button>
+          </div>
+          <div class="human-check">
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAAEEX-k_-HA_wm4nv" data-action="turnstile-spin-v1" data-callback="onTurnstileSuccess" data-expired-callback="onTurnstileExpired"></div>
+          </div>
+          <button class="primary" id="send" type="submit" disabled><span>Применить к схеме</span><span aria-hidden="true">→</span></button>
+          <button class="confirm hidden" id="confirm" type="button">Да, применить предложенное изменение</button>
+          <p class="status" id="status" aria-live="polite">Защищённое соединение · AI ничего не меняет без проверки</p>
+        </form>
+      </div>
+
+      <div class="scheme-panel">
+        <div class="scheme-head"><div><span class="kicker">Схема, вид спереди</span><h2>Ваша кухня</h2></div><button id="undo" type="button" disabled>↶ Отменить</button></div>
+        <div class="scheme" id="scheme" aria-live="polite"></div>
+        <div class="metrics"><div><span>Длина стены</span><strong id="wall-metric">—</strong></div><div><span>Свободно</span><strong id="remaining-metric">—</strong></div><div><span>AI-запрос</span><strong id="cost-metric">0 ₸</strong></div></div>
+        <p class="disclaimer">Предварительная схема не является производственным чертежом. Размеры, материалы и итоговую цену подтверждает мебельщик после замера.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer><a href="https://salamat-mebel.kz">Salamat Mebel × MebelFlow AI <span aria-hidden="true">↗</span></a><span>Алматы · 2026</span></footer>
+  <script>window.onTurnstileSuccess=function(t){window.dispatchEvent(new CustomEvent('turnstile-success',{detail:t}))};window.onTurnstileExpired=function(){window.dispatchEvent(new Event('turnstile-expired'))}</script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

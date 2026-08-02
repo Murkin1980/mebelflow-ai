@@ -1,0 +1,12 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "mebelflow-ai-landing",
+  "compatibility_date": "2026-08-02",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  },
+  "routes": [
+    { "pattern": "ai.salamat-mebel.kz", "custom_domain": true }
+  ]
+}

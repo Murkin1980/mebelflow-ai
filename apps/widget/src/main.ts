@@ -1,0 +1,117 @@
+import { compactProjectState } from "../../../packages/intent-parser/src/index.js";
+import { applyLayoutCommandToHistory, calculateRemainingWidth } from "../../../packages/layout-engine/src/index.js";
+import { createHistory, createInitialProject, type ProjectHistory } from "../../../packages/project-state/src/index.js";
+import { renderKitchenSvg } from "../../../packages/svg-renderer/src/index.js";
+
+const API_URL = "https://mebelflow-api-staging-1013284205128.europe-central2.run.app";
+const TENANT_ID = "salamat-mebel-pilot";
+type IntentEnvelope = { intent: { type?: "CLARIFY"; question?: string; options?: string[]; command?: unknown; confidence?: number; explanation?: string }; cost?: { kzt?: number } };
+
+const byId = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+const form = byId<HTMLFormElement>("command-form");
+const commandInput = byId<HTMLTextAreaElement>("command");
+const send = byId<HTMLButtonElement>("send");
+const confirm = byId<HTMLButtonElement>("confirm");
+const undo = byId<HTMLButtonElement>("undo");
+const mic = byId<HTMLButtonElement>("mic");
+const status = byId<HTMLParagraphElement>("status");
+const assistant = byId<HTMLParagraphElement>("assistant-message");
+let history: ProjectHistory = createHistory(createInitialProject(crypto.randomUUID(), TENANT_ID));
+let sessionId = `session_${crypto.randomUUID().replaceAll("-", "")}`;
+let turnstileToken = "";
+let pendingCommand: unknown;
+let totalCost = 0;
+
+function render() {
+  const state = history.present;
+  byId("scheme").innerHTML = renderKitchenSvg(state, { title: "Предварительная схема кухни", description: "Схема обновляется после подтверждённых команд." });
+  const remaining = calculateRemainingWidth(state);
+  byId("wall-metric").textContent = state.room.wallWidth ? `${state.room.wallWidth} мм` : "не задана";
+  byId("remaining-metric").textContent = remaining === null ? "—" : `${remaining} мм`;
+  byId("cost-metric").textContent = `${totalCost.toFixed(2)} ₸`;
+  undo.disabled = history.past.length === 0;
+}
+
+function setStatus(message: string, kind: "normal" | "error" | "success" = "normal") {
+  status.textContent = message;
+  status.className = `status${kind === "normal" ? "" : ` ${kind}`}`;
+}
+
+function resetTurnstile() {
+  turnstileToken = "";
+  send.disabled = true;
+  const api = (window as typeof window & { turnstile?: { reset(): void } }).turnstile;
+  api?.reset();
+}
+
+window.addEventListener("turnstile-success", event => {
+  turnstileToken = (event as CustomEvent<string>).detail;
+  send.disabled = !commandInput.value.trim();
+  setStatus("Проверка пройдена. Команду можно отправить.", "success");
+});
+window.addEventListener("turnstile-expired", () => { resetTurnstile(); setStatus("Проверка истекла — пройдите её ещё раз.", "error"); });
+commandInput.addEventListener("input", () => { send.disabled = !turnstileToken || !commandInput.value.trim(); });
+document.querySelectorAll<HTMLButtonElement>("[data-example]").forEach(button => button.addEventListener("click", () => { commandInput.value = button.dataset.example ?? ""; commandInput.focus(); send.disabled = !turnstileToken; }));
+
+async function callAi(utterance: string) {
+  const idempotencyKey = `request_${crypto.randomUUID().replaceAll("-", "")}`;
+  const response = await fetch(`${API_URL}/v1/intent`, {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ tenantId: TENANT_ID, sessionId, idempotencyKey, turnstileToken, locale: "ru-KZ", utterance, projectSummary: compactProjectState(history.present) }),
+  });
+  const body = await response.json() as IntentEnvelope & { error?: { message?: string } };
+  if (!response.ok) throw new Error(body.error?.message ?? "Сервис временно недоступен.");
+  return body;
+}
+
+function apply(command: unknown, explanation?: string) {
+  history = applyLayoutCommandToHistory(history, command);
+  render();
+  assistant.textContent = explanation ?? "Изменение применено. Что добавим дальше?";
+  setStatus("Схема обновлена. Изменение можно отменить.", "success");
+}
+
+form.addEventListener("submit", async event => {
+  event.preventDefault();
+  const utterance = commandInput.value.trim();
+  if (!utterance || !turnstileToken) return;
+  send.disabled = true; commandInput.disabled = true; confirm.classList.add("hidden");
+  setStatus("AI проверяет пожелание и готовит безопасную команду…");
+  assistant.textContent = `Вы сказали: «${utterance}»`;
+  try {
+    const result = await callAi(utterance);
+    totalCost += result.cost?.kzt ?? 0;
+    byId("cost-metric").textContent = `${totalCost.toFixed(2)} ₸`;
+    if (result.intent.type === "CLARIFY") {
+      assistant.textContent = result.intent.question ?? "Нужно уточнение.";
+      setStatus("AI не менял схему: требуется уточнение.");
+    } else if (result.intent.command) {
+      if ((result.intent.confidence ?? 0) < .9) {
+        pendingCommand = result.intent.command;
+        confirm.classList.remove("hidden");
+        assistant.textContent = result.intent.explanation ?? "Проверьте предложенное изменение.";
+        setStatus("Изменение ещё не применено — подтвердите его.");
+      } else apply(result.intent.command, result.intent.explanation);
+    }
+    commandInput.value = "";
+  } catch (error) {
+    setStatus(error instanceof Error ? error.message : "Команда не обработана. Схема сохранена.", "error");
+  } finally {
+    commandInput.disabled = false; resetTurnstile(); commandInput.focus();
+  }
+});
+
+confirm.addEventListener("click", () => { if (pendingCommand) apply(pendingCommand); pendingCommand = undefined; confirm.classList.add("hidden"); });
+undo.addEventListener("click", () => { history = applyLayoutCommandToHistory(history, { commandId: crypto.randomUUID(), type: "UNDO" }); render(); setStatus("Последнее изменение отменено.", "success"); });
+
+mic.addEventListener("click", () => {
+  const Recognition = (window as typeof window & { webkitSpeechRecognition?: new () => { lang: string; interimResults: boolean; start(): void; onresult?: (e: { results: ArrayLike<{ 0: { transcript: string } }> }) => void; onend?: () => void; onerror?: () => void } }).webkitSpeechRecognition;
+  if (!Recognition) { setStatus("Голосовой ввод не поддерживается этим браузером. Напишите команду текстом.", "error"); return; }
+  const recognition = new Recognition(); recognition.lang = "ru-RU"; recognition.interimResults = false; mic.classList.add("listening"); mic.setAttribute("aria-label", "Идёт запись"); setStatus("Слушаю… Нажимать повторно не нужно.");
+  recognition.onresult = event => { commandInput.value = event.results[0]?.[0]?.transcript ?? ""; send.disabled = !turnstileToken || !commandInput.value.trim(); setStatus("Распознанный текст можно проверить и исправить."); };
+  recognition.onend = () => { mic.classList.remove("listening"); mic.setAttribute("aria-label", "Начать голосовой ввод"); };
+  recognition.onerror = () => setStatus("Голос не распознан. Попробуйте ещё раз или напишите текстом.", "error"); recognition.start();
+});
+
+fetch(`${API_URL}/warmup`, { mode: "cors" }).catch(() => {});
+render();
