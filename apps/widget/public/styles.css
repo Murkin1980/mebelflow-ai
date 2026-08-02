@@ -63,7 +63,7 @@ label { display: block; margin-bottom: 9px; font-size: 10px; font-weight: 700; l
 .composer textarea { width: 100%; min-height: 118px; resize: vertical; border: 0; background: transparent; padding: 18px 0; color: var(--ink); font-family: Prata, serif; font-size: 20px; line-height: 1.55; outline: none; }
 .composer textarea::placeholder { color: #9e9a91; }
 .composer:focus-within { border-color: var(--clay); }
-.human-check { min-height: 66px; margin: 10px 0 4px; overflow: hidden; }
+.human-check { min-height: 0; margin: 8px 0; overflow: visible; }
 .composer-actions { display: grid; grid-template-columns: 1fr 1.25fr; gap: 8px; }
 .mic, .primary, .confirm { min-height: 54px; border-radius: 0; font-weight: 700; cursor: pointer; }
 .mic { position: relative; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid var(--clay); background: var(--clay); color: white; box-shadow: 0 8px 24px rgba(185,95,57,.2); }
