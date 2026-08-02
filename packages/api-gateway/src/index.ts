@@ -18,6 +18,7 @@ const IntentRequestSchema = z.object({
     wallWidth: z.number().int().min(1_200).max(7_000).nullable(),
     roomHeight: z.number().int().min(2_200).max(4_000).nullable(),
     moduleIds: z.array(z.string().regex(/^[A-Za-z0-9_-]{1,80}$/)).max(40),
+    modules: z.array(z.object({ id: z.string().regex(/^[A-Za-z0-9_-]{1,80}$/), type: z.string().min(1).max(50), width: z.number().int().positive().max(7_000), position: z.number().int().nonnegative().max(7_000) })).max(40).optional().default([]),
     remainingWidth: z.number().int().min(-7_000).max(7_000).nullable(),
     stage: z.string().min(1).max(40),
   }),

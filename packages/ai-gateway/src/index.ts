@@ -32,6 +32,9 @@ export class OpenAiIntentProvider implements IntentProvider {
       "ADD_MODULE payload is {id: short unique ASCII slug, moduleType: exact catalog value, width: integer millimeters, edge:'left'|'right'}.",
       "Use moduleType sink_cabinet for a sink cabinet, dishwasher_450 or dishwasher_600 for a dishwasher, base_cabinet_drawers for drawers, base_cabinet_doors for a normal base cabinet, oven_base for an oven, cooktop_base for a cooktop, washing_machine for a washer, fridge for a refrigerator.",
       "INSERT_BEFORE and INSERT_AFTER require referenceId plus the same module payload without edge.",
+      "The projectSummary.modules array is authoritative context. Resolve phrases such as 'после мойки' by finding the module whose type is sink_cabinet and use its id as referenceId. Never ask the customer to identify or repeat an internal module id.",
+      "Russian 'потом', 'затем', or 'дальше' means append after the last existing module. Use ADD_MODULE with edge right unless the customer names a specific reference module.",
+      "A phrase such as 'ящики 500 мм' always means ADD_MODULE with moduleType base_cabinet_drawers and width 500. Never invent command types or moduleType values.",
       "For clarification return exactly {type:'CLARIFY',question:string,options?:string[],confidence:number}.",
       "Interpret Russian furniture phrases semantically. Example: 'добавь справа мойку 600 мм' means ADD_MODULE with moduleType sink_cabinet, width 600, edge right.",
     ].join(" ");

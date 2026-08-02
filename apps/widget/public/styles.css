@@ -29,7 +29,10 @@ button, textarea { font: inherit; }
 .main-site-link { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--ink); padding: 8px 0; font-size: 12px; font-weight: 700; }
 
 .shell { width: min(1680px, 100%); margin: auto; padding: 0 clamp(20px, 4vw, 70px) 38px; }
-.intro { display: grid; grid-template-columns: minmax(300px, .78fr) minmax(420px, 1.22fr); column-gap: 6vw; padding: clamp(34px, 6vh, 72px) 0 36px; border-bottom: 1px solid var(--line); }
+.intro { position: relative; isolation: isolate; display: grid; grid-template-columns: minmax(300px, .78fr) minmax(420px, 1.22fr); column-gap: 6vw; min-height: 430px; padding: clamp(54px, 7vh, 86px) clamp(24px, 3vw, 48px) 42px; border-bottom: 1px solid var(--line); overflow: hidden; }
+.intro::before { content: ""; position: absolute; z-index: -2; inset: 0; background: url('/kitchen-hero.png') center / cover no-repeat; }
+.intro::after { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, rgba(243,231,209,.98) 0%, rgba(243,231,209,.93) 34%, rgba(243,231,209,.48) 66%, rgba(31,25,39,.10) 100%); }
+.intro > * { position: relative; z-index: 1; }
 .eyebrow, .kicker { color: var(--green); font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
 .intro h1 { grid-row: 1 / 4; margin: 0; font-family: Prata, serif; font-size: clamp(44px, 5.4vw, 84px); font-weight: 400; line-height: .98; letter-spacing: -.045em; }
 .intro h1 em { display: block; color: var(--green); font-style: normal; }
@@ -121,6 +124,7 @@ footer a:hover, footer a:focus-visible { color: var(--green); }
 @keyframes thinking { from { opacity: .3; transform: scaleX(.55); } to { opacity: 1; transform: scaleX(1); } }
 @media (max-width: 920px) {
   .intro { grid-template-columns: 1fr; }
+  .intro::after { background: linear-gradient(90deg, rgba(243,231,209,.96), rgba(243,231,209,.72)); }
   .intro h1 { grid-row: auto; }
   .lead { margin-top: 24px; }
   .workspace { grid-template-columns: 1fr; }
