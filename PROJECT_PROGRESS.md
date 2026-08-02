@@ -14,7 +14,7 @@ Domain Core                 ██████████ 100%
 Layout Engine               ██████████ 100%
 SVG Renderer                ██████████ 100%
 Text AI                     ██████████ 100%
-Voice                       ░░░░░░░░░░   0%
+Voice                       ██████████ 100%
 Pricing and Styles          ░░░░░░░░░░   0%
 Admin and Lead              ░░░░░░░░░░   0%
 PDF                         ░░░░░░░░░░   0%
@@ -23,7 +23,7 @@ Pilot                       ░░░░░░░░░░   0%
 
 ## Current phase
 
-**Stage 0/1/2/3/4 приняты. Следующий этап: Stage 5 — Voice**
+**Stage 0/1/2/3/4/5 приняты. Следующий этап: Stage 6 — Styles and Pricing**
 
 ## Completed
 
@@ -63,13 +63,18 @@ Pilot                       ░░░░░░░░░░   0%
 - [x] Safe apply сохраняет state при provider/domain errors
 - [x] Token ledger интегрирован в IntentSession
 - [x] Сквозной conversation replay и 158 тестов проходят
+- [x] Реализованы `SttProvider`, `FakeSttProvider` и Voice state machine
+- [x] Явные permission/record/stop и подтверждение транскрипта защищают от скрытого применения
+- [x] Cancel/retry, offline recovery и текстовая альтернатива сохраняют данные пользователя
+- [x] STT cost ledger считает оплачиваемые секунды и ориентировочную стоимость в KZT
+- [x] Android voice view contract и 168 тестов проходят
 
 ## Next actions
 
-1. Создать STT provider abstraction и fake provider.
-2. Реализовать permission/record/stop/transcript state machine.
-3. Добавить confirm/cancel/retry и cost tracking.
-4. Проверить poor-network и Android voice flow.
+1. Реализовать style, palette и facade preset catalogs.
+2. Добавить tenant-controlled доступность стилей.
+3. Реализовать per-meter, per-module и hybrid pricing strategies.
+4. Добавить диапазон, breakdown, formula version и recalculation tests.
 
 ## Risks
 

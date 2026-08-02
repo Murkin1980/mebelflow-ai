@@ -162,3 +162,24 @@ Stage 4 — Text AI только через fake provider и строгий comm
 ### Следующий безопасный шаг
 
 Stage 5 Voice через fake STT provider до подключения реального сервиса.
+
+## 2026-08-02 — Stage 5 Voice
+
+### Выполнено
+
+- Созданы `SttProvider`, `FakeSttProvider`, `VoiceSession` и `VoiceCostLedger`.
+- Реализованы явные permission, record, stop и состояния voice flow.
+- Транскрипт видим и редактируем; команда применяется только после подтверждения.
+- Добавлены cancel, retry, offline recovery и постоянная текстовая альтернатива.
+- Повторная отправка записи возможна только после явного действия пользователя.
+- Добавлен Android view-model contract с одним CTA, aria-live status и touch target 44 px.
+
+### Проверки
+
+- `npm run check` — успешно.
+- 168/168 тестов — успешно.
+- Реальные STT/API вызовы и секреты отсутствуют.
+
+### Следующий безопасный шаг
+
+Stage 6 — Styles and Pricing с tenant-controlled preset catalog и детерминированными формулами.

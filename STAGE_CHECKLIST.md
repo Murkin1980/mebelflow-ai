@@ -94,18 +94,18 @@
 
 ## Этап 5 — Voice
 
-- [ ] Mic permission
-- [ ] Record
-- [ ] Stop
-- [ ] STT
-- [ ] Transcript
-- [ ] Confirm
-- [ ] Apply command
-- [ ] Cancel
-- [ ] Retry
-- [ ] Cost tracking
-- [ ] Android test
-- [ ] Poor network behavior
+- [x] Mic permission
+- [x] Record
+- [x] Stop
+- [x] STT
+- [x] Transcript
+- [x] Confirm
+- [x] Apply command
+- [x] Cancel
+- [x] Retry
+- [x] Cost tracking
+- [x] Android test
+- [x] Poor network behavior
 
 ## Этап 6 — Styles and Pricing
 
