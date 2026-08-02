@@ -30,6 +30,9 @@ const undo = byId<HTMLButtonElement>("undo");
 const mic = byId<HTMLButtonElement>("mic");
 const status = byId<HTMLParagraphElement>("status");
 const assistant = byId<HTMLParagraphElement>("assistant-message");
+const voiceTranscript = byId<HTMLElement>("voice-transcript");
+const voiceStateLabel = byId<HTMLElement>("voice-state-label");
+const transcriptPreview = byId<HTMLParagraphElement>("transcript-preview");
 let history: ProjectHistory = createHistory(createInitialProject(crypto.randomUUID(), TENANT_ID));
 let sessionId = `session_${crypto.randomUUID().replaceAll("-", "")}`;
 let turnstileToken = "";
@@ -150,6 +153,10 @@ mic.addEventListener("click", () => {
   mic.title = "Остановить запись";
   const micLabel = mic.querySelector<HTMLElement>(".mic-label");
   if (micLabel) micLabel.textContent = "Стоп";
+  voiceTranscript.classList.remove("hidden");
+  voiceTranscript.classList.add("is-listening");
+  voiceStateLabel.textContent = "Идёт запись";
+  transcriptPreview.textContent = speechInitialText || "Говорите — распознанный текст появится здесь.";
   setStatus("Слушаю… Скажите размер стены или пожелание к кухне.");
 
   activeRecognition.onresult = event => {
@@ -159,6 +166,7 @@ mic.addEventListener("click", () => {
     speechWasRecognized = Boolean(transcript);
     commandInput.value = visibleText;
     commandInput.scrollTop = commandInput.scrollHeight;
+    transcriptPreview.textContent = visibleText || "Слушаю…";
     send.disabled = !turnstileToken || !visibleText;
     const hasInterimResult = Array.from(event.results).some(result => !result.isFinal);
     setStatus(hasInterimResult ? "Записываю и расшифровываю… Текст уже можно видеть в поле." : "Текст распознан. Проверьте его или продолжайте говорить.", hasInterimResult ? "normal" : "success");
@@ -172,17 +180,28 @@ mic.addEventListener("click", () => {
       "no-speech": "Речь не услышана. Нажмите микрофон и говорите после появления надписи «Слушаю…».",
       aborted: "Голосовой ввод остановлен.",
     };
+    voiceTranscript.classList.remove("is-listening");
+    voiceStateLabel.textContent = "Запись не завершена";
+    transcriptPreview.textContent = messages[event.error ?? ""] ?? "Не удалось распознать голос.";
     setStatus(messages[event.error ?? ""] ?? "Не удалось распознать голос. Попробуйте ещё раз или напишите текстом.", "error");
   };
   activeRecognition.onend = () => {
     activeRecognition = null;
     mic.classList.remove("listening");
+    voiceTranscript.classList.remove("is-listening");
     mic.setAttribute("aria-label", "Начать голосовой ввод");
     mic.title = "Голосовой ввод";
     const micLabel = mic.querySelector<HTMLElement>(".mic-label");
     if (micLabel) micLabel.textContent = "Говорить";
-    if (!speechWasRecognized && status.textContent?.startsWith("Слушаю")) setStatus("Речь не услышана. Нажмите микрофон и попробуйте ещё раз.", "error");
-    else if (speechWasRecognized) setStatus("Расшифровка готова. Проверьте текст и нажмите «Отправить».", "success");
+    if (!speechWasRecognized && status.textContent?.startsWith("Слушаю")) {
+      voiceStateLabel.textContent = "Речь не распознана";
+      transcriptPreview.textContent = "Нажмите микрофон и попробуйте ещё раз.";
+      setStatus("Речь не услышана. Нажмите микрофон и попробуйте ещё раз.", "error");
+    } else if (speechWasRecognized) {
+      voiceStateLabel.textContent = "Расшифровка готова";
+      transcriptPreview.textContent = commandInput.value;
+      setStatus("Расшифровка готова. Проверьте текст и нажмите «Отправить».", "success");
+    }
   };
 
   try {

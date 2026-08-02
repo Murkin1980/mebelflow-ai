@@ -45,6 +45,14 @@
 
         <form id="command-form" novalidate>
           <label for="command">Ваше пожелание</label>
+          <section class="voice-transcript hidden" id="voice-transcript" aria-live="polite" aria-label="Расшифровка голоса">
+            <div class="voice-transcript-head">
+              <span class="recording-dot" aria-hidden="true"></span>
+              <strong id="voice-state-label">Слушаю и расшифровываю</strong>
+              <span class="waveform" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            </div>
+            <p id="transcript-preview">Говорите — распознанный текст появится здесь.</p>
+          </section>
           <div class="composer">
             <textarea id="command" rows="2" maxlength="2000" placeholder="Напишите размер или пожелание…" required></textarea>
           </div>

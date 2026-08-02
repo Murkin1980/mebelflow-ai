@@ -50,15 +50,26 @@ button, textarea { font: inherit; }
 form { margin-top: auto; }
 label { display: block; margin-bottom: 9px; font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
 .composer { border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+.voice-transcript { margin: 0 0 14px; padding: 16px 18px; border-left: 3px solid var(--clay); background: #ebe3d7; }
+.voice-transcript.hidden { display: none; }
+.voice-transcript-head { display: flex; align-items: center; gap: 9px; color: var(--clay); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
+.voice-transcript p { min-height: 25px; margin: 10px 0 0; color: var(--ink); font-family: Prata, serif; font-size: 18px; line-height: 1.45; }
+.recording-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--clay); box-shadow: 0 0 0 0 rgba(185,95,57,.35); }
+.waveform { display: flex; align-items: center; gap: 3px; height: 22px; margin-left: auto; }
+.waveform i { display: block; width: 2px; height: 6px; background: currentColor; transform-origin: center; }
+.voice-transcript.is-listening .recording-dot { animation: record-ring 1.4s infinite; }
+.voice-transcript.is-listening .waveform i { animation: wave .8s ease-in-out infinite alternate; }
+.voice-transcript.is-listening .waveform i:nth-child(2),.voice-transcript.is-listening .waveform i:nth-child(6){animation-delay:-.25s}.voice-transcript.is-listening .waveform i:nth-child(3),.voice-transcript.is-listening .waveform i:nth-child(5){animation-delay:-.5s}.voice-transcript.is-listening .waveform i:nth-child(4){animation-delay:-.7s}
 .composer textarea { width: 100%; min-height: 118px; resize: vertical; border: 0; background: transparent; padding: 18px 0; color: var(--ink); font-family: Prata, serif; font-size: 20px; line-height: 1.55; outline: none; }
 .composer textarea::placeholder { color: #9e9a91; }
 .composer:focus-within { border-color: var(--clay); }
 .human-check { min-height: 66px; margin: 10px 0 4px; overflow: hidden; }
 .composer-actions { display: grid; grid-template-columns: 1fr 1.25fr; gap: 8px; }
 .mic, .primary, .confirm { min-height: 54px; border-radius: 0; font-weight: 700; cursor: pointer; }
-.mic { display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid var(--green); background: transparent; color: var(--green); }
+.mic { position: relative; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid var(--clay); background: var(--clay); color: white; box-shadow: 0 8px 24px rgba(185,95,57,.2); }
+.mic::after { content: ""; position: absolute; inset: -5px; border: 1px solid rgba(185,95,57,.28); pointer-events: none; }
 .mic svg { width: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
-.mic:hover, .mic:focus-visible { background: #e2e8e3; outline: none; }
+.mic:hover, .mic:focus-visible { background: #98492c; outline: none; }
 .mic.listening { border-color: var(--clay); background: var(--clay); color: white; animation: breathe 1.5s ease-in-out infinite; }
 .primary { display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--green); background: var(--green); color: white; padding: 0 20px; }
 .primary:hover:not(:disabled) { background: #0d2f27; }
@@ -87,7 +98,9 @@ footer { display: flex; justify-content: space-between; padding: 22px clamp(20px
 footer a { color: inherit; text-decoration: none; }
 footer a:hover, footer a:focus-visible { color: var(--green); }
 
-@keyframes breathe { 50% { box-shadow: 0 0 0 6px rgba(185,95,57,.14); } }
+@keyframes breathe { 50% { box-shadow: 0 0 0 8px rgba(185,95,57,.18); } }
+@keyframes record-ring { 70% { box-shadow: 0 0 0 9px rgba(185,95,57,0); } 100% { box-shadow: 0 0 0 0 rgba(185,95,57,0); } }
+@keyframes wave { from { height: 5px; } to { height: 20px; } }
 @media (max-width: 920px) {
   .intro { grid-template-columns: 1fr; }
   .intro h1 { grid-row: auto; }
