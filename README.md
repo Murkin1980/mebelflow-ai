@@ -102,4 +102,4 @@ npm.cmd ci
 npm.cmd run check
 ```
 
-Stage 0–6 реализованы в доменных пакетах, Layout Engine, SVG Renderer, provider-neutral Intent Parser, Voice Input, Style Presets и Pricing Engine. Текущий набор проверок включает typecheck и 180 unit/property/snapshot/contract тестов. Реальные AI/STT providers пока не подключены.
+Stage 0–7 реализованы в доменных пакетах, Layout Engine, SVG Renderer, provider-neutral Intent Parser, Voice Input, Style Presets, Pricing Engine и Lead/Admin Core. Текущий набор проверок включает typecheck и 190 unit/property/snapshot/contract тестов. Реальные AI/STT/OTP/CAPTCHA/Telegram providers пока не подключены.

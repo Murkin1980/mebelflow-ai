@@ -16,14 +16,14 @@ SVG Renderer                ██████████ 100%
 Text AI                     ██████████ 100%
 Voice                       ██████████ 100%
 Pricing and Styles          ██████████ 100%
-Admin and Lead              ░░░░░░░░░░   0%
+Admin and Lead              ██████████ 100%
 PDF                         ░░░░░░░░░░   0%
 Pilot                       ░░░░░░░░░░   0%
 ```
 
 ## Current phase
 
-**Stage 0/1/2/3/4/5/6 приняты. Следующий этап: Stage 7 — Lead and Admin**
+**Stage 0/1/2/3/4/5/6/7 приняты. Следующий этап: Stage 8 — PDF**
 
 ## Completed
 
@@ -73,13 +73,18 @@ Pilot                       ░░░░░░░░░░   0%
 - [x] Реализованы per-meter, per-module и hybrid pricing strategies
 - [x] Диапазон KZT содержит breakdown, причины неопределённости и formula version
 - [x] Recalculation и trust presentation покрыты тестами; 180 тестов проходят
+- [x] Contact schema, OTP/CAPTCHA boundaries и idempotent lead creation реализованы
+- [x] Lead details содержат project snapshot и append-only event history
+- [x] Status transitions, comments и Telegram notification adapter покрыты тестами
+- [x] Tenant settings, hard limits, opaque resume tokens и RBAC реализованы
+- [x] 190 unit/property/snapshot/contract тестов проходят
 
 ## Next actions
 
-1. Зафиксировать Lead schema, event history и status transitions.
-2. Реализовать contact form boundary с OTP/CAPTCHA adapters.
-3. Добавить tenant limits, resume token и RBAC.
-4. Подготовить Telegram notification adapter без реальной отправки.
+1. Реализовать deterministic brief/PDF document model.
+2. Добавить tenant branding, scheme, modules, style, price и disclaimer.
+3. Реализовать policy modes и payment boundary.
+4. Добавить audit, secure download token и rendering tests.
 
 ## Risks
 

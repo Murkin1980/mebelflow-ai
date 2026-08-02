@@ -204,3 +204,24 @@ Stage 6 — Styles and Pricing с tenant-controlled preset catalog и детер
 ### Следующий безопасный шаг
 
 Stage 7 — Lead and Admin.
+
+## 2026-08-02 — Stage 7 Lead and Admin
+
+### Выполнено
+
+- Добавлены contact schema и provider boundaries для OTP/CAPTCHA.
+- Реализовано идемпотентное создание лида со снимком Project State.
+- Lead details содержат append-only события, статусы и комментарии.
+- Telegram adapter не блокирует сохранение лида при ошибке уведомления.
+- Tenant settings валидируют бренд, стили, размеры, disclaimer и hard limits.
+- Добавлены opaque resume tokens и RBAC для owner/admin/manager/viewer/public.
+
+### Проверки
+
+- `npm run check` — успешно.
+- 190/190 тестов — успешно.
+- Реальные внешние отправки и секреты отсутствуют.
+
+### Следующий безопасный шаг
+
+Stage 8 — PDF.

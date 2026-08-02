@@ -123,18 +123,18 @@
 
 ## Этап 7 — Lead/Admin
 
-- [ ] Contact form
-- [ ] OTP/CAPTCHA boundary
-- [ ] Create lead
-- [ ] Lead details
-- [ ] Scheme preview
-- [ ] Event history
-- [ ] Status
-- [ ] Telegram
-- [ ] Tenant settings
-- [ ] Limits
-- [ ] Resume
-- [ ] RBAC
+- [x] Contact form
+- [x] OTP/CAPTCHA boundary
+- [x] Create lead
+- [x] Lead details
+- [x] Scheme preview
+- [x] Event history
+- [x] Status
+- [x] Telegram
+- [x] Tenant settings
+- [x] Limits
+- [x] Resume
+- [x] RBAC
 
 ## Этап 8 — PDF
 
