@@ -200,3 +200,24 @@
 - [ ] Preliminary price disclaimer
 - [ ] Visual regression
 - [ ] UI review report сохранён
+
+## Этап 10 — Accepted GLB Library и 3D Viewer
+
+- [x] Решение готовой toolchain зафиксировано ADR
+- [x] Собственный формат сцены исключён
+- [x] Контракт кандидата GLB и Khronos report
+- [x] Детерминированная accepted/rejected приёмка
+- [x] Лимиты file size / triangles / draw calls / warnings
+- [x] Только accepted asset доступен Scene Engine
+- [x] Project State → SceneDefinition
+- [x] Three.js GLTFLoader и OrbitControls
+- [x] Rotate / pan / wheel / pinch
+- [x] Выбор и подсветка модуля
+- [x] Lazy 3D chunk; SVG остаётся default
+- [ ] Backend upload + SHA-256 verification + R2 adapter
+- [ ] glTF Transform/Khronos offline runner
+- [ ] Каталог tenant и AI resolver по строгим признакам
+- [ ] Реальный очищенный SketchUp GLB fixture
+- [ ] Mobile 360×800 и средний Android performance pass
+- [ ] Slow network / corrupt GLB / WebGL unavailable UI states
+- [ ] UI review report и visual regression

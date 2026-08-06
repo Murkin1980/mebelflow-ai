@@ -398,3 +398,21 @@ Stage 9C реализовал Firestore-backed lease locks, idempotency, RPM и 
 - Внешняя DNS-проверка вернула адреса Cloudflare; HTTPS отвечает `200`.
 - Пока поддомен показывает существующий сайт и его маршрут авторизации; MebelFlow widget ещё не развёрнут на этом hostname.
 - Перед browser E2E необходимо добавить `ai.salamat-mebel.kz` в Turnstile widget hostnames, обновить Cloud Run allowed origin/expected hostname и опубликовать landing.
+
+## 2026-08-06 — Stage 10 accepted GLB foundation
+
+- Владелец изменил scope: нужен полноценный WebGL 3D-viewer и будущая библиотека очищенных SketchUp-модулей, но без собственного формата и без псевдо-3D как результата.
+- Исследование готовой экосистемы принято как архитектура: CleanUp³, готовый GLB exporter, glTF Transform/gltfpack, Khronos glTF Validator, Three.js GLTFLoader/OrbitControls.
+- ADR-005 частично заменил прежний полный запрет 3D из ADR-002; CAD и производственные функции всё ещё запрещены.
+- Добавлен `visual-asset-library`: строгий candidate schema, Khronos report parser, project limits и accepted/rejected result.
+- `visual-scene-engine` принимает GLB только со статусом `accepted`; непроверенные URL не становятся runtime-моделью.
+- Three.js viewer загружается отдельным chunk по нажатию; SVG остаётся основным и доступным представлением.
+- Техническая box-геометрия — только fallback до появления реальных принятых GLB.
+- Следующий срез: backend ingestion с вычислением SHA-256, object storage/R2, audit и tenant catalog; затем реальный fixture и Android UI review.
+
+## 2026-08-06 — Deep-change confirmation gate
+
+- В `FOUNDATION.md` и `AGENTS.md` добавлено обязательное правило для глубоких изменений.
+- Сначала требуется попытка мягкой совместимости с текущими правилами.
+- При конфликте кодер обязан назвать его, запросить отдельный ответ «да» и полностью остановить конфликтующие изменения до получения этого ответа.
+- Молчание и неоднозначный ответ не являются подтверждением.

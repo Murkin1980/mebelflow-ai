@@ -17,6 +17,7 @@
 - техника;
 - текст и голос;
 - SVG;
+- опциональный 3D-вид принятых GLB-модулей;
 - стиль;
 - диапазон цены;
 - заявка;
@@ -31,7 +32,7 @@
 - эркер;
 - скосы;
 - нестандартные радиусы;
-- файлы SketchUp/PRO100;
+- прямое открытие рабочих файлов SketchUp/PRO100;
 - раскрой;
 - деталировка;
 - станки;
@@ -381,7 +382,66 @@ scale = availableCanvasWidth / wallWidth
 17. LLM не может создать неизвестную команду.
 18. Ошибочная команда не повреждает состояние.
 
-## 17. Interface Design Skill
+## 18. Stage 10 — Visual Asset Library и 3D viewer
+
+### Назначение
+
+Дать клиенту полноценный интерактивный WebGL-вид согласуемой компоновки: вращение 360°, zoom/pinch, панорамирование, выбор модуля и синхронизация с Project State. Это не CAD, не производство и не фотореалистичный рендер.
+
+### Готовая цепочка подготовки
+
+```text
+SketchUp component
+→ CleanUp³ / мебельные правила плагина
+→ готовый GLB exporter
+→ glTF Transform или gltfpack
+→ Khronos glTF Validator JSON report
+→ MebelFlow acceptance limits
+→ accepted asset library
+→ Three.js GLTFLoader
+```
+
+MebelFlow не создаёт собственные GLB-экспортёр, оптимизатор или валидатор. Собственный SketchUp-плагин отвечает только за мебельную семантику, выбор компонента и удаление заранее определённых служебных деталей.
+
+### Минимальная запись каталога
+
+- `assetId`, `moduleType`, номинальные `dimensionsMm`;
+- `glbUrl`, `validationReportUrl`, SHA-256;
+- byte size, triangle count, draw call count;
+- использованные exporter/optimizer/validator;
+- вычисляемый статус `accepted`.
+
+GLB содержит стандартную glTF-сцену. Отдельный собственный JSON сцены запрещён. JSON рядом с GLB содержит только каталог и официальный validation report.
+
+### Приёмка
+
+- glTF 2.0 и ноль ошибок Khronos Validator;
+- лимиты по размеру файла, треугольникам, draw calls и warnings;
+- только root-relative или HTTPS URL;
+- runtime получает только `accepted` записи;
+- checksum проверяется ingestion-слоем перед сохранением (следующий backend-срез).
+
+Начальные лимиты: 8 MiB, 150 000 треугольников, 120 draw calls, не более 20 предупреждений. Они версионируются после тестов на среднем Android.
+
+### Runtime и UX
+
+- SVG — default и обязательный fallback;
+- Three.js — отдельный lazy chunk;
+- OrbitControls: rotate, pan, wheel и pinch zoom;
+- GLTFLoader загружает только URL из принятого каталога;
+- выбор синхронизируется по `sourceModuleId`;
+- отказ WebGL, timeout или повреждённый GLB не блокирует возврат к SVG;
+- box-геометрия допустима только как технический fallback, не как заявленный итоговый 3D.
+
+### Следующие срезы
+
+1. Backend ingestion: upload GLB/report, checksum, object storage, audit.
+2. Offline pipeline scripts вокруг glTF Transform и Khronos Validator.
+3. Каталог/поиск модулей по типу и номинальным размерам.
+4. SketchUp plugin adapter для мебельной семантики.
+5. Android performance budgets и реальные подготовленные модели.
+
+## 19. Interface Design Skill
 
 Для всех клиентских UI-задач обязателен локальный навык:
 
@@ -456,4 +516,3 @@ UI-функция не завершена без:
   - Frictionless;
   - Quality Craft;
   - Trustworthy.
-

@@ -2,6 +2,7 @@ import { compactProjectState } from "../../../packages/intent-parser/src/index.j
 import { applyLayoutCommandToHistory, calculateRemainingWidth } from "../../../packages/layout-engine/src/index.js";
 import { createHistory, createInitialProject, type ProjectHistory } from "../../../packages/project-state/src/index.js";
 import { renderKitchenSvg } from "../../../packages/svg-renderer/src/index.js";
+import type { Kitchen3DViewer } from "./kitchen-3d-viewer.js";
 
 const API_URL = "https://mebelflow-api-staging-1013284205128.europe-central2.run.app";
 const TENANT_ID = "salamat-mebel-pilot";
@@ -42,7 +43,10 @@ let totalCost = 0;
 let activeRecognition: SpeechRecognitionLike | null = null;
 let speechWasRecognized = false;
 let speechInitialText = "";
-let currentView: "front" | "top" | "perspective" = "front";
+let currentView: "front" | "top" | "perspective" | "3d" = "front";
+let kitchen3DViewer: Kitchen3DViewer | null = null;
+let kitchen3DLoading: Promise<void> | null = null;
+let selectedModuleId: string | null = null;
 let autoSubmitAfterTranscription = false;
 
 function addChatMessage(role: "ai" | "user", text: string, thinking = false) {
@@ -92,9 +96,45 @@ function renderPerspective(state: ProjectHistory["present"]) {
 
 function render() {
   const state = history.present;
-  byId("scheme").innerHTML = state.room.wallWidth
-    ? currentView === "front" ? renderKitchenSvg(state, { title: "Предварительная схема кухни", description: "Схема обновляется после подтверждённых команд." }) : currentView === "top" ? renderTopView(state) : renderPerspective(state)
-    : '<div class="scheme-empty"><strong>Укажите длину кухни</strong><span>Например: «кухня 3 метра»</span></div>';
+  const scheme = byId("scheme");
+  if (!state.room.wallWidth) {
+    kitchen3DViewer?.dispose();
+    kitchen3DViewer = null;
+    scheme.innerHTML = '<div class="scheme-empty"><strong>Укажите длину кухни</strong><span>Например: «кухня 3 метра»</span></div>';
+  } else if (currentView === "3d") {
+    if (!kitchen3DViewer) {
+      if (!scheme.querySelector("#kitchen-3d")) scheme.innerHTML = '<div class="kitchen-3d is-loading" id="kitchen-3d" aria-busy="true"><span>Загружаю 3D‑вид…</span></div><p class="viewer-help">Перетаскивайте для вращения · колесо или жест щипка — масштаб · нажмите модуль для выбора</p>';
+      kitchen3DLoading ??= import("./kitchen-3d-viewer.js").then(({ Kitchen3DViewer }) => {
+        if (currentView !== "3d") return;
+        const target = document.getElementById("kitchen-3d");
+        if (!target) return;
+        target.classList.remove("is-loading");
+        target.setAttribute("aria-busy", "false");
+        kitchen3DViewer = new Kitchen3DViewer(target, {
+          projectState: history.present,
+          selectedModuleId,
+          onModuleSelect: moduleId => {
+            selectedModuleId = moduleId;
+            const module = history.present.lowerRow.modules.find(item => item.id === moduleId);
+            setStatus(module ? `Выбран модуль ${moduleLabel(module.type)} ${module.width} мм.` : "Модуль выбран.", "success");
+          },
+        });
+      }).catch(error => {
+        console.warn("MebelFlow 3D unavailable.", error);
+        const target = document.getElementById("kitchen-3d");
+        if (target) target.innerHTML = "<strong>3D‑вид недоступен</strong><span>Схема сохранена — выберите фасад или вид сверху.</span>";
+        setStatus("Браузер не смог открыть 3D‑вид. Обычная схема продолжает работать.", "error");
+      }).finally(() => { kitchen3DLoading = null; });
+    } else {
+      kitchen3DViewer.update({ projectState: state, selectedModuleId });
+    }
+  } else {
+    kitchen3DViewer?.dispose();
+    kitchen3DViewer = null;
+    scheme.innerHTML = currentView === "front"
+      ? renderKitchenSvg(state, { title: "Предварительная схема кухни", description: "Схема обновляется после подтверждённых команд." })
+      : currentView === "top" ? renderTopView(state) : renderPerspective(state);
+  }
   const remaining = calculateRemainingWidth(state);
   byId("wall-metric").textContent = state.room.wallWidth ? `${state.room.wallWidth} мм` : "не задана";
   byId("remaining-metric").textContent = remaining === null ? "—" : `${remaining} мм`;

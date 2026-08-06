@@ -21,11 +21,12 @@ Pricing and Styles          ██████████ 100%
 Admin and Lead              ██████████ 100%
 PDF                         ██████████ 100%
 Pilot                       ████░░░░░░  40%
+Stage 10 GLB foundation     ██████░░░░  60%
 ```
 
 ## Current phase
 
-**Stage 0/1/2/3/4/5/6/7/8 и Stage 9A AI Gateway приняты по самопроверке. Требуется production deploy и полевой Pilot**
+**Stage 0–8 и техническая часть Stage 9 приняты. Pilot остаётся незавершённым. Stage 10 начат отдельным утверждённым решением: документация, GLB acceptance boundary, Scene Engine и ленивый Three.js viewer реализованы; ingestion и реальные Android/GLB проверки ещё не выполнены.**
 
 ## Completed
 
@@ -139,6 +140,19 @@ Pilot                       ████░░░░░░  40%
 - [x] Владелец явно разрешил публичный invocation; `allUsers` получил только `roles/run.invoker` для staging-сервиса.
 - [x] Публичный smoke: warmup 200/0 AI calls, dummy Turnstile 403, foreign origin 403.
 - [x] Поддомен `ai.salamat-mebel.kz` создан в Cloudflare и отвечает по HTTPS; публикация MebelFlow landing остаётся следующим шагом.
+
+## Stage 10 — accepted GLB foundation
+
+- [x] ADR-005 разрешает только ограниченный 3D-viewer, не CAD.
+- [x] Зафиксирована готовая цепочка SketchUp → CleanUp³ → GLB exporter → glTF Transform/gltfpack → Khronos Validator.
+- [x] Создан независимый `visual-asset-library` с accepted/rejected приёмкой.
+- [x] Khronos errors и проектные лимиты блокируют публикацию ассета.
+- [x] `visual-scene-engine` использует только записи `accepted`.
+- [x] Three.js/WebGL viewer поддерживает OrbitControls, выбор модулей и GLTFLoader.
+- [x] Three.js вынесен в lazy chunk; SVG остаётся default.
+- [x] TypeScript, runtime/widget builds и 244/244 tests проходят.
+- [ ] Backend ingestion, реальный checksum, R2 и tenant-каталог.
+- [ ] Реальная SketchUp-модель и Android/UI acceptance.
 
 
 | Риск | Вероятность | Влияние | Митигирование |

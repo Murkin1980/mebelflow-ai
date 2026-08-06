@@ -12,6 +12,8 @@ flowchart LR
     CS --> RE[Rules and Layout Engine]
     RE --> PS[Project State Store]
     PS --> SVG[SVG Renderer]
+    PS --> VSE[Visual Scene Engine]
+    VSE --> GLB[Accepted GLB Library]
     PS --> PE[Pricing Engine]
     PS --> PDF[Brief Generator]
     PS --> API[API]
@@ -136,6 +138,18 @@ Pascal Editor не встраивается как готовый интерфе
 
 Публичный разговорный интерфейс.
 
+### `visual-asset-library`
+
+Принимает метаданные GLB и стандартный JSON-отчёт Khronos Validator. Применяет проектные лимиты размера, полигонов, draw calls и предупреждений. В runtime-каталог попадают только записи `accepted`. Собственный экспортёр, оптимизатор или формат 3D не создаются.
+
+### `visual-scene-engine`
+
+Чисто преобразует `Project State + accepted asset catalog` в `SceneDefinition`. AI выбирает только `assetId` из строгого каталога, но не создаёт геометрию и не подставляет произвольные URL.
+
+### `kitchen-3d-viewer`
+
+Ленивый UI-адаптер Three.js: GLTFLoader, OrbitControls, выбор и подсветка модулей. Ошибка GLB/WebGL не повреждает Project State; SVG остаётся доступным.
+
 ### `admin`
 
 Настройки компании и просмотр лидов.
@@ -237,6 +251,7 @@ interface SceneStoreAdapter {
 - загруженные фотографии;
 - экспортные изображения SVG/PNG;
 - логотипы tenant.
+- принятые GLB-модули и отчёты Khronos Validator.
 
 ## 9. Deployment
 
@@ -255,6 +270,7 @@ interface SceneStoreAdapter {
 
 - first meaningful paint до 2.5 сек на среднем Android;
 - widget bundle без необязательных 3D-пакетов;
+- Three.js загружается отдельным chunk только после открытия 3D-вида;
 - все размеры в миллиметрах;
 - RU обязательно;
 - KZ архитектурно предусмотрен;

@@ -10,9 +10,12 @@ await cp("apps/widget/public/kitchen-hero.png", `${outdir}/kitchen-hero.png`);
 await build({
   entryPoints: ["apps/widget/src/main.ts"],
   bundle: true,
+  splitting: true,
   minify: true,
   sourcemap: true,
   platform: "browser",
   format: "esm",
-  outfile: `${outdir}/app.js`,
+  outdir,
+  entryNames: "app",
+  chunkNames: "chunks/[name]-[hash]",
 });
