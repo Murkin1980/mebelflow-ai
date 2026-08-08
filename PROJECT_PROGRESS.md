@@ -132,7 +132,7 @@ Pilot                       ████░░░░░░  40%
 
 - [x] `ai.salamat-mebel.kz` применён в Turnstile hostname и Cloud Run origin/expected-hostname.
 - [x] Cloud Run revision `mebelflow-api-staging-00011-t2b` обслуживает production pilot landing.
-- [x] Cloudflare landing version `67de2212-abdd-4cc6-a6ac-72bc3c69b96b` опубликован на custom domain.
+- [x] Cloudflare landing version `0321cda9-6eca-4f22-aaa7-cfcbb8a3383c` опубликован на custom domain.
 - [x] Real-token text E2E прошёл до и после ротации Turnstile secret.
 - [x] Firestore tenant ledger подтвердил фактический commit стоимости и нулевой reservation.
 - [ ] Real-microphone voice E2E: требуется ручной голосовой ввод и проверка transcript.

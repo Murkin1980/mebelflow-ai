@@ -7,7 +7,7 @@
 - Turnstile widget разрешает `ai.salamat-mebel.kz`, `salamat-mebel.kz`, `localhost` и `127.0.0.1`.
 - После непреднамеренного появления прежнего Turnstile secret в локальном tool output секрет ротирован через официальный Cloudflare API с grace period; новый secret передан существующему Spin Worker только через stdin и не записывался в репозиторий или файлы.
 - Cloud Run service `mebelflow-api-staging` развёрнут revision `mebelflow-api-staging-00011-t2b` из image `stage9g-20260808-1`.
-- Cloudflare landing `mebelflow-ai-landing` развёрнут version `67de2212-abdd-4cc6-a6ac-72bc3c69b96b` на `https://ai.salamat-mebel.kz/`.
+- Cloudflare landing `mebelflow-ai-landing` финально развёрнут version `0321cda9-6eca-4f22-aaa7-cfcbb8a3383c` на `https://ai.salamat-mebel.kz/`.
 - Real-token browser E2E до и после ротации прошёл: Turnstile proof принят, команды `стена 3000 мм` и `стена 3100 мм` применены, схема обновилась.
 - Негативный smoke прошёл без AI-вызовов: warmup `200`, dummy Turnstile `403`, foreign origin `403`.
 - Firestore после первого live smoke: tenant spend `4.2 KZT`, reservation `0`; фактическая стоимость зафиксирована после commit reservation.
