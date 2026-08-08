@@ -6,6 +6,8 @@
 - Для `MOVE_LEFT`, `MOVE_RIGHT` и `MOVE_TO_EDGE` добавлен явный semantic/output contract с точным копированием существующего module id.
 - Silent no-op на краю заменён понятной `LayoutError`, поэтому UI больше не сообщает ложное «Схема обновлена» без изменения геометрии.
 - Добавлены prompt-contract и edge no-op регрессии; `npm run check` — 20 files, 245/245 tests; runtime build проходит.
+- Cloud Build `166cf89f-dcd8-44db-804b-8235e134fa1e` собрал image `sink-move-20260808-1`; Cloud Run revision `mebelflow-api-staging-00012-j4b` обслуживает 100% traffic.
+- Post-deploy warmup вернул `200` и `billableAiCalls: 0`; окончательный real-microphone regression smoke оставлен пользователю.
 
 ## 2026-08-08 — Stage 9F production smoke and security closure
 
