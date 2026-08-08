@@ -2,6 +2,8 @@
 
 ## 2026-08-08 — Stage 10 lazy Three.js viewer
 
+- Cloudflare Worker `mebelflow-ai-landing` deployed as version `98a27e4c-295b-47a8-bf10-da9726dea2c2` on `https://ai.salamat-mebel.kz/`.
+
 - По присланной спецификации и explicit owner decision принят ADR-005: SVG остаётся default/fallback, 3D добавлен как optional Stage 10 mode.
 - Через Router `opencode-go/deepseek-v4-flash` выполнены декомпозиция ТЗ, code inventory и классификация конфликтов с прежним SVG-first scope.
 - Добавлен чистый TS `visual-scene-engine`: millimetre XYZ mapping, corpus/facade/countertop parts, style colors, `metadata.visualAssetId` + registry GLB contract и box fallback.
