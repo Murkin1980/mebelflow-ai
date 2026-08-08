@@ -102,4 +102,4 @@ npm.cmd ci
 npm.cmd run check
 ```
 
-Stage 0–8 приняты; Stage 9 pilot readiness реализован. Текущий набор проверок включает typecheck и 204 unit/property/snapshot/contract теста. Реальные AI/STT/OTP/CAPTCHA/Telegram/payment providers пока не подключены; production landing embed и полевая выборка пилота ещё не выполнены.
+Stage 0–8 приняты; Stage 9 pilot readiness, публичный landing, Cloud Run gateway и Turnstile gate развёрнуты. Текущий набор проверок включает domain/widget typecheck и 244 unit/property/snapshot/contract теста. Real-token text E2E на `ai.salamat-mebel.kz` прошёл, а Firestore ledger подтвердил фактический commit стоимости. Перед controlled pilot остаётся ручной real-microphone voice E2E; полевая выборка пилота ещё не выполнена.

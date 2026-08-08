@@ -171,7 +171,10 @@
 - [x] Public edge abuse protection and explicit unauthenticated-access approval
 - [x] Turnstile widget, managed siteverify Worker and frontend submit gate
 - [x] Trusted server-side Turnstile proof before rate limit, budget reservation and GPT
-- [ ] Landing embedded
+- [x] STT idempotency/RPM, tenant budget reservation and token cost accounting
+- [x] Landing build and custom-domain route configured
+- [x] Real-token text browser E2E on `ai.salamat-mebel.kz`
+- [ ] Real-microphone voice browser E2E on `ai.salamat-mebel.kz`
 - [x] Analytics events
 - [x] Error monitoring
 - [x] Cost dashboard

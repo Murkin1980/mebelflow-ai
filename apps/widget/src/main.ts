@@ -109,7 +109,7 @@ function setStatus(message: string, kind: "normal" | "error" | "success" = "norm
 
 function resetTurnstile() {
   turnstileToken = "";
-  send.disabled = !commandInput.value.trim();
+  send.disabled = true;
   const api = (window as typeof window & { turnstile?: { reset(): void } }).turnstile;
   api?.reset();
 }
@@ -124,8 +124,8 @@ window.addEventListener("turnstile-success", event => {
   }
 });
 window.addEventListener("turnstile-expired", () => { resetTurnstile(); setStatus("Проверка истекла — пройдите её ещё раз.", "error"); });
-commandInput.addEventListener("input", () => { send.disabled = !commandInput.value.trim(); });
-document.querySelectorAll<HTMLButtonElement>("[data-example]").forEach(button => button.addEventListener("click", () => { commandInput.value = button.dataset.example ?? ""; commandInput.focus(); send.disabled = !commandInput.value.trim(); }));
+commandInput.addEventListener("input", () => { send.disabled = !turnstileToken || !commandInput.value.trim(); });
+document.querySelectorAll<HTMLButtonElement>("[data-example]").forEach(button => button.addEventListener("click", () => { commandInput.value = button.dataset.example ?? ""; commandInput.focus(); send.disabled = !turnstileToken || !commandInput.value.trim(); }));
 
 async function callAi(utterance: string) {
   const idempotencyKey = `request_${crypto.randomUUID().replaceAll("-", "")}`;
@@ -214,7 +214,7 @@ async function transcribeAudio(audio: Blob) {
   const response = await fetch(`${API_URL}/v1/transcribe`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ audioBase64: btoa(binary), mimeType: audio.type || "audio/webm", turnstileToken, idempotencyKey }),
+    body: JSON.stringify({ tenantId: TENANT_ID, sessionId, audioBase64: btoa(binary), mimeType: audio.type || "audio/webm", turnstileToken, idempotencyKey }),
   });
   const result = await response.json() as { text?: string; error?: { message?: string } };
   if (!response.ok || !result.text) throw new Error(result.error?.message ?? "AI не смог расшифровать запись.");

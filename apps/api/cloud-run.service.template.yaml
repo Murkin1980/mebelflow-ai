@@ -1,7 +1,7 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: mebelflow-api-pilot
+  name: mebelflow-api-staging
 spec:
   template:
     metadata:
@@ -11,7 +11,7 @@ spec:
     spec:
       containerConcurrency: 100
       timeoutSeconds: 60
-      serviceAccountName: mebelflow-api-pilot@PROJECT_ID.iam.gserviceaccount.com
+      serviceAccountName: mebelflow-api@PROJECT_ID.iam.gserviceaccount.com
       containers:
         - image: REGION-docker.pkg.dev/PROJECT_ID/mebelflow/api:IMAGE_TAG
           ports:
@@ -31,11 +31,11 @@ spec:
             - name: PILOT_TENANT_ID
               value: salamat-mebel-pilot
             - name: PILOT_ALLOWED_ORIGIN
-              value: https://salamat-mebel.kz
+              value: https://ai.salamat-mebel.kz
             - name: TURNSTILE_VERIFY_URL
               value: https://turnstile-siteverify-mebelflow-ai.muriktl.workers.dev/
             - name: TURNSTILE_EXPECTED_HOSTNAME
-              value: salamat-mebel.kz
+              value: ai.salamat-mebel.kz
             - name: TENANT_BUDGET_KZT
               value: "50000"
             - name: TENANT_RPM

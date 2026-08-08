@@ -108,9 +108,9 @@ Pilot                       ████░░░░░░  40%
 
 ## Next actions
 
-1. Добавить публичную edge-защиту (Turnstile/OTP или подписанный widget token) до открытия Cloud Run для интернета.
-2. Подключить landing widget к приватному/staging контракту через утверждённую edge-схему.
-3. Встроить widget на разрешённый landing origin и подключить безопасный warmup.
+1. Добавить `ai.salamat-mebel.kz` в Turnstile hostnames и применить подготовленный Cloud Run origin/expected-hostname template.
+2. Развернуть transcription gateway revision и провести real-token browser E2E на `ai.salamat-mebel.kz`, включая текст, голос и отказоустойчивость.
+3. Проверить фактическое STT token/cost accounting в Firestore после smoke.
 4. Провести 20 controlled sessions и исправить подтверждённые blockers.
 5. Провести 5 real prospect sessions и 5 интервью без PII в analytics.
 6. Сформировать фактический funnel report и принять GO/NO_GO.
@@ -128,6 +128,16 @@ Pilot                       ████░░░░░░  40%
 - [x] Turnstile managed widget и стандартный Spin Worker развёрнуты и end-to-end проверены.
 - [x] Frontend AI-submit gate добавлен с `data-action="turnstile-spin-v1"`; 230 тестов проходят.
 
+## Stage 9F production smoke
+
+- [x] `ai.salamat-mebel.kz` применён в Turnstile hostname и Cloud Run origin/expected-hostname.
+- [x] Cloud Run revision `mebelflow-api-staging-00011-t2b` обслуживает production pilot landing.
+- [x] Cloudflare landing version `67de2212-abdd-4cc6-a6ac-72bc3c69b96b` опубликован на custom domain.
+- [x] Real-token text E2E прошёл до и после ротации Turnstile secret.
+- [x] Firestore tenant ledger подтвердил фактический commit стоимости и нулевой reservation.
+- [ ] Real-microphone voice E2E: требуется ручной голосовой ввод и проверка transcript.
+- [ ] 20 controlled sessions по pilot runbook.
+
 ## Risks
 
 ## Stage 9E server-side Turnstile enforcement
@@ -138,7 +148,7 @@ Pilot                       ████░░░░░░  40%
 - [x] 19 test files, 235/235 tests и runtime build проходят.
 - [x] Владелец явно разрешил публичный invocation; `allUsers` получил только `roles/run.invoker` для staging-сервиса.
 - [x] Публичный smoke: warmup 200/0 AI calls, dummy Turnstile 403, foreign origin 403.
-- [x] Поддомен `ai.salamat-mebel.kz` создан в Cloudflare и отвечает по HTTPS; публикация MebelFlow landing остаётся следующим шагом.
+- [x] Landing build и custom-domain route для `ai.salamat-mebel.kz` находятся в репозитории; real-token browser E2E остаётся обязательным внешним gate.
 
 
 | Риск | Вероятность | Влияние | Митигирование |

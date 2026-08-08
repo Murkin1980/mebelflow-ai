@@ -1,5 +1,51 @@
 # SESSION NOTES — MebelFlow AI
 
+## 2026-08-08 — Stage 9F production smoke and security closure
+
+### Выполнено
+
+- Turnstile widget разрешает `ai.salamat-mebel.kz`, `salamat-mebel.kz`, `localhost` и `127.0.0.1`.
+- После непреднамеренного появления прежнего Turnstile secret в локальном tool output секрет ротирован через официальный Cloudflare API с grace period; новый secret передан существующему Spin Worker только через stdin и не записывался в репозиторий или файлы.
+- Cloud Run service `mebelflow-api-staging` развёрнут revision `mebelflow-api-staging-00011-t2b` из image `stage9g-20260808-1`.
+- Cloudflare landing `mebelflow-ai-landing` развёрнут version `67de2212-abdd-4cc6-a6ac-72bc3c69b96b` на `https://ai.salamat-mebel.kz/`.
+- Real-token browser E2E до и после ротации прошёл: Turnstile proof принят, команды `стена 3000 мм` и `стена 3100 мм` применены, схема обновилась.
+- Негативный smoke прошёл без AI-вызовов: warmup `200`, dummy Turnstile `403`, foreign origin `403`.
+- Firestore после первого live smoke: tenant spend `4.2 KZT`, reservation `0`; фактическая стоимость зафиксирована после commit reservation.
+
+### Проверки и handoff
+
+- `npm run check` — 20 test files, 244/244 tests; runtime и widget builds проходят.
+- Текстовый production gate закрыт. Голосовой E2E остаётся ручным gate: нужен настоящий микрофон/голос и визуальная проверка transcript, синтетически этот шаг не имитируется.
+- Следующий этап проекта: 20 controlled sessions по `docs/pilot/PILOT_RUNBOOK.md`, затем 5 real prospects, интервью, funnel report и решение GO/NO_GO.
+
+## 2026-08-08 — Pilot landing pre-deploy acceptance
+
+### Выполнено
+
+- Проведена read-only инвентаризация текущего Stage 9 через Router route `opencode-go/deepseek-v4-flash`; внешнее web-исследование не потребовалось.
+- Widget TypeScript включён в основной `tsc --noEmit`.
+- Исправлен горизонтальный overflow landing на Android 360×800.
+- Исправлен donor fallback tenant в API runtime: `salamat-mebel-pilot`.
+- Синхронизированы Stage 9 handoff-документы и создан UI review.
+
+### Проверки
+
+- `npm run check` — 19 test files, 235/235 tests.
+- `npm run build:runtime` — успешно.
+- `npm run build:widget` — успешно.
+- Playwright 360×800: `scrollWidth=360`, `clientWidth=360`.
+
+### Ограничения и следующий безопасный handoff
+
+- Remote deploy и live-token вызовы не выполнялись.
+- Перед полевым пилотом требуется добавить `ai.salamat-mebel.kz` в Turnstile hostnames, синхронизировать Cloud Run origin/expected hostname и выполнить real-token browser E2E.
+- Реализован отдельный `TranscriptionGateway`: строгий request/MIME/audio contract, Turnstile, общий tenant RPM/idempotency, консервативная budget reservation, refund при ошибке и фактическое token cost accounting.
+- Зафиксирован server-owned pricing snapshot `gpt-4o-mini-transcribe-2026-08-08`: $1.25/1M input tokens и $5/1M output tokens; источник — официальные OpenAI model/API docs.
+- Widget передаёт tenant/session attribution; STT ledger использует отдельный `stt_` session namespace и общий tenant spend.
+- Подготовлен Cloud Run template для origin/hostname `ai.salamat-mebel.kz`.
+- `npm run check` — 20 test files, 244/244 tests; runtime и widget builds успешны.
+- Следующий безопасный handoff: применить hostname в Turnstile, развернуть новую revision, выполнить real-token browser smoke и сверить Firestore cost ledger. Remote changes в этой сессии не выполнялись.
+
 ## 2026-08-02 — Формирование продукта
 
 ### Решения

@@ -30,4 +30,4 @@ GO возможен только если выборка полная, completio
 
 ## Текущий статус
 
-Инфраструктура готова. Фактические controlled sessions, real prospects, interview notes и production landing embed ещё не проведены.
+Landing, custom-domain route, Turnstile hostname, Cloud Run revision и STT budget/rate/cost gateway развёрнуты. Real-token text E2E и Firestore cost commit проверены. До controlled sessions остаётся ручной real-microphone voice E2E с проверкой показанного transcript. Фактические controlled sessions, real prospects и interview notes ещё не проведены.
