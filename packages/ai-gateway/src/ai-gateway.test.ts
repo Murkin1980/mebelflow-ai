@@ -14,6 +14,7 @@ describe("OpenAiIntentProvider", () => {
     await expect(provider.complete(request)).resolves.toEqual({ output, usage: { inputTokens: 120, cachedInputTokens: 50, outputTokens: 20 } });
     expect(sent?.url).toBe("https://api.openai.com/v1/responses"); expect(sent?.headers.authorization).toBe("Bearer server-secret"); expect(JSON.stringify(sent?.body)).not.toContain("phone");
     expect(JSON.stringify(sent?.body)).toContain("Never return a bare command"); expect(JSON.stringify(sent?.body)).toContain("SET_WALL_WIDTH");
+    expect(JSON.stringify(sent?.body)).toContain("перемести мойку вправо"); expect(JSON.stringify(sent?.body)).toContain("payload.id");
   });
   it("rejects malformed provider output", async () => {
     const provider = new OpenAiIntentProvider({ apiKey: "x", sender: async () => ({ status: 200, body: { output: [], usage: { input_tokens: 1, output_tokens: 1 } } }) });

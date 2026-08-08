@@ -1,5 +1,12 @@
 # SESSION NOTES — MebelFlow AI
 
+## 2026-08-08 — Voice sink movement regression
+
+- По пользовательскому real-microphone smoke найден разрыв между allowed move commands и production prompt: AI не получал shape `payload.id`, правило разрешения «мойка» через `projectSummary.modules` и различие one-step/edge movement.
+- Для `MOVE_LEFT`, `MOVE_RIGHT` и `MOVE_TO_EDGE` добавлен явный semantic/output contract с точным копированием существующего module id.
+- Silent no-op на краю заменён понятной `LayoutError`, поэтому UI больше не сообщает ложное «Схема обновлена» без изменения геометрии.
+- Добавлены prompt-contract и edge no-op регрессии; `npm run check` — 20 files, 245/245 tests; runtime build проходит.
+
 ## 2026-08-08 — Stage 9F production smoke and security closure
 
 ### Выполнено
