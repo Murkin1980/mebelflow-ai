@@ -42,7 +42,10 @@ let totalCost = 0;
 let activeRecognition: SpeechRecognitionLike | null = null;
 let speechWasRecognized = false;
 let speechInitialText = "";
-let currentView: "front" | "top" | "perspective" = "front";
+let currentView: "front" | "top" | "perspective" | "3d" = "front";
+let viewer3d: import("./kitchen-3d-viewer.js").Kitchen3DViewer | undefined;
+let viewer3dLoading = false;
+let selectedModuleId: string | undefined;
 let autoSubmitAfterTranscription = false;
 
 function addChatMessage(role: "ai" | "user", text: string, thinking = false) {
@@ -90,11 +93,39 @@ function renderPerspective(state: ProjectHistory["present"]) {
   return `<svg viewBox="-180 -120 ${wall + depth + 360} 980" role="img" aria-label="Автоматический предварительный контур кухни в перспективе"><defs><linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff7ff"/><stop offset="1" stop-color="#f3e7d1"/></linearGradient></defs><rect x="-${depth}" y="-${depth}" width="${wall + depth * 2}" height="${780 + depth}" fill="#fff7ff" stroke="#cdc3d1" stroke-width="6"/><polygon points="-${depth},650 ${wall + depth},650 ${wall + depth * 2},850 -${depth * 2},850" fill="url(#floor)" stroke="#c79a3b" stroke-width="6"/><path d="M0 90H${wall}" stroke="#c79a3b" stroke-width="12"/>${modules}<path d="M0 650H${wall}" stroke="#431b67" stroke-width="12"/><text x="${wall / 2}" y="790" text-anchor="middle" font-family="Manrope" font-size="46" fill="#431b67">Предварительный контур · ${wall} мм</text></svg>`;
 }
 
+async function render3D(state: ProjectHistory["present"]) {
+  if (viewer3d) { viewer3d.update(state); viewer3d.setSelectedModule(selectedModuleId); return; }
+  if (viewer3dLoading) return;
+  viewer3dLoading = true;
+  const scheme = byId("scheme");
+  scheme.innerHTML = '<div class="viewer-loading" role="status">Готовлю объёмный вид…</div>';
+  try {
+    const { createKitchen3DViewer } = await import("./kitchen-3d-viewer.js");
+    if (currentView !== "3d") return;
+    viewer3d = await createKitchen3DViewer({
+      container: scheme, state, selectedModuleId,
+      onModuleSelect(id) { selectedModuleId = id; viewer3d?.setSelectedModule(id); setStatus(`Выбран модуль ${moduleLabel(history.present.lowerRow.modules.find(module => module.id === id)?.type ?? "")}.`, "success"); },
+      onError(error) { console.warn("MebelFlow 3D asset fallback", error); },
+    });
+    viewer3d.update(history.present);
+  } catch (error) {
+    console.warn("MebelFlow 3D unavailable", error);
+    scheme.innerHTML = '<div class="viewer-error" role="status"><strong>3D-вид недоступен</strong><span>Схема и все команды продолжают работать.</span></div>';
+    setStatus("Не удалось включить 3D-вид. Используйте фасад, вид сверху или перспективу.", "error");
+  } finally { viewer3dLoading = false; }
+}
+
 function render() {
   const state = history.present;
-  byId("scheme").innerHTML = state.room.wallWidth
-    ? currentView === "front" ? renderKitchenSvg(state, { title: "Предварительная схема кухни", description: "Схема обновляется после подтверждённых команд." }) : currentView === "top" ? renderTopView(state) : renderPerspective(state)
-    : '<div class="scheme-empty"><strong>Укажите длину кухни</strong><span>Например: «кухня 3 метра»</span></div>';
+  const scheme = byId("scheme");
+  scheme.classList.toggle("is-3d", currentView === "3d");
+  if (currentView === "3d" && state.room.wallWidth) void render3D(state);
+  else {
+    viewer3d?.dispose(); viewer3d = undefined;
+    scheme.innerHTML = state.room.wallWidth
+      ? currentView === "front" ? renderKitchenSvg(state, { title: "Предварительная схема кухни", description: "Схема обновляется после подтверждённых команд.", selectedId: selectedModuleId }) : currentView === "top" ? renderTopView(state) : renderPerspective(state)
+      : '<div class="scheme-empty"><strong>Укажите длину кухни</strong><span>Например: «кухня 3 метра»</span></div>';
+  }
   const remaining = calculateRemainingWidth(state);
   byId("wall-metric").textContent = state.room.wallWidth ? `${state.room.wallWidth} мм` : "не задана";
   byId("remaining-metric").textContent = remaining === null ? "—" : `${remaining} мм`;

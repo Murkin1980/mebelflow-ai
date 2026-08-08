@@ -21,6 +21,7 @@ Pricing and Styles          ██████████ 100%
 Admin and Lead              ██████████ 100%
 PDF                         ██████████ 100%
 Pilot                       ████░░░░░░  40%
+Lazy 3D Viewer              ████████░░  80%
 ```
 
 ## Current phase

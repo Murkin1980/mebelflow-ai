@@ -1,5 +1,15 @@
 # SESSION NOTES — MebelFlow AI
 
+## 2026-08-08 — Stage 10 lazy Three.js viewer
+
+- По присланной спецификации и explicit owner decision принят ADR-005: SVG остаётся default/fallback, 3D добавлен как optional Stage 10 mode.
+- Через Router `opencode-go/deepseek-v4-flash` выполнены декомпозиция ТЗ, code inventory и классификация конфликтов с прежним SVG-first scope.
+- Добавлен чистый TS `visual-scene-engine`: millimetre XYZ mapping, corpus/facade/countertop parts, style colors, `metadata.visualAssetId` + registry GLB contract и box fallback.
+- Добавлен vanilla Three.js viewer с lazy chunk, OrbitControls, responsive resize containment, module selection, GLB timeout/fallback и graceful WebGL error state.
+- Первый browser smoke обнаружил и помог исправить ResizeObserver feedback loop; итоговые размеры стабильны.
+- Проверки: 21 test files, 252/252 tests; widget build emits `app.js` ~377 KB и optional Three.js chunk ~630 KB.
+- Playwright evidence: `output/playwright/stage10-3d-desktop.png`, `stage10-3d-mobile.png`, `stage10-3d-mobile-orbit.png`; mobile horizontal overflow отсутствует (`scrollWidth=345`, `clientWidth=345`).
+
 ## 2026-08-08 — Voice sink movement regression
 
 - По пользовательскому real-microphone smoke найден разрыв между allowed move commands и production prompt: AI не получал shape `payload.id`, правило разрешения «мойка» через `projectSummary.modules` и различие one-step/edge movement.

@@ -179,6 +179,19 @@
 - [x] Error monitoring
 - [x] Cost dashboard
 - [ ] 20 controlled sessions
+
+## Этап 10 — Lazy 3D Viewer
+
+- [x] Renderer-neutral `visual-scene-engine`
+- [x] Deterministic Project State → XYZ/dimensions mapping
+- [x] Parametric corpus/facade/countertop geometry
+- [x] GLB asset contract with box fallback
+- [x] Lazy Three.js chunk; SVG remains default
+- [x] PerspectiveCamera, WebGLRenderer, OrbitControls and responsive ResizeObserver
+- [x] Module selection callback and selected-module highlight
+- [x] Desktop and mobile 360×800 WebGL smoke
+- [ ] Production GLB asset from SketchUp pipeline
+- [ ] Upper-row and mezzanine 3D scene generation
 - [ ] 5 real prospects
 - [ ] Interview notes
 - [ ] Funnel report

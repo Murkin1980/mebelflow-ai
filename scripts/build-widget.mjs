@@ -8,11 +8,14 @@ await cp("apps/widget/public/index.html", `${outdir}/index.html`);
 await cp("apps/widget/public/styles.css", `${outdir}/styles.css`);
 await cp("apps/widget/public/kitchen-hero.png", `${outdir}/kitchen-hero.png`);
 await build({
-  entryPoints: ["apps/widget/src/main.ts"],
+  entryPoints: { app: "apps/widget/src/main.ts" },
   bundle: true,
+  splitting: true,
   minify: true,
   sourcemap: true,
   platform: "browser",
   format: "esm",
-  outfile: `${outdir}/app.js`,
+  outdir,
+  entryNames: "[name]",
+  chunkNames: "chunks/[name]-[hash]",
 });
