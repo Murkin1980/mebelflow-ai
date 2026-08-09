@@ -12,11 +12,24 @@ export type Kitchen3DViewer = {
 
 const metres = (millimetres: number) => millimetres / 1000;
 const disposeObject = (object: THREE.Object3D) => object.traverse(child => {
-  if (!(child instanceof THREE.Mesh)) return;
+  if (!(child instanceof THREE.Mesh || child instanceof THREE.LineSegments)) return;
   child.geometry.dispose();
   const materials = Array.isArray(child.material) ? child.material : [child.material];
   materials.forEach(material => material.dispose());
 });
+
+function projectionGrid(width: number, height: number, depth: number) {
+  const group = new THREE.Group(); group.name = "projection-grid-100mm";
+  const minor: number[] = []; const major: number[] = [];
+  const add = (target: number[], from: [number, number, number], to: [number, number, number]) => target.push(...from, ...to);
+  const lineTarget = (index: number) => index % 5 === 0 ? major : minor;
+  for (let index = 0; index <= Math.round(width / .1); index += 1) { const x = Math.min(width, index * .1); add(lineTarget(index), [x, .003, 0], [x, .003, depth]); add(lineTarget(index), [x, 0, .003], [x, height, .003]); }
+  for (let index = 0; index <= Math.round(depth / .1); index += 1) { const z = Math.min(depth, index * .1); add(lineTarget(index), [0, .003, z], [width, .003, z]); }
+  for (let index = 0; index <= Math.round(height / .1); index += 1) { const y = Math.min(height, index * .1); add(lineTarget(index), [0, y, .003], [width, y, .003]); }
+  const layer = (positions: number[], color: string, opacity: number) => { const geometry = new THREE.BufferGeometry(); geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3)); return new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color, transparent: true, opacity, depthWrite: false })); };
+  group.add(layer(minor, "#8d72a5", .2), layer(major, "#6b3a8b", .4));
+  return group;
+}
 
 export async function createKitchen3DViewer(input: {
   container: HTMLElement;
@@ -36,6 +49,10 @@ export async function createKitchen3DViewer(input: {
   renderer.domElement.setAttribute("aria-label", "Интерактивный трёхмерный вид кухни. Перетаскивайте для вращения, используйте колесо или жест щипка для масштаба.");
   renderer.domElement.tabIndex = 0;
   input.container.replaceChildren(renderer.domElement);
+  const emptyNote = document.createElement("div");
+  emptyNote.className = "viewer-empty-note"; emptyNote.setAttribute("role", "status");
+  emptyNote.innerHTML = "<strong>В проекте пока нет модулей</strong><span>Сетка имеет шаг 100 мм. В перспективе пустые секции показаны только как подсказка.</span>";
+  input.container.append(emptyNote);
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = !matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -98,12 +115,15 @@ export async function createKitchen3DViewer(input: {
     floor.rotation.x = -Math.PI / 2; floor.position.set(metres(definition.room.width) / 2, 0, metres(definition.room.depth) / 2 - .25); dynamic.add(floor);
     const wall = new THREE.Mesh(new THREE.PlaneGeometry(metres(definition.room.width), metres(definition.room.height)), new THREE.MeshStandardMaterial({ color: "#f4eee5", roughness: 1 }));
     wall.position.set(metres(definition.room.width) / 2, metres(definition.room.height) / 2, -.015); dynamic.add(wall);
+    dynamic.add(projectionGrid(metres(definition.room.width), metres(definition.room.height), metres(definition.room.depth)));
     for (const module of definition.modules) { const fallback = boxPart(module); dynamic.add(fallback); if (module.kind === "glb") void replaceWithGlb(module, fallback, token); }
     const width = metres(definition.room.width);
     const contentTop = metres(Math.max(758, ...definition.modules.map(module => module.position.y + module.dimensionsMm.height / 2)));
-    const targetY = Math.max(.7, contentTop / 2);
+    const hasModules = definition.modules.length > 0;
+    const targetY = hasModules ? Math.max(.7, contentTop / 2) : metres(definition.room.height) * .42;
     controls.target.set(width / 2, targetY, .25);
-    camera.position.set(width * .68, targetY + .8, Math.max(2.6, width * .9, contentTop * 1.7));
+    camera.position.set(width * .68, targetY + .8, hasModules ? Math.max(2.6, width * .9, contentTop * 1.7) : Math.max(3.6, width * 1.2));
+    emptyNote.hidden = hasModules;
     controls.update(); markSelection();
   }
 
@@ -118,6 +138,6 @@ export async function createKitchen3DViewer(input: {
   return {
     update(state, visualAssets = {}) { rebuild(projectStateToScene(state, visualAssets)); },
     setSelectedModule(id) { selectedModuleId = id; markSelection(); },
-    dispose() { disposed = true; generation += 1; renderer.setAnimationLoop(null); renderer.domElement.removeEventListener("pointerup", select); resizeObserver.disconnect(); controls.dispose(); disposeObject(dynamic); renderer.dispose(); renderer.domElement.remove(); },
+    dispose() { disposed = true; generation += 1; renderer.setAnimationLoop(null); renderer.domElement.removeEventListener("pointerup", select); resizeObserver.disconnect(); controls.dispose(); disposeObject(dynamic); renderer.dispose(); renderer.domElement.remove(); emptyNote.remove(); },
   };
 }

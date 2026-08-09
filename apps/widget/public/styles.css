@@ -111,6 +111,10 @@ label { display: block; margin-bottom: 9px; font-size: 10px; font-weight: 700; l
 .scheme.is-3d { position: relative; display: block; flex: 0 0 clamp(360px, 38vw, 500px); width: 100%; height: clamp(360px, 38vw, 500px); min-height: 0; padding: 0; overflow: hidden; contain: size layout paint; }
 .kitchen-3d-canvas { position: absolute; inset: 18px 0; display: block; width: 100%; height: calc(100% - 36px); min-height: 0; border: 1px solid var(--line); border-radius: 10px; outline: none; touch-action: none; }
 .kitchen-3d-canvas:focus-visible { border-color: var(--clay); box-shadow: 0 0 0 3px rgba(199,154,59,.25); }
+.viewer-empty-note { position: absolute; z-index: 2; left: 50%; bottom: 34px; display: grid; width: min(430px, calc(100% - 40px)); padding: 12px 16px; translate: -50% 0; gap: 3px; border: 1px solid rgba(67,27,103,.2); border-radius: 8px; background: rgba(255,247,255,.9); box-shadow: 0 8px 24px rgba(42,38,31,.12); color: var(--muted); text-align: center; pointer-events: none; backdrop-filter: blur(6px); }
+.viewer-empty-note[hidden] { display: none; }
+.viewer-empty-note strong { color: var(--green); font-size: 14px; }
+.viewer-empty-note span { font-size: 12px; line-height: 1.35; }
 .viewer-loading, .viewer-error { display: grid; min-height: 390px; place-content: center; justify-items: center; gap: 8px; border: 1px dashed var(--line); color: var(--muted); text-align: center; }
 .viewer-error strong { color: var(--danger); font-family: Prata, serif; font-size: 22px; font-weight: 400; }
 .metrics { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--ink); }

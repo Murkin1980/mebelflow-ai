@@ -1,5 +1,13 @@
 # SESSION NOTES — MebelFlow AI
 
+## 2026-08-09 — Empty 3D clarity and 100 mm projection grid
+
+- Production screenshots showed a truthful empty 3D scene while Perspective rendered five generated 600 mm placeholders; metrics (`3000 мм` free) confirmed that Project State contained no modules.
+- Router `opencode-go/deepseek-v4-flash` traced the mismatch to `renderPerspective`; its repeated placeholder cabinets were replaced by one dashed `Свободное место` volume.
+- Added wall/floor projection grids with 100 mm minor spacing and emphasized 500 mm lines, plus an explicit empty-state note explaining that perspective free sections are hints only.
+- Empty-room camera framing now shows the whole coordinate context; the note disappears automatically when real modules enter Project State.
+- Playwright verified empty desktop/mobile and populated WebGL scenes with no horizontal overflow; evidence is stored in `output/playwright/stage10-empty-grid-*.png` and `stage10-grid-populated-desktop.png`.
+
 ## 2026-08-09 — Stage 10 upper row and mezzanines
 
 - Cloudflare Worker `mebelflow-ai-landing` deployed as version `b15d1495-e25f-4e0e-a772-8257276e4025`; production page, `app.js` and lazy viewer chunk return `200` and the chunk contains the new upper-row/camera logic.

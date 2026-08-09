@@ -192,6 +192,8 @@
 - [x] Desktop and mobile 360×800 WebGL smoke
 - [ ] Production GLB asset from SketchUp pipeline
 - [x] Upper-row and mezzanine 3D scene generation
+- [x] Projection grid on wall and floor with 100 mm step and 500 mm major lines
+- [x] Explicit empty 3D state; perspective placeholders no longer resemble committed cabinets
 - [ ] 5 real prospects
 - [ ] Interview notes
 - [ ] Funnel report
