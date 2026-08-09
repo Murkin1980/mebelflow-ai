@@ -1,5 +1,13 @@
 # SESSION NOTES — MebelFlow AI
 
+## 2026-08-09 — Stage 10 upper row and mezzanines
+
+- Router `opencode-go/deepseek-v4-flash` classified the specification and traced Project State/SVG geometry; strong-model review caught a 142 mm vertical-datum mismatch before release.
+- `visual-scene-engine` now derives upper cabinets and mezzanines from lower widths, excludes refrigerators/tall units, keeps stable source-module selection and uses distinct mezzanine facades.
+- Upper-row placement follows the visible countertop top plus apron height, matching the existing SVG scene while Layout Engine remains the authority for available-height validation.
+- Three.js camera framing now derives its target and distance from actual scene content height, keeping tall units, upper cabinets and mezzanines visible.
+- Added upper-row alignment, mezzanine placement, exclusion and disabled/null-state regressions; Playwright desktop/mobile WebGL evidence saved in `output/playwright/stage10-upper-*.png`.
+
 ## 2026-08-08 — Stage 10 lazy Three.js viewer
 
 - Cloudflare Worker `mebelflow-ai-landing` deployed as version `98a27e4c-295b-47a8-bf10-da9726dea2c2` on `https://ai.salamat-mebel.kz/`.

@@ -191,7 +191,7 @@
 - [x] Module selection callback and selected-module highlight
 - [x] Desktop and mobile 360×800 WebGL smoke
 - [ ] Production GLB asset from SketchUp pipeline
-- [ ] Upper-row and mezzanine 3D scene generation
+- [x] Upper-row and mezzanine 3D scene generation
 - [ ] 5 real prospects
 - [ ] Interview notes
 - [ ] Funnel report

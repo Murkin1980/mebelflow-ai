@@ -99,7 +99,12 @@ export async function createKitchen3DViewer(input: {
     const wall = new THREE.Mesh(new THREE.PlaneGeometry(metres(definition.room.width), metres(definition.room.height)), new THREE.MeshStandardMaterial({ color: "#f4eee5", roughness: 1 }));
     wall.position.set(metres(definition.room.width) / 2, metres(definition.room.height) / 2, -.015); dynamic.add(wall);
     for (const module of definition.modules) { const fallback = boxPart(module); dynamic.add(fallback); if (module.kind === "glb") void replaceWithGlb(module, fallback, token); }
-    const width = metres(definition.room.width); controls.target.set(width / 2, .65, .25); camera.position.set(width * .68, 1.65, Math.max(2.6, width * .9)); controls.update(); markSelection();
+    const width = metres(definition.room.width);
+    const contentTop = metres(Math.max(758, ...definition.modules.map(module => module.position.y + module.dimensionsMm.height / 2)));
+    const targetY = Math.max(.7, contentTop / 2);
+    controls.target.set(width / 2, targetY, .25);
+    camera.position.set(width * .68, targetY + .8, Math.max(2.6, width * .9, contentTop * 1.7));
+    controls.update(); markSelection();
   }
 
   const resize = () => { const width = Math.max(1, input.container.clientWidth); const height = Math.max(1, input.container.clientHeight); renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix(); };
