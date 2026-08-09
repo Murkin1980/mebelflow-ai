@@ -2,6 +2,7 @@
 
 ## 2026-08-09 — Stage 10 upper row and mezzanines
 
+- Cloudflare Worker `mebelflow-ai-landing` deployed as version `b15d1495-e25f-4e0e-a772-8257276e4025`; production page, `app.js` and lazy viewer chunk return `200` and the chunk contains the new upper-row/camera logic.
 - Router `opencode-go/deepseek-v4-flash` classified the specification and traced Project State/SVG geometry; strong-model review caught a 142 mm vertical-datum mismatch before release.
 - `visual-scene-engine` now derives upper cabinets and mezzanines from lower widths, excludes refrigerators/tall units, keeps stable source-module selection and uses distinct mezzanine facades.
 - Upper-row placement follows the visible countertop top plus apron height, matching the existing SVG scene while Layout Engine remains the authority for available-height validation.
