@@ -2,6 +2,7 @@
 
 ## 2026-08-09 — Empty 3D clarity and 100 mm projection grid
 
+- Cloudflare Worker `mebelflow-ai-landing` deployed as version `1697148c-e8e1-4f8e-a91e-93b81fa85c61`; production `app.js` references the new viewer chunk and the deployed chunk contains the `projection-grid-100mm` and empty-note implementation.
 - Production screenshots showed a truthful empty 3D scene while Perspective rendered five generated 600 mm placeholders; metrics (`3000 мм` free) confirmed that Project State contained no modules.
 - Router `opencode-go/deepseek-v4-flash` traced the mismatch to `renderPerspective`; its repeated placeholder cabinets were replaced by one dashed `Свободное место` volume.
 - Added wall/floor projection grids with 100 mm minor spacing and emphasized 500 mm lines, plus an explicit empty-state note explaining that perspective free sections are hints only.
