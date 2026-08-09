@@ -2,6 +2,7 @@
 
 ## 2026-08-09 — 3D orbit and camera-control hints
 
+- Cloudflare Worker `mebelflow-ai-landing` deployed as version `1093b572-30bc-4f3d-9eed-01739ef5e953`; production assets reference the new viewer chunk and contain orbit badge, desktop/touch legends, cursor tooltip and grab/grabbing styles.
 - Added a persistent orbit badge, `grab`/`grabbing` cursor states and a mouse-follow tooltip inside the 3D canvas.
 - Added compact SVG-icon legends for rotate, zoom and pan; desktop uses mouse-specific wording while mobile uses pinch/two-finger wording.
 - The cursor tooltip is hidden from assistive technology, while the persistent legend is exposed as a labelled control group and the canvas label explains all gestures.
