@@ -194,6 +194,8 @@
 - [x] Upper-row and mezzanine 3D scene generation
 - [x] Projection grid on wall and floor with 100 mm step and 500 mm major lines
 - [x] Explicit empty 3D state; perspective placeholders no longer resemble committed cabinets
+- [x] Orbit badge, grab/grabbing cursor and mouse-follow interaction tooltip
+- [x] Separate desktop/touch legends for rotate, zoom and pan controls
 - [ ] 5 real prospects
 - [ ] Interview notes
 - [ ] Funnel report

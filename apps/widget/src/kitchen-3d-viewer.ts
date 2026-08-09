@@ -46,13 +46,21 @@ export async function createKitchen3DViewer(input: {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
   renderer.domElement.className = "kitchen-3d-canvas";
-  renderer.domElement.setAttribute("aria-label", "Интерактивный трёхмерный вид кухни. Перетаскивайте для вращения, используйте колесо или жест щипка для масштаба.");
+  renderer.domElement.setAttribute("aria-label", "Интерактивный трёхмерный вид кухни. Перетаскивайте для вращения, используйте колесо или жест щипка для масштаба, правую кнопку мыши или два пальца для сдвига.");
   renderer.domElement.tabIndex = 0;
   input.container.replaceChildren(renderer.domElement);
   const emptyNote = document.createElement("div");
   emptyNote.className = "viewer-empty-note"; emptyNote.setAttribute("role", "status");
   emptyNote.innerHTML = "<strong>В проекте пока нет модулей</strong><span>Сетка имеет шаг 100 мм. В перспективе пустые секции показаны только как подсказка.</span>";
-  input.container.append(emptyNote);
+  const orbitBadge = document.createElement("div"); orbitBadge.className = "viewer-orbit-badge"; orbitBadge.setAttribute("aria-hidden", "true");
+  orbitBadge.innerHTML = '<svg viewBox="0 0 32 32"><path d="M7 12a11 11 0 0 1 18-4l2-1-1 6-6-1 2-2a8 8 0 0 0-12 3M25 20a11 11 0 0 1-18 4l-2 1 1-6 6 1-2 2a8 8 0 0 0 12-3"/><path d="m11 14 5-3 5 3v6l-5 3-5-3zM16 11v6m-5-3 5 3 5-3"/></svg><span>Вращение</span>';
+  const legend = document.createElement("div"); legend.className = "viewer-control-legend"; legend.setAttribute("role", "group"); legend.setAttribute("aria-label", "Управление трёхмерным видом");
+  const rotateIcon = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 8a7 7 0 0 1 11-4l2-1v5h-5l2-2a5 5 0 0 0-8 3M17 12a7 7 0 0 1-11 4l-2 1v-5h5l-2 2a5 5 0 0 0 8-3"/></svg>';
+  const zoomIcon = '<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8" cy="8" r="5"/><path d="m12 12 5 5M8 5v6M5 8h6"/></svg>';
+  const panIcon = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2v16M2 10h16M10 2 7 5m3-3 3 3M10 18l-3-3m3 3 3-3M2 10l3-3m-3 3 3 3M18 10l-3-3m3 3-3 3"/></svg>';
+  legend.innerHTML = `<span>${rotateIcon}Тяните — вращение</span><span class="desktop-control">${zoomIcon}Колесо — масштаб</span><span class="touch-control">${zoomIcon}Щипок — масштаб</span><span class="desktop-control">${panIcon}Правая кнопка — сдвиг</span><span class="touch-control">${panIcon}2 пальца — сдвиг</span>`;
+  const cursorHint = document.createElement("div"); cursorHint.className = "viewer-cursor-hint"; cursorHint.hidden = true; cursorHint.setAttribute("aria-hidden", "true"); cursorHint.textContent = "Тяните — вращение · колесо — масштаб · правая кнопка — сдвиг";
+  input.container.append(emptyNote, orbitBadge, legend, cursorHint);
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = !matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -130,14 +138,21 @@ export async function createKitchen3DViewer(input: {
   const resize = () => { const width = Math.max(1, input.container.clientWidth); const height = Math.max(1, input.container.clientHeight); renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix(); };
   const resizeObserver = new ResizeObserver(resize); resizeObserver.observe(input.container); resize();
   const raycaster = new THREE.Raycaster(); const pointer = new THREE.Vector2();
-  const select = (event: PointerEvent) => { const rect = renderer.domElement.getBoundingClientRect(); pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1); raycaster.setFromCamera(pointer, camera); const hit = raycaster.intersectObjects(dynamic.children, true).find(item => typeof item.object.userData.moduleId === "string"); if (hit) input.onModuleSelect?.(hit.object.userData.moduleId as string); };
+  let pointerStart: { id: number; x: number; y: number } | undefined; let hintFrame = 0;
+  const select = (event: PointerEvent) => { if (event.button !== 0 || !pointerStart || pointerStart.id !== event.pointerId || Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y) > 5) return; const rect = renderer.domElement.getBoundingClientRect(); pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1); raycaster.setFromCamera(pointer, camera); const hit = raycaster.intersectObjects(dynamic.children, true).find(item => typeof item.object.userData.moduleId === "string"); if (hit) input.onModuleSelect?.(hit.object.userData.moduleId as string); };
+  const moveHint = (event: PointerEvent) => { if (event.pointerType !== "mouse" || renderer.domElement.classList.contains("is-interacting")) return; const x = event.clientX; const y = event.clientY; cancelAnimationFrame(hintFrame); hintFrame = requestAnimationFrame(() => { const rect = input.container.getBoundingClientRect(); cursorHint.hidden = false; const left = Math.min(rect.width - 270, Math.max(8, x - rect.left + 12)); const top = Math.min(rect.height - 54, Math.max(8, y - rect.top + 12)); cursorHint.style.transform = `translate3d(${left}px,${top}px,0)`; }); };
+  const hideHint = () => { cancelAnimationFrame(hintFrame); cursorHint.hidden = true; };
+  const startInteraction = (event: PointerEvent) => { pointerStart = { id: event.pointerId, x: event.clientX, y: event.clientY }; renderer.domElement.classList.add("is-interacting"); hideHint(); };
+  const endInteraction = () => { pointerStart = undefined; renderer.domElement.classList.remove("is-interacting"); };
   renderer.domElement.addEventListener("pointerup", select);
+  renderer.domElement.addEventListener("pointermove", moveHint); renderer.domElement.addEventListener("pointerleave", hideHint);
+  renderer.domElement.addEventListener("pointerdown", startInteraction); renderer.domElement.addEventListener("pointerup", endInteraction); renderer.domElement.addEventListener("pointercancel", endInteraction);
   renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
   rebuild(projectStateToScene(input.state, input.visualAssets));
 
   return {
     update(state, visualAssets = {}) { rebuild(projectStateToScene(state, visualAssets)); },
     setSelectedModule(id) { selectedModuleId = id; markSelection(); },
-    dispose() { disposed = true; generation += 1; renderer.setAnimationLoop(null); renderer.domElement.removeEventListener("pointerup", select); resizeObserver.disconnect(); controls.dispose(); disposeObject(dynamic); renderer.dispose(); renderer.domElement.remove(); emptyNote.remove(); },
+    dispose() { disposed = true; generation += 1; renderer.setAnimationLoop(null); renderer.domElement.removeEventListener("pointerup", select); renderer.domElement.removeEventListener("pointermove", moveHint); renderer.domElement.removeEventListener("pointerleave", hideHint); renderer.domElement.removeEventListener("pointerdown", startInteraction); renderer.domElement.removeEventListener("pointerup", endInteraction); renderer.domElement.removeEventListener("pointercancel", endInteraction); resizeObserver.disconnect(); controls.dispose(); disposeObject(dynamic); renderer.dispose(); renderer.domElement.remove(); emptyNote.remove(); orbitBadge.remove(); legend.remove(); cursorHint.remove(); },
   };
 }

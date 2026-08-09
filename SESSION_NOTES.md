@@ -1,5 +1,13 @@
 # SESSION NOTES — MebelFlow AI
 
+## 2026-08-09 — 3D orbit and camera-control hints
+
+- Added a persistent orbit badge, `grab`/`grabbing` cursor states and a mouse-follow tooltip inside the 3D canvas.
+- Added compact SVG-icon legends for rotate, zoom and pan; desktop uses mouse-specific wording while mobile uses pinch/two-finger wording.
+- The cursor tooltip is hidden from assistive technology, while the persistent legend is exposed as a labelled control group and the canvas label explains all gestures.
+- Right-button pan and drag no longer trigger accidental module selection; selection requires a primary-button movement of at most 5 CSS px.
+- Router `opencode-go/deepseek-v4-flash` reviewed the interaction pattern; Playwright verified desktop hover/grabbing/right-pan, mobile 360×800, touch wording, reduced motion and no horizontal overflow.
+
 ## 2026-08-09 — Empty 3D clarity and 100 mm projection grid
 
 - Cloudflare Worker `mebelflow-ai-landing` deployed as version `1697148c-e8e1-4f8e-a91e-93b81fa85c61`; production `app.js` references the new viewer chunk and the deployed chunk contains the `projection-grid-100mm` and empty-note implementation.

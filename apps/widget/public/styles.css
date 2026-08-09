@@ -109,12 +109,21 @@ label { display: block; margin-bottom: 9px; font-size: 10px; font-weight: 700; l
 .scheme-empty span { color: var(--muted); font-size: 13px; }
 .scheme svg { width: 100%; max-height: 410px; filter: drop-shadow(0 22px 22px rgba(42,38,31,.10)); }
 .scheme.is-3d { position: relative; display: block; flex: 0 0 clamp(360px, 38vw, 500px); width: 100%; height: clamp(360px, 38vw, 500px); min-height: 0; padding: 0; overflow: hidden; contain: size layout paint; }
-.kitchen-3d-canvas { position: absolute; inset: 18px 0; display: block; width: 100%; height: calc(100% - 36px); min-height: 0; border: 1px solid var(--line); border-radius: 10px; outline: none; touch-action: none; }
+.kitchen-3d-canvas { position: absolute; inset: 18px 0; display: block; width: 100%; height: calc(100% - 36px); min-height: 0; border: 1px solid var(--line); border-radius: 10px; outline: none; cursor: grab; touch-action: none; }
+.kitchen-3d-canvas.is-interacting { cursor: grabbing; }
 .kitchen-3d-canvas:focus-visible { border-color: var(--clay); box-shadow: 0 0 0 3px rgba(199,154,59,.25); }
-.viewer-empty-note { position: absolute; z-index: 2; left: 50%; bottom: 34px; display: grid; width: min(430px, calc(100% - 40px)); padding: 12px 16px; translate: -50% 0; gap: 3px; border: 1px solid rgba(67,27,103,.2); border-radius: 8px; background: rgba(255,247,255,.9); box-shadow: 0 8px 24px rgba(42,38,31,.12); color: var(--muted); text-align: center; pointer-events: none; backdrop-filter: blur(6px); }
+.viewer-empty-note { position: absolute; z-index: 2; left: 50%; bottom: 80px; display: grid; width: min(430px, calc(100% - 40px)); padding: 12px 16px; translate: -50% 0; gap: 3px; border: 1px solid rgba(67,27,103,.2); border-radius: 8px; background: rgba(255,247,255,.9); box-shadow: 0 8px 24px rgba(42,38,31,.12); color: var(--muted); text-align: center; pointer-events: none; backdrop-filter: blur(6px); }
 .viewer-empty-note[hidden] { display: none; }
 .viewer-empty-note strong { color: var(--green); font-size: 14px; }
 .viewer-empty-note span { font-size: 12px; line-height: 1.35; }
+.viewer-orbit-badge { position: absolute; z-index: 2; top: 30px; right: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 9px; border: 1px solid rgba(67,27,103,.22); border-radius: 999px; background: rgba(255,247,255,.88); color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; pointer-events: none; backdrop-filter: blur(6px); }
+.viewer-orbit-badge svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.viewer-control-legend { position: absolute; z-index: 2; left: 12px; right: 12px; bottom: 28px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px 14px; padding: 8px 12px; border: 1px solid rgba(67,27,103,.16); border-radius: 8px; background: rgba(255,247,255,.88); color: var(--muted); font-size: 11px; line-height: 1.25; pointer-events: none; backdrop-filter: blur(6px); }
+.viewer-control-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.viewer-control-legend svg { width: 15px; height: 15px; fill: none; stroke: var(--green); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
+.viewer-control-legend .touch-control { display: none; }
+.viewer-cursor-hint { position: absolute; z-index: 3; left: 0; top: 0; max-width: 258px; padding: 7px 10px; border-radius: 6px; background: rgba(31,25,39,.88); color: #fff; font-size: 11px; line-height: 1.3; box-shadow: 0 5px 16px rgba(31,25,39,.2); pointer-events: none; }
+.viewer-cursor-hint[hidden] { display: none; }
 .viewer-loading, .viewer-error { display: grid; min-height: 390px; place-content: center; justify-items: center; gap: 8px; border: 1px dashed var(--line); color: var(--muted); text-align: center; }
 .viewer-error strong { color: var(--danger); font-family: Prata, serif; font-size: 22px; font-weight: 400; }
 .metrics { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--ink); }
@@ -161,6 +170,13 @@ footer a:hover, footer a:focus-visible { color: var(--green); }
   .scheme { min-height: 280px; }
   .scheme.is-3d { flex-basis: 340px; height: 340px; min-height: 0; }
   .kitchen-3d-canvas { min-height: 0; }
+  .viewer-orbit-badge { top: 26px; right: 8px; }
+  .viewer-orbit-badge span { display: none; }
+  .viewer-control-legend { left: 8px; right: 8px; bottom: 24px; gap: 4px 10px; font-size: 10px; }
+  .viewer-control-legend .desktop-control { display: none; }
+  .viewer-control-legend .touch-control { display: inline-flex; }
+  .viewer-empty-note { bottom: 74px; }
+  .viewer-cursor-hint { display: none; }
   .viewer-loading, .viewer-error { min-height: 320px; }
   .cf-turnstile { transform: scale(.88); transform-origin: left center; }
 }
