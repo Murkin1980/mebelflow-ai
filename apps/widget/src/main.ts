@@ -2,6 +2,7 @@ import { compactProjectState } from "../../../packages/intent-parser/src/index.j
 import { applyLayoutCommandToHistory, calculateRemainingWidth } from "../../../packages/layout-engine/src/index.js";
 import { createHistory, createInitialProject, type ProjectHistory } from "../../../packages/project-state/src/index.js";
 import { renderKitchenSvg } from "../../../packages/svg-renderer/src/index.js";
+import { loadStoredProject, storeProject } from "./project-storage.js";
 
 const API_URL = "https://mebelflow-api-staging-1013284205128.europe-central2.run.app";
 const TENANT_ID = "salamat-mebel-pilot";
@@ -34,7 +35,8 @@ const voiceTranscript = byId<HTMLElement>("voice-transcript");
 const voiceStateLabel = byId<HTMLElement>("voice-state-label");
 const transcriptPreview = byId<HTMLParagraphElement>("transcript-preview");
 const conversationLog = byId<HTMLElement>("conversation-log");
-let history: ProjectHistory = createHistory(createInitialProject(crypto.randomUUID(), TENANT_ID));
+const restoredProject = loadStoredProject(localStorage, TENANT_ID);
+let history: ProjectHistory = createHistory(restoredProject ?? createInitialProject(crypto.randomUUID(), TENANT_ID));
 let sessionId = `session_${crypto.randomUUID().replaceAll("-", "")}`;
 let turnstileToken = "";
 let pendingCommand: unknown;
@@ -177,9 +179,10 @@ async function callAi(utterance: string) {
 
 function apply(command: unknown, explanation?: string) {
   history = applyLayoutCommandToHistory(history, command);
+  const stored = storeProject(localStorage, history.present);
   render();
   assistant.textContent = explanation ?? "Изменение применено. Что добавим дальше?";
-  setStatus("Схема обновлена. Изменение можно отменить.", "success");
+  setStatus(stored ? "Схема обновлена и сохранена в этом браузере. Изменение можно отменить." : "Схема обновлена, но браузер не разрешил локальное сохранение.", stored ? "success" : "error");
 }
 
 form.addEventListener("submit", async event => {
@@ -221,7 +224,7 @@ form.addEventListener("submit", async event => {
 });
 
 confirm.addEventListener("click", () => { if (pendingCommand) apply(pendingCommand); pendingCommand = undefined; confirm.classList.add("hidden"); });
-undo.addEventListener("click", () => { history = applyLayoutCommandToHistory(history, { commandId: crypto.randomUUID(), type: "UNDO" }); render(); setStatus("Последнее изменение отменено.", "success"); });
+undo.addEventListener("click", () => { history = applyLayoutCommandToHistory(history, { commandId: crypto.randomUUID(), type: "UNDO" }); const stored = storeProject(localStorage, history.present); render(); setStatus(stored ? "Последнее изменение отменено и сохранено." : "Изменение отменено, но браузер не разрешил локальное сохранение.", stored ? "success" : "error"); });
 document.querySelectorAll<HTMLButtonElement>("[data-view]").forEach(button => button.addEventListener("click", () => {
   currentView = button.dataset.view as typeof currentView;
   document.querySelectorAll("[data-view]").forEach(item => item.classList.toggle("active", item === button));

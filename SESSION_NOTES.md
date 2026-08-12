@@ -492,3 +492,11 @@ Stage 9C реализовал Firestore-backed lease locks, idempotency, RPM и 
 - Внешняя DNS-проверка вернула адреса Cloudflare; HTTPS отвечает `200`.
 - Пока поддомен показывает существующий сайт и его маршрут авторизации; MebelFlow widget ещё не развёрнут на этом hostname.
 - Перед browser E2E необходимо добавить `ai.salamat-mebel.kz` в Turnstile widget hostnames, обновить Cloud Run allowed origin/expected hostname и опубликовать landing.
+
+## 2026-08-12 — Project State persistence
+
+- Router research through `opencode-go/deepseek-v4-flash` confirmed that the widget always created a fresh Project State on reload; server storage only coordinates requests and budgets.
+- Added tenant-scoped browser persistence for `history.present` only. Stored data is parsed through `FurnitureProjectStateSchema`; transient conversation, audio, Turnstile tokens, API responses and undo history are not persisted.
+- Every applied command and undo now saves the validated state. Storage denial or quota failure does not block the constructor and is reported in the UI.
+- Local browser smoke restored a 3000 mm project with sink and drawers after reload and showed 1800 mm remaining. Corrupt JSON was removed and the constructor safely returned to the empty state.
+- Next bounded slice: fix voice auto-submit so a successful transcription does not stall waiting for a second Turnstile success event; keep that change separate from persistence.

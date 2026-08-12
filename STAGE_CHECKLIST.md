@@ -196,6 +196,8 @@
 - [x] Explicit empty 3D state; perspective placeholders no longer resemble committed cabinets
 - [x] Orbit badge, grab/grabbing cursor and mouse-follow interaction tooltip
 - [x] Separate desktop/touch legends for rotate, zoom and pan controls
+- [x] Validated Project State autosave and restore after browser reload
+- [x] Corrupt or unavailable browser storage falls back safely without blocking the constructor
 - [ ] 5 real prospects
 - [ ] Interview notes
 - [ ] Funnel report
