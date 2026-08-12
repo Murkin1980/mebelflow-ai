@@ -528,3 +528,4 @@ Stage 9C реализовал Firestore-backed lease locks, idempotency, RPM и 
 - Used tokens are now cleared without resetting the widget. A new challenge is requested only when the user next types a command, chooses an example or presses the microphone without a token.
 - A refresh guard prevents repeated reset calls while typing. Expiry also clears state without immediately reopening the panel.
 - Verification: 23 test files, 268 tests and widget build pass.
+- Cloudflare version `9386ec91-138d-4582-9452-1abcf4dec058` is live; production `app.js` exactly matches the verified local bundle and no longer contains the post-transcription second-challenge flow.
