@@ -501,3 +501,11 @@ Stage 9C реализовал Firestore-backed lease locks, idempotency, RPM и 
 - Local browser smoke restored a 3000 mm project with sink and drawers after reload and showed 1800 mm remaining. Corrupt JSON was removed and the constructor safely returned to the empty state.
 - Cloudflare deployment `0e3c0522-e2af-4e5e-a086-66d70b4ca0ff` is live on `ai.salamat-mebel.kz`; page and bundle returned 200 and production browser smoke restored the same state. The test-only localStorage entry was removed afterwards.
 - Next bounded slice: fix voice auto-submit so a successful transcription does not stall waiting for a second Turnstile success event; keep that change separate from persistence.
+
+## 2026-08-12 — Voice auto-submit reliability
+
+- Read-only Router audits used `opencode-go/deepseek-v4-flash`; no external research was needed because the repository contained the full token lifecycle.
+- Confirmed that the STT endpoint consumes the first one-time Turnstile token and intent correctly requires a fresh token. The defect was unbounded waiting on the second success event plus a sticky shared boolean.
+- Added a single-fire coordinator with a 12-second timeout, transcript matching, cancellation and manual recovery. Repeated/late events cannot submit again.
+- The microphone and text field are temporarily disabled during server transcription, preventing overlapping recordings and manual-submit races; the recognized text remains available afterwards.
+- Verification: 23 test files, 265 tests, widget build, desktop/mobile browser smoke and accessibility contract. Real-microphone production E2E remains pending.

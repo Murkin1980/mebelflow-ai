@@ -3,6 +3,7 @@ import { applyLayoutCommandToHistory, calculateRemainingWidth } from "../../../p
 import { createHistory, createInitialProject, type ProjectHistory } from "../../../packages/project-state/src/index.js";
 import { renderKitchenSvg } from "../../../packages/svg-renderer/src/index.js";
 import { loadStoredProject, storeProject } from "./project-storage.js";
+import { createVoiceSubmitCoordinator } from "./voice-submit.js";
 
 const API_URL = "https://mebelflow-api-staging-1013284205128.europe-central2.run.app";
 const TENANT_ID = "salamat-mebel-pilot";
@@ -48,7 +49,7 @@ let currentView: "front" | "top" | "perspective" | "3d" = "front";
 let viewer3d: import("./kitchen-3d-viewer.js").Kitchen3DViewer | undefined;
 let viewer3dLoading = false;
 let selectedModuleId: string | undefined;
-let autoSubmitAfterTranscription = false;
+let voiceTranscriptionInProgress = false;
 
 function addChatMessage(role: "ai" | "user", text: string, thinking = false) {
   const message = document.createElement("article");
@@ -142,17 +143,19 @@ function resetTurnstile() {
   api?.reset();
 }
 
+const voiceSubmit = createVoiceSubmitCoordinator({
+  timeoutMs: 12_000,
+  onReady: () => form.requestSubmit(),
+  onTimeout: () => setStatus("Расшифровка сохранена. Проверка безопасности задержалась — дождитесь её и нажмите «Отправить».", "error"),
+});
+
 window.addEventListener("turnstile-success", event => {
   turnstileToken = (event as CustomEvent<string>).detail;
   send.disabled = !commandInput.value.trim();
-  setStatus("Проверка пройдена. Команду можно отправить.", "success");
-  if (autoSubmitAfterTranscription && commandInput.value.trim()) {
-    autoSubmitAfterTranscription = false;
-    form.requestSubmit();
-  }
+  if (!voiceSubmit.resolve(commandInput.value, turnstileToken)) setStatus("Проверка пройдена. Команду можно отправить.", "success");
 });
-window.addEventListener("turnstile-expired", () => { resetTurnstile(); setStatus("Проверка истекла — пройдите её ещё раз.", "error"); });
-commandInput.addEventListener("input", () => { send.disabled = !turnstileToken || !commandInput.value.trim(); });
+window.addEventListener("turnstile-expired", () => { voiceSubmit.cancel(); resetTurnstile(); setStatus("Проверка истекла — пройдите её ещё раз. Распознанный текст сохранён.", "error"); });
+commandInput.addEventListener("input", () => { if (voiceSubmit.isPending()) voiceSubmit.cancel(); send.disabled = !turnstileToken || !commandInput.value.trim(); });
 document.querySelectorAll<HTMLButtonElement>("[data-example]").forEach(button => button.addEventListener("click", () => { commandInput.value = button.dataset.example ?? ""; commandInput.focus(); send.disabled = !turnstileToken || !commandInput.value.trim(); }));
 
 async function callAi(utterance: string) {
@@ -251,6 +254,10 @@ async function transcribeAudio(audio: Blob) {
 }
 
 mic.addEventListener("click", async () => {
+  if (voiceTranscriptionInProgress) {
+    setStatus("Предыдущая запись ещё расшифровывается. Дождитесь текста или введите команду вручную.", "error");
+    return;
+  }
   if (mediaRecorder?.state === "recording") {
     mediaRecorder.stop();
     return;
@@ -265,6 +272,9 @@ mic.addEventListener("click", async () => {
     mediaRecorder = new MediaRecorder(recordingStream, { mimeType: MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus" : "audio/webm" });
     mediaRecorder.ondataavailable = event => { if (event.data.size) audioChunks.push(event.data); };
     mediaRecorder.onstop = async () => {
+      voiceTranscriptionInProgress = true;
+      mic.disabled = true;
+      commandInput.disabled = true;
       mic.classList.remove("listening");
       voiceTranscript.classList.remove("is-listening");
       recordingStream?.getTracks().forEach(track => track.stop());
@@ -276,13 +286,17 @@ mic.addEventListener("click", async () => {
         commandInput.value = text;
         transcriptPreview.textContent = text;
         voiceStateLabel.textContent = "Расшифровка готова";
-        autoSubmitAfterTranscription = true;
-        setStatus("Расшифровка готова. Передаю команду AI…", "success");
+        voiceSubmit.arm(text);
+        setStatus("Расшифровка готова. Обновляю проверку безопасности перед отправкой…", "success");
       } catch (error) {
+        voiceSubmit.cancel();
         const message = error instanceof Error ? error.message : "AI не смог расшифровать запись.";
         transcriptPreview.textContent = message;
         setStatus(message, "error");
       } finally {
+        voiceTranscriptionInProgress = false;
+        mic.disabled = false;
+        commandInput.disabled = false;
         resetTurnstile();
       }
     };

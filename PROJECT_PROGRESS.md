@@ -161,3 +161,9 @@ Lazy 3D Viewer              █████████░  90%
 | Неточные цены | Высокая | Высокое | Диапазон + disclaimer |
 | Клиент вводит неверные размеры | Высокая | Высокое | Вопросы + предупреждения |
 | Абьюз бесплатных ТЗ | Средняя | Среднее | Лимиты, OTP, CAPTCHA, paywall |
+# 2026-08-12 — Voice auto-submit reliability
+
+- Replaced the shared post-transcription boolean with a tested single-fire coordinator.
+- A fresh Turnstile token is still required after STT consumes the first token, but waiting is bounded to 12 seconds and the transcript remains available for manual submission.
+- Editing the transcript, expiry, errors and cancellation prevent late automatic submission; overlapping server transcriptions are blocked.
+- Real-microphone production E2E remains pending.
