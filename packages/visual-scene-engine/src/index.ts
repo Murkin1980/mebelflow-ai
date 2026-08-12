@@ -21,6 +21,12 @@ const conventionalVisualAssetId = (type: string, width: number) => {
   if (type === "base_cabinet_doors" && width === 600) return "mf-base-cabinet-600";
   if (type === "sink_cabinet" && width === 600) return "mf-kaykit-sink-600";
   if (type === "cooktop_base" && width === 600) return "mf-kaykit-cooktop-600";
+  if (type === "dishwasher_450") return "mf-dishwasher-450";
+  if (type === "dishwasher_600") return "mf-dishwasher-600";
+  if (type === "oven_base") return "mf-oven-base-600";
+  if (type === "washing_machine") return "mf-washing-machine-600";
+  if (type === "fridge") return "mf-fridge-600";
+  if (type === "oven_tall_unit") return "mf-oven-tall-600";
   return undefined;
 };
 const validAsset = (asset: VisualAssetRef | undefined) => asset && asset.glbUrl.trim() && asset.dimensionsMm.width > 0 && asset.dimensionsMm.height > 0 && asset.dimensionsMm.depth > 0 ? asset : undefined;

@@ -18,4 +18,10 @@ export const VISUAL_ASSETS: Record<string, VisualAssetRef> = {
     dimensionsMm: { width: 2000, depth: 2287.86, height: 1207.69 },
     fit: "xyz",
   },
+  "mf-dishwasher-450": { assetId: "mf-dishwasher-450", glbUrl: "/assets/mf-dishwasher-450.glb", dimensionsMm: { width: 450, depth: 560, height: 820 } },
+  "mf-dishwasher-600": { assetId: "mf-dishwasher-600", glbUrl: "/assets/mf-dishwasher-600.glb", dimensionsMm: { width: 600, depth: 560, height: 820 } },
+  "mf-oven-base-600": { assetId: "mf-oven-base-600", glbUrl: "/assets/mf-oven-base-600.glb", dimensionsMm: { width: 600, depth: 560, height: 720 } },
+  "mf-washing-machine-600": { assetId: "mf-washing-machine-600", glbUrl: "/assets/mf-washing-machine-600.glb", dimensionsMm: { width: 600, depth: 560, height: 820 } },
+  "mf-fridge-600": { assetId: "mf-fridge-600", glbUrl: "/assets/mf-fridge-600.glb", dimensionsMm: { width: 600, depth: 650, height: 2000 } },
+  "mf-oven-tall-600": { assetId: "mf-oven-tall-600", glbUrl: "/assets/mf-oven-tall-600.glb", dimensionsMm: { width: 600, depth: 560, height: 2200 } },
 };
