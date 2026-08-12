@@ -521,3 +521,10 @@ Stage 9C реализовал Firestore-backed lease locks, idempotency, RPM и 
 - Cloud Build `97b80b6b-9afb-4c16-b798-3f3fa8cd6591` produced image `single-voice-20260812-1`; Cloud Run revision `mebelflow-api-staging-00013-mmq` serves 100% traffic.
 - Non-billable production smoke: `/warmup` returned 200 with `billableAiCalls: 0`; invalid `/v1/voice` failed closed with 400.
 - Cloudflare widget version `f7117bc5-adb2-44e2-a57a-f5964c252d7b` is live. Production bundle exactly matches the verified local build, contains `/v1/voice`, and no longer contains `/v1/transcribe` or the second-challenge waiting copy.
+
+## 2026-08-12 — Lazy Turnstile refresh
+
+- User testing confirmed a remaining post-command Cloudflare panel. The combined endpoint was correct; the client still called `turnstile.reset()` unconditionally in both request `finally` blocks.
+- Used tokens are now cleared without resetting the widget. A new challenge is requested only when the user next types a command, chooses an example or presses the microphone without a token.
+- A refresh guard prevents repeated reset calls while typing. Expiry also clears state without immediately reopening the panel.
+- Verification: 23 test files, 268 tests and widget build pass.

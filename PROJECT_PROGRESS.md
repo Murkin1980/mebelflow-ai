@@ -167,3 +167,4 @@ Lazy 3D Viewer              █████████░  90%
 - Internal STT and intent handlers are not publicly routed and accept only the server sentinel created after successful verification.
 - Overlapping server transcriptions are blocked; an intent failure returns the transcript for manual recovery.
 - Real-microphone production E2E remains pending.
+- Post-command Turnstile refresh is lazy: finishing a voice or text request no longer calls widget reset, while the next typed/example/microphone action requests one fresh challenge with a re-entry guard.

@@ -3,6 +3,7 @@ import { applyLayoutCommandToHistory, calculateRemainingWidth } from "../../../p
 import { createHistory, createInitialProject, type ProjectHistory } from "../../../packages/project-state/src/index.js";
 import { renderKitchenSvg } from "../../../packages/svg-renderer/src/index.js";
 import { loadStoredProject, storeProject } from "./project-storage.js";
+import { consumeTurnstile, requestFreshTurnstile } from "./turnstile-lifecycle.js";
 
 const API_URL = "https://mebelflow-api-staging-1013284205128.europe-central2.run.app";
 const TENANT_ID = "salamat-mebel-pilot";
@@ -40,6 +41,7 @@ const restoredProject = loadStoredProject(localStorage, TENANT_ID);
 let history: ProjectHistory = createHistory(restoredProject ?? createInitialProject(crypto.randomUUID(), TENANT_ID));
 let sessionId = `session_${crypto.randomUUID().replaceAll("-", "")}`;
 let turnstileToken = "";
+let turnstileRefreshRequested = false;
 let pendingCommand: unknown;
 let totalCost = 0;
 let activeRecognition: SpeechRecognitionLike | null = null;
@@ -136,21 +138,25 @@ function setStatus(message: string, kind: "normal" | "error" | "success" = "norm
   status.className = `status${kind === "normal" ? "" : ` ${kind}`}`;
 }
 
-function resetTurnstile() {
-  turnstileToken = "";
-  send.disabled = true;
+function consumeCurrentTurnstile() {
+  consumeTurnstile(() => { turnstileToken = ""; turnstileRefreshRequested = false; send.disabled = true; });
+}
+
+function requestNewTurnstile() {
+  if (turnstileRefreshRequested) return;
   const api = (window as typeof window & { turnstile?: { reset(): void } }).turnstile;
-  api?.reset();
+  turnstileRefreshRequested = requestFreshTurnstile(api ? () => api.reset() : undefined);
 }
 
 window.addEventListener("turnstile-success", event => {
   turnstileToken = (event as CustomEvent<string>).detail;
+  turnstileRefreshRequested = false;
   send.disabled = !commandInput.value.trim();
   setStatus("Проверка пройдена. Команду можно отправить.", "success");
 });
-window.addEventListener("turnstile-expired", () => { resetTurnstile(); setStatus("Проверка истекла — пройдите её ещё раз. Распознанный текст сохранён.", "error"); });
-commandInput.addEventListener("input", () => { send.disabled = !turnstileToken || !commandInput.value.trim(); });
-document.querySelectorAll<HTMLButtonElement>("[data-example]").forEach(button => button.addEventListener("click", () => { commandInput.value = button.dataset.example ?? ""; commandInput.focus(); send.disabled = !turnstileToken || !commandInput.value.trim(); }));
+window.addEventListener("turnstile-expired", () => { consumeCurrentTurnstile(); setStatus("Проверка истекла. Новая проверка появится при следующей отправке. Распознанный текст сохранён.", "error"); });
+commandInput.addEventListener("input", () => { if (!turnstileToken && commandInput.value.trim()) requestNewTurnstile(); send.disabled = !turnstileToken || !commandInput.value.trim(); });
+document.querySelectorAll<HTMLButtonElement>("[data-example]").forEach(button => button.addEventListener("click", () => { commandInput.value = button.dataset.example ?? ""; commandInput.focus(); if (!turnstileToken && commandInput.value.trim()) requestNewTurnstile(); send.disabled = !turnstileToken || !commandInput.value.trim(); }));
 
 async function callAi(utterance: string) {
   const idempotencyKey = `request_${crypto.randomUUID().replaceAll("-", "")}`;
@@ -187,7 +193,8 @@ form.addEventListener("submit", async event => {
   const utterance = commandInput.value.trim();
   if (!utterance) return;
   if (!turnstileToken) {
-    setStatus("Для сложного AI-запроса дождитесь проверки безопасности и нажмите «Отправить» ещё раз.", "error");
+    requestNewTurnstile();
+    setStatus("Подтвердите проверку безопасности и нажмите «Отправить» ещё раз.", "error");
     return;
   }
   addChatMessage("user", utterance);
@@ -216,7 +223,7 @@ form.addEventListener("submit", async event => {
     thinkingMessage.classList.remove("thinking");
     setStatus(message, "error");
   } finally {
-    commandInput.disabled = false; resetTurnstile(); commandInput.focus();
+    commandInput.disabled = false; consumeCurrentTurnstile(); commandInput.focus();
   }
 });
 
@@ -257,7 +264,8 @@ mic.addEventListener("click", async () => {
     return;
   }
   if (!turnstileToken) {
-    setStatus("Дождитесь проверки безопасности и нажмите микрофон ещё раз.", "error");
+    requestNewTurnstile();
+    setStatus("Подтвердите проверку безопасности и нажмите микрофон ещё раз.", "error");
     return;
   }
   try {
@@ -298,7 +306,7 @@ mic.addEventListener("click", async () => {
         voiceTranscriptionInProgress = false;
         mic.disabled = false;
         commandInput.disabled = false;
-        resetTurnstile();
+        consumeCurrentTurnstile();
       }
     };
     mediaRecorder.start();

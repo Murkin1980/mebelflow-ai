@@ -177,6 +177,7 @@
 - [ ] Real-microphone voice browser E2E on `ai.salamat-mebel.kz`
 - [x] One protected `/v1/voice` request performs STT and intent with one Turnstile challenge
 - [x] Overlapping transcriptions cannot double-submit; intent failure preserves the transcript
+- [x] Used Turnstile tokens are consumed silently; a fresh challenge is requested only by the next explicit command action
 - [x] Analytics events
 - [x] Error monitoring
 - [x] Cost dashboard
