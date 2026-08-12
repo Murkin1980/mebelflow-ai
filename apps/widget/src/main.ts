@@ -412,4 +412,5 @@ mic.addEventListener("legacy-speech-disabled", () => {
 });
 
 fetch(`${API_URL}/warmup`, { mode: "cors" }).catch(() => {});
+document.getElementById("mobile-mic")?.addEventListener("click", () => mic.click());
 render();

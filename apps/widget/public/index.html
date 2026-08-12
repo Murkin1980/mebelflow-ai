@@ -31,6 +31,21 @@
     </section>
 
     <section class="workspace" aria-label="Конструктор кухни">
+      <nav class="tool-rail" aria-label="Разделы редактора">
+        <button class="active" type="button"><b>▣</b><span>Проект</span></button><button type="button"><b>⌑</b><span>План</span></button><button type="button"><b>▥</b><span>Модули</span></button><button type="button"><b>◉</b><span>Материалы</span></button><button type="button"><b>⌘</b><span>Фурнитура</span></button><button type="button"><b>☼</b><span>Свет</span></button>
+      </nav>
+      <aside class="module-library" aria-label="Библиотека модулей">
+        <div class="library-heading"><strong>Модули</strong><button type="button">⌃</button></div>
+        <section class="asset-group"><h3>Тумбы</h3><div class="asset-grid">
+          <button type="button" data-example="Добавь тумбу 300 мм"><i class="cabinet-icon single"></i><span>300</span></button><button type="button" data-example="Добавь тумбу 400 мм"><i class="cabinet-icon single"></i><span>400</span></button><button type="button" data-example="Добавь тумбу 600 мм"><i class="cabinet-icon double"></i><span>600</span></button><button type="button" data-example="Добавь тумбу 800 мм"><i class="cabinet-icon double"></i><span>800</span></button>
+        </div></section>
+        <section class="asset-group"><h3>Мойки</h3><div class="asset-grid">
+          <button type="button" data-example="Добавь мойку 600 мм"><i class="cabinet-icon sink"></i><span>600</span></button><button class="selected" type="button" data-example="Добавь мойку 800 мм"><i class="cabinet-icon sink"></i><span>800</span></button>
+        </div></section>
+        <section class="asset-group compact-assets"><h3>Техника</h3><div class="asset-grid">
+          <button type="button" data-example="Добавь духовой шкаф 600 мм"><i class="appliance-icon oven"></i><span>Духовой шкаф</span></button><button type="button" data-example="Добавь холодильник 600 мм"><i class="appliance-icon fridge"></i><span>Холодильник</span></button>
+        </div></section>
+      </aside>
       <div class="conversation">
         <div class="guide">
           <span class="guide-icon" aria-hidden="true">✦</span>
@@ -87,6 +102,12 @@
         <div class="metrics"><div><span>Длина стены</span><strong id="wall-metric">—</strong></div><div><span>Свободно</span><strong id="remaining-metric">—</strong></div><div><span>AI-запрос</span><strong id="cost-metric">0 ₸</strong></div></div>
         <p class="disclaimer">Предварительная схема не является производственным чертежом. Размеры, материалы и итоговую цену подтверждает мебельщик после замера.</p>
       </div>
+      <aside class="properties-panel" aria-label="Свойства выбранного модуля">
+        <div class="properties-head"><div><span>Выбранный модуль</span><strong>Мойка 800</strong></div><button type="button" aria-label="Закрыть">×</button></div>
+        <dl><div><dt>Ширина</dt><dd>800 мм</dd></div><div><dt>Корпус</dt><dd>16 мм</dd></div><div><dt>Глубина корпуса</dt><dd>500 мм</dd></div><div><dt>Фасад</dt><dd>18 мм</dd></div><div><dt>Ручка</dt><dd>320 мм</dd></div></dl>
+        <div class="validation-list"><p class="valid">✓ Схема проверена</p><p class="warning">! Отступ от стены 50 мм</p></div>
+      </aside>
+      <nav class="mobile-dock" aria-label="Мобильная навигация"><button type="button"><b>▤</b><span>Проект</span></button><button type="button"><b>▥</b><span>Модули</span></button><button class="voice-dock" id="mobile-mic" type="button" aria-label="Голосовой ввод"><b>●</b></button><button type="button"><b>☷</b><span>Свойства</span></button><button type="button"><b>•••</b><span>Ещё</span></button></nav>
     </section>
   </main>
 
