@@ -2,7 +2,7 @@ import { createServer } from "node:http";
 import { AiGateway, OpenAiIntentProvider } from "../../dist/packages/ai-gateway/src/index.js";
 import { createApiHandler, createFetchSender, createTurnstileWorkerVerifier, loadApiEnvironment } from "../../dist/packages/api-gateway/src/index.js";
 import { createFirestoreCoordinationStore } from "../../dist/packages/firestore-coordination/src/index.js";
-import { createOpenAiTranscriptionProvider, createTranscriptionHandler } from "../../dist/packages/transcription-gateway/src/index.js";
+import { createOpenAiTranscriptionProvider, createTranscriptionHandler, createVoiceCommandHandler } from "../../dist/packages/transcription-gateway/src/index.js";
 
 const env = loadApiEnvironment(process.env);
 const allowedTenant = process.env.PILOT_TENANT_ID ?? "salamat-mebel-pilot";
@@ -28,6 +28,14 @@ const transcriptionHandler = createTranscriptionHandler({
   allowedOriginsByTenant: { [allowedTenant]: [allowedOrigin] }, humanVerifier, requestGate: coordination, store: coordination,
   provider: createOpenAiTranscriptionProvider({ apiKey: env.OPENAI_API_KEY }), tenantBudgetKzt: Number(process.env.TENANT_BUDGET_KZT ?? 50_000), usdKzt: env.USD_KZT_RATE,
 });
+// These handlers are reachable only from the combined route after its real Turnstile verification.
+const preverifiedHuman = { verify: async token => token.token === "server-verified" };
+const voiceTranscriptionHandler = createTranscriptionHandler({
+  allowedOriginsByTenant: { [allowedTenant]: [allowedOrigin] }, humanVerifier: preverifiedHuman, requestGate: coordination, store: coordination,
+  provider: createOpenAiTranscriptionProvider({ apiKey: env.OPENAI_API_KEY }), tenantBudgetKzt: Number(process.env.TENANT_BUDGET_KZT ?? 50_000), usdKzt: env.USD_KZT_RATE,
+});
+const voiceIntentHandler = createApiHandler({ gateway, requestGate: coordination, humanVerifier: preverifiedHuman, allowedOriginsByTenant: { [allowedTenant]: [allowedOrigin] } });
+const voiceCommandHandler = createVoiceCommandHandler({ allowedOriginsByTenant: { [allowedTenant]: [allowedOrigin] }, humanVerifier, transcriptionHandler: voiceTranscriptionHandler, intentHandler: voiceIntentHandler });
 
 const readJson = async (request, maxBytes = 64 * 1024) => {
   const chunks = []; let size = 0;
@@ -44,6 +52,12 @@ const server = createServer(async (request, response) => {
     if (request.method === "POST" && path === "/v1/transcribe") {
       const body = await readJson(request, 8 * 1024 * 1024);
       const result = await transcriptionHandler({ origin: request.headers.origin, body });
+      const headers = { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", ...(request.headers.origin === allowedOrigin ? { "access-control-allow-origin": allowedOrigin, vary: "origin" } : {}) };
+      response.writeHead(result.status, headers); response.end(JSON.stringify(result.body)); return;
+    }
+    if (request.method === "POST" && path === "/v1/voice") {
+      const body = await readJson(request, 8 * 1024 * 1024);
+      const result = await voiceCommandHandler({ origin: request.headers.origin, body });
       const headers = { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", ...(request.headers.origin === allowedOrigin ? { "access-control-allow-origin": allowedOrigin, vary: "origin" } : {}) };
       response.writeHead(result.status, headers); response.end(JSON.stringify(result.body)); return;
     }

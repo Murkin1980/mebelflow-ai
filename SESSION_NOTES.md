@@ -510,3 +510,11 @@ Stage 9C реализовал Firestore-backed lease locks, idempotency, RPM и 
 - The microphone and text field are temporarily disabled during server transcription, preventing overlapping recordings and manual-submit races; the recognized text remains available afterwards.
 - Verification: 23 test files, 265 tests, widget build, desktop/mobile browser smoke and accessibility contract. Real-microphone production E2E remains pending.
 - Cloudflare version `232f81be-4fd8-4d97-9472-6dc20ae9a121` is live on `ai.salamat-mebel.kz`; page and bundle returned 200 and the production bundle exactly matched the local verified build.
+
+## 2026-08-12 — Single-challenge voice command
+
+- User testing showed that the bounded two-token flow still displayed a second Cloudflare challenge after transcription.
+- With explicit approval to change the production auth boundary, added `/v1/voice`: it verifies the browser Turnstile token once, then runs non-public preverified STT and intent handlers inside the same server request.
+- Origin allowlist, request gates, idempotency namespaces, STT/intent budget reservations and strict intent validation remain active. No public route accepts the internal sentinel.
+- Intent failure returns the recognized transcript so the user can recover without repeating the recording.
+- Router audit used `opencode-go/deepseek-v4-flash`; strong-model architecture and self-review retained the server-side security boundary.

@@ -175,8 +175,8 @@
 - [x] Landing build and custom-domain route configured
 - [x] Real-token text browser E2E on `ai.salamat-mebel.kz`
 - [ ] Real-microphone voice browser E2E on `ai.salamat-mebel.kz`
-- [x] Voice transcription waits for a fresh single-use Turnstile token with timeout and manual recovery
-- [x] Late/repeated Turnstile events and overlapping transcriptions cannot double-submit
+- [x] One protected `/v1/voice` request performs STT and intent with one Turnstile challenge
+- [x] Overlapping transcriptions cannot double-submit; intent failure preserves the transcript
 - [x] Analytics events
 - [x] Error monitoring
 - [x] Cost dashboard

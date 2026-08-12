@@ -3,11 +3,11 @@ import { applyLayoutCommandToHistory, calculateRemainingWidth } from "../../../p
 import { createHistory, createInitialProject, type ProjectHistory } from "../../../packages/project-state/src/index.js";
 import { renderKitchenSvg } from "../../../packages/svg-renderer/src/index.js";
 import { loadStoredProject, storeProject } from "./project-storage.js";
-import { createVoiceSubmitCoordinator } from "./voice-submit.js";
 
 const API_URL = "https://mebelflow-api-staging-1013284205128.europe-central2.run.app";
 const TENANT_ID = "salamat-mebel-pilot";
 type IntentEnvelope = { intent: { type?: "CLARIFY"; question?: string; options?: string[]; command?: unknown; confidence?: number; explanation?: string }; cost?: { kzt?: number } };
+class VoiceCommandError extends Error { constructor(message: string, readonly transcript = "") { super(message); } }
 type SpeechRecognitionEventLike = { results: ArrayLike<{ 0?: { transcript?: string }; isFinal?: boolean }> };
 type SpeechRecognitionErrorLike = { error?: string };
 type SpeechRecognitionLike = {
@@ -143,19 +143,13 @@ function resetTurnstile() {
   api?.reset();
 }
 
-const voiceSubmit = createVoiceSubmitCoordinator({
-  timeoutMs: 12_000,
-  onReady: () => form.requestSubmit(),
-  onTimeout: () => setStatus("Расшифровка сохранена. Проверка безопасности задержалась — дождитесь её и нажмите «Отправить».", "error"),
-});
-
 window.addEventListener("turnstile-success", event => {
   turnstileToken = (event as CustomEvent<string>).detail;
   send.disabled = !commandInput.value.trim();
-  if (!voiceSubmit.resolve(commandInput.value, turnstileToken)) setStatus("Проверка пройдена. Команду можно отправить.", "success");
+  setStatus("Проверка пройдена. Команду можно отправить.", "success");
 });
-window.addEventListener("turnstile-expired", () => { voiceSubmit.cancel(); resetTurnstile(); setStatus("Проверка истекла — пройдите её ещё раз. Распознанный текст сохранён.", "error"); });
-commandInput.addEventListener("input", () => { if (voiceSubmit.isPending()) voiceSubmit.cancel(); send.disabled = !turnstileToken || !commandInput.value.trim(); });
+window.addEventListener("turnstile-expired", () => { resetTurnstile(); setStatus("Проверка истекла — пройдите её ещё раз. Распознанный текст сохранён.", "error"); });
+commandInput.addEventListener("input", () => { send.disabled = !turnstileToken || !commandInput.value.trim(); });
 document.querySelectorAll<HTMLButtonElement>("[data-example]").forEach(button => button.addEventListener("click", () => { commandInput.value = button.dataset.example ?? ""; commandInput.focus(); send.disabled = !turnstileToken || !commandInput.value.trim(); }));
 
 async function callAi(utterance: string) {
@@ -238,19 +232,19 @@ let mediaRecorder: MediaRecorder | null = null;
 let recordingStream: MediaStream | null = null;
 let audioChunks: Blob[] = [];
 
-async function transcribeAudio(audio: Blob) {
+async function callVoiceCommand(audio: Blob) {
   const bytes = new Uint8Array(await audio.arrayBuffer());
   let binary = "";
   for (let index = 0; index < bytes.length; index += 0x8000) binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
-  const idempotencyKey = `transcribe_${crypto.randomUUID().replaceAll("-", "")}`;
-  const response = await fetch(`${API_URL}/v1/transcribe`, {
+  const idempotencyKey = `voice_${crypto.randomUUID().replaceAll("-", "")}`;
+  const response = await fetch(`${API_URL}/v1/voice`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ tenantId: TENANT_ID, sessionId, audioBase64: btoa(binary), mimeType: audio.type || "audio/webm", turnstileToken, idempotencyKey }),
+    body: JSON.stringify({ tenantId: TENANT_ID, sessionId, audioBase64: btoa(binary), mimeType: audio.type || "audio/webm", turnstileToken, idempotencyKey, locale: "ru-KZ", projectSummary: compactProjectState(history.present) }),
   });
-  const result = await response.json() as { text?: string; error?: { message?: string } };
-  if (!response.ok || !result.text) throw new Error(result.error?.message ?? "AI не смог расшифровать запись.");
-  return result.text;
+  const result = await response.json() as IntentEnvelope & { transcript?: string; error?: { message?: string } };
+  if (!response.ok || !result.transcript) throw new VoiceCommandError(result.error?.message ?? "AI не смог обработать голосовую команду.", result.transcript);
+  return result;
 }
 
 mic.addEventListener("click", async () => {
@@ -282,16 +276,23 @@ mic.addEventListener("click", async () => {
       transcriptPreview.textContent = "Обрабатываю голос…";
       setStatus("AI расшифровывает голосовую команду…");
       try {
-        const text = await transcribeAudio(new Blob(audioChunks, { type: mediaRecorder?.mimeType || "audio/webm" }));
-        commandInput.value = text;
-        transcriptPreview.textContent = text;
+        const result = await callVoiceCommand(new Blob(audioChunks, { type: mediaRecorder?.mimeType || "audio/webm" }));
+        commandInput.value = result.transcript ?? "";
+        transcriptPreview.textContent = result.transcript ?? "";
         voiceStateLabel.textContent = "Расшифровка готова";
-        voiceSubmit.arm(text);
-        setStatus("Расшифровка готова. Обновляю проверку безопасности перед отправкой…", "success");
+        totalCost += result.cost?.kzt ?? 0;
+        if (result.intent.type === "CLARIFY") {
+          assistant.textContent = result.intent.question ?? "Нужно уточнение.";
+          setStatus("AI не менял схему: требуется уточнение.");
+        } else if (result.intent.command) apply(result.intent.command, result.intent.explanation);
       } catch (error) {
-        voiceSubmit.cancel();
+        if (error instanceof VoiceCommandError && error.transcript) {
+          commandInput.value = error.transcript;
+          transcriptPreview.textContent = error.transcript;
+          voiceStateLabel.textContent = "Расшифровка сохранена";
+        }
         const message = error instanceof Error ? error.message : "AI не смог расшифровать запись.";
-        transcriptPreview.textContent = message;
+        if (!(error instanceof VoiceCommandError && error.transcript)) transcriptPreview.textContent = message;
         setStatus(message, "error");
       } finally {
         voiceTranscriptionInProgress = false;
