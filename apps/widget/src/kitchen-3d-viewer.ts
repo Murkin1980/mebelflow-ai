@@ -81,10 +81,16 @@ export async function createKitchen3DViewer(input: {
   function boxPart(module: SceneModule) {
     const group = new THREE.Group(); group.name = module.id; group.userData.moduleId = module.sourceModuleId;
     for (const part of module.parts) {
-      const geometry = new THREE.BoxGeometry(metres(part.dimensionsMm.width), metres(part.dimensionsMm.height), metres(part.dimensionsMm.depth));
+      const geometry = part.kind === "sink_bowl"
+        ? new THREE.CylinderGeometry(metres(part.dimensionsMm.width) / 2, metres(part.dimensionsMm.width) / 2, metres(part.dimensionsMm.height), 32, 1, false, 0, Math.PI * 2)
+        : part.kind === "faucet"
+          ? new THREE.TorusGeometry(metres(part.dimensionsMm.height) / 3, metres(part.dimensionsMm.width) / 2, 12, 28, Math.PI)
+          : new THREE.BoxGeometry(metres(part.dimensionsMm.width), metres(part.dimensionsMm.height), metres(part.dimensionsMm.depth));
       const material = new THREE.MeshStandardMaterial({ color: part.color, roughness: .72, metalness: .02 });
       const mesh = new THREE.Mesh(geometry, material); mesh.castShadow = false; mesh.receiveShadow = true; mesh.userData.moduleId = module.sourceModuleId;
       mesh.position.set(metres(part.position.x), metres(part.position.y), metres(part.position.z)); group.add(mesh);
+      if (part.kind === "sink_bowl") { mesh.scale.z = part.dimensionsMm.depth / part.dimensionsMm.width; mesh.position.y -= metres(part.dimensionsMm.height) / 2; }
+      if (part.kind === "faucet") { mesh.rotation.y = Math.PI / 2; mesh.position.y -= metres(part.dimensionsMm.height) / 6; }
     }
     return group;
   }
