@@ -31,6 +31,7 @@ button, textarea { font: inherit; }
 .shell { width: min(1800px, 100%); margin: auto; padding: 0 clamp(16px, 2.5vw, 44px) 30px; }
 .intro { display: none; }
 .intro { position: relative; isolation: isolate; display: grid; grid-template-columns: minmax(300px, .78fr) minmax(420px, 1.22fr); column-gap: 6vw; min-height: 430px; padding: clamp(54px, 7vh, 86px) clamp(24px, 3vw, 48px) 42px; border-bottom: 1px solid var(--line); overflow: hidden; }
+.intro { display: none; }
 .intro::before { content: ""; position: absolute; z-index: -2; inset: 0; background: url('/kitchen-hero.png') center / cover no-repeat; }
 .intro::after { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, rgba(243,231,209,.98) 0%, rgba(243,231,209,.93) 34%, rgba(243,231,209,.48) 66%, rgba(31,25,39,.10) 100%); }
 .intro > * { position: relative; z-index: 1; }
