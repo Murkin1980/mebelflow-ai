@@ -499,4 +499,5 @@ Stage 9C реализовал Firestore-backed lease locks, idempotency, RPM и 
 - Added tenant-scoped browser persistence for `history.present` only. Stored data is parsed through `FurnitureProjectStateSchema`; transient conversation, audio, Turnstile tokens, API responses and undo history are not persisted.
 - Every applied command and undo now saves the validated state. Storage denial or quota failure does not block the constructor and is reported in the UI.
 - Local browser smoke restored a 3000 mm project with sink and drawers after reload and showed 1800 mm remaining. Corrupt JSON was removed and the constructor safely returned to the empty state.
+- Cloudflare deployment `0e3c0522-e2af-4e5e-a086-66d70b4ca0ff` is live on `ai.salamat-mebel.kz`; page and bundle returned 200 and production browser smoke restored the same state. The test-only localStorage entry was removed afterwards.
 - Next bounded slice: fix voice auto-submit so a successful transcription does not stall waiting for a second Turnstile success event; keep that change separate from persistence.
