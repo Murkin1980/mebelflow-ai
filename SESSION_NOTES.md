@@ -518,3 +518,6 @@ Stage 9C реализовал Firestore-backed lease locks, idempotency, RPM и 
 - Origin allowlist, request gates, idempotency namespaces, STT/intent budget reservations and strict intent validation remain active. No public route accepts the internal sentinel.
 - Intent failure returns the recognized transcript so the user can recover without repeating the recording.
 - Router audit used `opencode-go/deepseek-v4-flash`; strong-model architecture and self-review retained the server-side security boundary.
+- Cloud Build `97b80b6b-9afb-4c16-b798-3f3fa8cd6591` produced image `single-voice-20260812-1`; Cloud Run revision `mebelflow-api-staging-00013-mmq` serves 100% traffic.
+- Non-billable production smoke: `/warmup` returned 200 with `billableAiCalls: 0`; invalid `/v1/voice` failed closed with 400.
+- Cloudflare widget version `f7117bc5-adb2-44e2-a57a-f5964c252d7b` is live. Production bundle exactly matches the verified local build, contains `/v1/voice`, and no longer contains `/v1/transcribe` or the second-challenge waiting copy.
