@@ -4,6 +4,7 @@ import { createHistory, createInitialProject, type ProjectHistory } from "../../
 import { renderKitchenSvg } from "../../../packages/svg-renderer/src/index.js";
 import { loadStoredProject, storeProject } from "./project-storage.js";
 import { consumeTurnstile, requestFreshTurnstile } from "./turnstile-lifecycle.js";
+import { VISUAL_ASSETS } from "./visual-assets.js";
 
 const API_URL = "https://mebelflow-api-staging-1013284205128.europe-central2.run.app";
 const TENANT_ID = "salamat-mebel-pilot";
@@ -94,7 +95,7 @@ function renderPerspective(state: ProjectHistory["present"]) {
 }
 
 async function render3D(state: ProjectHistory["present"]) {
-  if (viewer3d) { viewer3d.update(state); viewer3d.setSelectedModule(selectedModuleId); return; }
+  if (viewer3d) { viewer3d.update(state, VISUAL_ASSETS); viewer3d.setSelectedModule(selectedModuleId); return; }
   if (viewer3dLoading) return;
   viewer3dLoading = true;
   const scheme = byId("scheme");
@@ -103,11 +104,11 @@ async function render3D(state: ProjectHistory["present"]) {
     const { createKitchen3DViewer } = await import("./kitchen-3d-viewer.js");
     if (currentView !== "3d") return;
     viewer3d = await createKitchen3DViewer({
-      container: scheme, state, selectedModuleId,
+      container: scheme, state, visualAssets: VISUAL_ASSETS, selectedModuleId,
       onModuleSelect(id) { selectedModuleId = id; viewer3d?.setSelectedModule(id); setStatus(`Выбран модуль ${moduleLabel(history.present.lowerRow.modules.find(module => module.id === id)?.type ?? "")}.`, "success"); },
       onError(error) { console.warn("MebelFlow 3D asset fallback", error); },
     });
-    viewer3d.update(history.present);
+    viewer3d.update(history.present, VISUAL_ASSETS);
   } catch (error) {
     console.warn("MebelFlow 3D unavailable", error);
     scheme.innerHTML = '<div class="viewer-error" role="status"><strong>3D-вид недоступен</strong><span>Схема и все команды продолжают работать.</span></div>';

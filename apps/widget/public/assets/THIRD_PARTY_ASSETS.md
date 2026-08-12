@@ -1,0 +1,14 @@
+# Third-party 3D assets
+
+## KayKit Restaurant Bits
+
+- Files: `mf-kaykit-sink-600.glb`, `mf-kaykit-cooktop-600.glb`
+- Author: Kay Lousberg
+- Source: https://github.com/KayKit-Game-Assets/KayKit-Restaurant-Bits-1.0
+- License: CC0 1.0 Universal
+- License text: https://creativecommons.org/publicdomain/zero/1.0/
+- Source revision: `153c8a7535b48237854cb54ff6890679f8c574d1`
+
+The source glTF geometry and shared texture were packaged as self-contained GLB
+files for browser delivery. Attribution is optional under CC0 and is retained
+here for provenance.

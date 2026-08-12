@@ -7,6 +7,7 @@ await mkdir(outdir, { recursive: true });
 await cp("apps/widget/public/index.html", `${outdir}/index.html`);
 await cp("apps/widget/public/styles.css", `${outdir}/styles.css`);
 await cp("apps/widget/public/kitchen-hero.png", `${outdir}/kitchen-hero.png`);
+await cp("apps/widget/public/assets", `${outdir}/assets`, { recursive: true });
 await build({
   entryPoints: { app: "apps/widget/src/main.ts" },
   bundle: true,
