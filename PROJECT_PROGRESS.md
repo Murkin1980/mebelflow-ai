@@ -11,19 +11,22 @@
 Архитектура                 ██████████ 100%
 Pascal Core spike           ██████████ 100%
 Domain Core                 ██████████ 100%
-Layout Engine               ░░░░░░░░░░   0%
-SVG Renderer                ░░░░░░░░░░   0%
-Text AI                     ░░░░░░░░░░   0%
-Voice                       ░░░░░░░░░░   0%
-Pricing and Styles          ░░░░░░░░░░   0%
-Admin and Lead              ░░░░░░░░░░   0%
-PDF                         ░░░░░░░░░░   0%
-Pilot                       ░░░░░░░░░░   0%
+Layout Engine               ██████████ 100%
+SVG Renderer                ██████████ 100%
+Text AI                     ██████████ 100%
+AI Gateway                  ██████████ 100%
+HTTP/Cloud Run Adapter      ██████████ 100%
+Voice                       ██████████ 100%
+Pricing and Styles          ██████████ 100%
+Admin and Lead              ██████████ 100%
+PDF                         ██████████ 100%
+Pilot                       ████░░░░░░  40%
+Lazy 3D Viewer              █████████░  90%
 ```
 
 ## Current phase
 
-**Stage 0/1 приняты. Следующий этап: Stage 2 — Layout Engine**
+**Stage 0/1/2/3/4/5/6/7/8 и Stage 9A AI Gateway приняты по самопроверке. Требуется production deploy и полевой Pilot**
 
 ## Completed
 
@@ -47,15 +50,107 @@ Pilot                       ░░░░░░░░░░   0%
 - [x] Настроен GitHub Actions CI
 - [x] Чистая установка и 74 unit-теста проходят
 - [x] Локальный UI skill валиден и установлен в Codex
+- [x] Реализован deterministic Layout Engine прямой кухни
+- [x] Добавлены операции ряда, правила доборов и техники
+- [x] Реализованы верхний ряд и антресоли
+- [x] Общая history поддерживает Stage 2, undo/redo и idempotency
+- [x] Проходят 115 unit/property-based тестов
+- [x] Реализован доступный responsive SVG Renderer
+- [x] Добавлены selected/warning/empty состояния и экспорт SVG/PNG
+- [x] Mobile 360×800, desktop, keyboard, reduced-motion и offline проверены
+- [x] Добавлен SVG snapshot baseline и UI review PASS
+- [x] Проходят 131 unit/property/snapshot тест
+- [x] Реализованы provider abstraction и fake provider
+- [x] Зафиксированы versioned prompt и канонический TECH_SPEC contract
+- [x] Реализованы confidence, clarification, validation и rejection
+- [x] Safe apply сохраняет state при provider/domain errors
+- [x] Token ledger интегрирован в IntentSession
+- [x] Сквозной conversation replay и 158 тестов проходят
+- [x] Реализованы `SttProvider`, `FakeSttProvider` и Voice state machine
+- [x] Явные permission/record/stop и подтверждение транскрипта защищают от скрытого применения
+- [x] Cancel/retry, offline recovery и текстовая альтернатива сохраняют данные пользователя
+- [x] STT cost ledger считает оплачиваемые секунды и ориентировочную стоимость в KZT
+- [x] Android voice view contract и 168 тестов проходят
+- [x] Добавлены 5 style presets с тремя палитрами каждый и 6 facade presets
+- [x] Tenant settings ограничивают доступные стили, палитры и фасады
+- [x] Реализованы per-meter, per-module и hybrid pricing strategies
+- [x] Диапазон KZT содержит breakdown, причины неопределённости и formula version
+- [x] Recalculation и trust presentation покрыты тестами; 180 тестов проходят
+- [x] Contact schema, OTP/CAPTCHA boundaries и idempotent lead creation реализованы
+- [x] Lead details содержат project snapshot и append-only event history
+- [x] Status transitions, comments и Telegram notification adapter покрыты тестами
+- [x] Tenant settings, hard limits, opaque resume tokens и RBAC реализованы
+- [x] 190 unit/property/snapshot/contract тестов проходят
+- [x] Brief model содержит branding, contact, SVG scheme, modules, style, price и disclaimer
+- [x] Реализованы пять PDF policy modes и payment/credit-on-order boundary
+- [x] Secure tenant-bound download grants поддерживают expiry, revoke и audit
+- [x] Двухстраничный sample PDF отрендерен и визуально принят
+- [x] 197 unit/property/snapshot/contract тестов проходят
+- [x] Pilot tenant и origin-allowlisted landing embed contract настроены
+- [x] Privacy-safe analytics, sanitized error events и cost dashboard реализованы
+- [x] Controlled/real session registry, interview validation и funnel formulas реализованы
+- [x] Go/no-go gate не принимает решение без полной реальной выборки
+- [x] 204 unit/property/snapshot/contract теста проходят
+- [x] Зафиксирован GPT-5 mini через центральный Google Cloud Run Gateway без GPU
+- [x] Добавлен OpenAI Responses API adapter с compact state и server-only key boundary
+- [x] Warmup не создаёт AI-сессию и не вызывает provider
+- [x] Реализованы per-session in-flight, call/token и tenant cost gates
+- [x] Версионированный расчёт GPT-5 mini учитывает cached input tokens и USD/KZT snapshot
+- [x] Contract load test покрывает 100 одновременных независимых сессий
+- [x] 211 unit/property/snapshot/contract тестов проходят
+- [x] Реализован strict HTTP contract `/warmup` и `/v1/intent`
+- [x] Prompt/model/pricing остаются server-owned и не принимаются от клиента
+- [x] Добавлены origin, idempotency/RPM и shared GatewayStore boundaries
+- [x] Добавлены runtime build, Node server, Dockerfile и Cloud Run YAML
+- [x] Warmup HTTP smoke подтверждает 200 и ноль billable AI calls
+- [x] 227 unit/property/snapshot/contract тестов проходят
+- [x] Firestore-транзакции координируют session leases, idempotency, RPM и persistent usage между Cloud Run instances
+- [x] Tenant budget резервируется до provider call и сверяется с фактической стоимостью транзакционно
 
 ## Next actions
 
-1. Начать Stage 2 с правил прямой стены и расчёта остатка.
-2. Добавить `INSERT_BEFORE` и перемещение внутри ряда.
-3. Реализовать filler и appliance rules.
-4. Добавить property-based тесты Layout Engine.
+1. Добавить `ai.salamat-mebel.kz` в Turnstile hostnames и применить подготовленный Cloud Run origin/expected-hostname template.
+2. Развернуть transcription gateway revision и провести real-token browser E2E на `ai.salamat-mebel.kz`, включая текст, голос и отказоустойчивость.
+3. Проверить фактическое STT token/cost accounting в Firestore после smoke.
+4. Провести 20 controlled sessions и исправить подтверждённые blockers.
+5. Провести 5 real prospect sessions и 5 интервью без PII в analytics.
+6. Сформировать фактический funnel report и принять GO/NO_GO.
+
+## Stage 9D verified staging
+
+- [x] Создан отдельный Google Cloud project `mebelflow-ai-pilot` с billing.
+- [x] Firestore Native и Artifact Registry размещены в `europe-central2`.
+- [x] Runtime service account ограничен Firestore и одним OpenAI secret.
+- [x] Cloud Build создал воспроизводимый container image.
+- [x] Приватный Cloud Run staging работает с scale-to-zero и max scale 20.
+- [x] Warmup вернул `200` и `billableAiCalls: 0`.
+- [x] Live GPT-5 mini smoke: `SET_WALL_WIDTH=3000`, 407 input, 81 output token, 0.12 KZT.
+- [x] Two-instance contention smoke: один запрос `200`, второй `409 SESSION_REQUEST_IN_PROGRESS`.
+- [x] Turnstile managed widget и стандартный Spin Worker развёрнуты и end-to-end проверены.
+- [x] Frontend AI-submit gate добавлен с `data-action="turnstile-spin-v1"`; 230 тестов проходят.
+
+## Stage 9F production smoke
+
+- [x] `ai.salamat-mebel.kz` применён в Turnstile hostname и Cloud Run origin/expected-hostname.
+- [x] Cloud Run revision `mebelflow-api-staging-00011-t2b` обслуживает production pilot landing.
+- [x] Cloudflare landing version `0321cda9-6eca-4f22-aaa7-cfcbb8a3383c` опубликован на custom domain.
+- [x] Real-token text E2E прошёл до и после ротации Turnstile secret.
+- [x] Firestore tenant ledger подтвердил фактический commit стоимости и нулевой reservation.
+- [ ] Real-microphone voice E2E: требуется ручной голосовой ввод и проверка transcript.
+- [ ] 20 controlled sessions по pilot runbook.
 
 ## Risks
+
+## Stage 9E server-side Turnstile enforcement
+
+- [x] Frontend передаёт одноразовый Turnstile token серверу с `data-action="turnstile-spin-v1"`.
+- [x] Cloud Run проверяет token через стандартный Spin Worker до rate limit, budget reservation и GPT.
+- [x] Приватный revision `00006-6xw`: warmup 200/0 AI calls, missing token 400, dummy token 403.
+- [x] 19 test files, 235/235 tests и runtime build проходят.
+- [x] Владелец явно разрешил публичный invocation; `allUsers` получил только `roles/run.invoker` для staging-сервиса.
+- [x] Публичный smoke: warmup 200/0 AI calls, dummy Turnstile 403, foreign origin 403.
+- [x] Landing build и custom-domain route для `ai.salamat-mebel.kz` находятся в репозитории; real-token browser E2E остаётся обязательным внешним gate.
+
 
 | Риск | Вероятность | Влияние | Митигирование |
 |---|---:|---:|---|
@@ -66,3 +161,10 @@ Pilot                       ░░░░░░░░░░   0%
 | Неточные цены | Высокая | Высокое | Диапазон + disclaimer |
 | Клиент вводит неверные размеры | Высокая | Высокое | Вопросы + предупреждения |
 | Абьюз бесплатных ТЗ | Средняя | Среднее | Лимиты, OTP, CAPTCHA, paywall |
+# 2026-08-12 — Voice auto-submit reliability
+
+- Replaced the two-request voice sequence with a combined `/v1/voice` endpoint: one real Turnstile verification protects both STT and intent processing.
+- Internal STT and intent handlers are not publicly routed and accept only the server sentinel created after successful verification.
+- Overlapping server transcriptions are blocked; an intent failure returns the transcript for manual recovery.
+- Real-microphone production E2E remains pending.
+- Post-command Turnstile refresh is lazy: finishing a voice or text request no longer calls widget reset, while the next typed/example/microphone action requests one fresh challenge with a re-entry guard.

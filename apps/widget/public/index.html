@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f3e7d1">
+  <meta name="description" content="MebelFlow AI — создайте предварительное техническое задание на кухню в диалоге.">
+  <title>MebelFlow AI — кухня в диалоге</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Prata&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="masthead">
+    <a class="brand" href="/" aria-label="MebelFlow AI, главная"><span class="brand-mark">MF</span><span>MebelFlow <i>AI</i></span></a>
+    <div class="mast-actions">
+      <span class="pilot-badge">Пилот · Алматы</span>
+      <a class="main-site-link" href="https://salamat-mebel.kz">Основной сайт <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="intro" aria-labelledby="title">
+      <p class="eyebrow">Предварительное ТЗ без регистрации</p>
+      <h1 id="title">Опишите кухню.<br><em>Схема появится сама.</em></h1>
+      <p class="lead">Говорите обычными словами — AI переведёт пожелания в безопасные команды конструктора. Каждое изменение можно отменить.</p>
+      <ol class="progress" aria-label="Этапы проекта">
+        <li class="active"><span>01</span> Размеры</li><li><span>02</span> Компоновка</li><li><span>03</span> Стиль</li><li><span>04</span> Результат</li>
+      </ol>
+    </section>
+
+    <section class="workspace" aria-label="Конструктор кухни">
+      <nav class="tool-rail" aria-label="Разделы редактора">
+        <button class="active" type="button"><b>▣</b><span>Проект</span></button><button type="button"><b>⌑</b><span>План</span></button><button type="button"><b>▥</b><span>Модули</span></button><button type="button"><b>◉</b><span>Материалы</span></button><button type="button"><b>⌘</b><span>Фурнитура</span></button><button type="button"><b>☼</b><span>Свет</span></button>
+      </nav>
+      <aside class="module-library" aria-label="Библиотека модулей">
+        <div class="library-heading"><strong>Модули</strong><button type="button">⌃</button></div>
+        <section class="asset-group"><h3>Тумбы</h3><div class="asset-grid">
+          <button type="button" data-example="Добавь тумбу 300 мм"><i class="cabinet-icon single"></i><span>300</span></button><button type="button" data-example="Добавь тумбу 400 мм"><i class="cabinet-icon single"></i><span>400</span></button><button type="button" data-example="Добавь тумбу 600 мм"><i class="cabinet-icon double"></i><span>600</span></button><button type="button" data-example="Добавь тумбу 800 мм"><i class="cabinet-icon double"></i><span>800</span></button>
+        </div></section>
+        <section class="asset-group"><h3>Мойки</h3><div class="asset-grid">
+          <button type="button" data-example="Добавь мойку 600 мм"><i class="cabinet-icon sink"></i><span>600</span></button><button class="selected" type="button" data-example="Добавь мойку 800 мм"><i class="cabinet-icon sink"></i><span>800</span></button>
+        </div></section>
+        <section class="asset-group compact-assets"><h3>Техника</h3><div class="asset-grid">
+          <button type="button" data-example="Добавь духовой шкаф 600 мм"><i class="appliance-icon oven"></i><span>Духовой шкаф</span></button><button type="button" data-example="Добавь холодильник 600 мм"><i class="appliance-icon fridge"></i><span>Холодильник</span></button>
+        </div></section>
+      </aside>
+      <div class="conversation">
+        <div class="guide">
+          <span class="guide-icon" aria-hidden="true">✦</span>
+          <div><strong>Начнём с длины стены</strong><p id="assistant-message">Напишите, например: «Стена 3 метра, высота 2,7».</p></div>
+        </div>
+
+        <div class="conversation-log" id="conversation-log" aria-live="polite" aria-label="Диалог с MebelFlow AI">
+          <article class="chat-message ai"><span>AI</span><p>Здравствуйте! Опишите кухню обычными словами. Начнём с длины стены.</p></article>
+        </div>
+
+        <div class="examples" aria-label="Примеры команд">
+          <button type="button" data-example="Стена 3 метра, высота комнаты 2700 мм">Стена 3 м · высота 2,7</button>
+          <button type="button" data-example="Добавь справа мойку 600 мм">Добавить мойку 600</button>
+          <button type="button" data-example="После мойки добавь посудомойку 600 мм">ПММ после мойки</button>
+        </div>
+
+        <form id="command-form" novalidate>
+          <label for="command">Ваше пожелание</label>
+          <section class="voice-transcript hidden" id="voice-transcript" aria-live="polite" aria-label="Расшифровка голоса">
+            <div class="voice-transcript-head">
+              <span class="recording-dot" aria-hidden="true"></span>
+              <strong id="voice-state-label">Слушаю и расшифровываю</strong>
+              <span class="waveform" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            </div>
+            <p id="transcript-preview">Говорите — распознанный текст появится здесь.</p>
+          </section>
+          <div class="composer">
+            <textarea id="command" rows="2" maxlength="2000" placeholder="Напишите размер или пожелание…" required></textarea>
+          </div>
+          <div class="human-check">
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAAEEX-k_-HA_wm4nv" data-action="turnstile-spin-v1" data-appearance="interaction-only" data-callback="onTurnstileSuccess" data-expired-callback="onTurnstileExpired"></div>
+          </div>
+          <div class="composer-actions">
+            <button class="mic" id="mic" type="button" aria-label="Начать голосовой ввод" title="Голосовой ввод">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a4 4 0 0 0 4-4V5a4 4 0 1 0-8 0v6a4 4 0 0 0 4 4Zm-7-4a7 7 0 0 0 14 0M12 18v3m-4 0h8"/></svg>
+              <span class="mic-label">Говорить</span>
+            </button>
+            <button class="primary" id="send" type="submit" disabled><span>Отправить</span><span aria-hidden="true">→</span></button>
+          </div>
+          <button class="confirm hidden" id="confirm" type="button">Да, применить предложенное изменение</button>
+          <p class="status" id="status" aria-live="polite">Защищённое соединение · AI ничего не меняет без проверки</p>
+        </form>
+      </div>
+
+      <div class="scheme-panel">
+        <div class="scheme-head"><div><span class="kicker">Интерактивная схема</span><h2>Ваша кухня</h2></div><button id="undo" type="button" disabled>↶ Отменить</button></div>
+        <div class="view-switcher" role="group" aria-label="Вид схемы">
+          <button class="active" type="button" data-view="front">Фасад</button>
+          <button type="button" data-view="top">Сверху</button>
+          <button type="button" data-view="perspective">Перспектива</button>
+          <button type="button" data-view="3d">3D-вид</button>
+        </div>
+        <div class="scheme" id="scheme" aria-live="polite"></div>
+        <div class="metrics"><div><span>Длина стены</span><strong id="wall-metric">—</strong></div><div><span>Свободно</span><strong id="remaining-metric">—</strong></div><div><span>AI-запрос</span><strong id="cost-metric">0 ₸</strong></div></div>
+        <p class="disclaimer">Предварительная схема не является производственным чертежом. Размеры, материалы и итоговую цену подтверждает мебельщик после замера.</p>
+      </div>
+      <aside class="properties-panel" aria-label="Свойства выбранного модуля">
+        <div class="properties-head"><div><span>Выбранный модуль</span><strong>Мойка 800</strong></div><button type="button" aria-label="Закрыть">×</button></div>
+        <dl><div><dt>Ширина</dt><dd>800 мм</dd></div><div><dt>Корпус</dt><dd>16 мм</dd></div><div><dt>Глубина корпуса</dt><dd>500 мм</dd></div><div><dt>Фасад</dt><dd>18 мм</dd></div><div><dt>Ручка</dt><dd>320 мм</dd></div></dl>
+        <div class="validation-list"><p class="valid">✓ Схема проверена</p><p class="warning">! Отступ от стены 50 мм</p></div>
+      </aside>
+      <nav class="mobile-dock" aria-label="Мобильная навигация"><button type="button"><b>▤</b><span>Проект</span></button><button type="button"><b>▥</b><span>Модули</span></button><button class="voice-dock" id="mobile-mic" type="button" aria-label="Голосовой ввод"><b>●</b></button><button type="button"><b>☷</b><span>Свойства</span></button><button type="button"><b>•••</b><span>Ещё</span></button></nav>
+    </section>
+  </main>
+
+  <footer><a href="https://salamat-mebel.kz">Salamat Mebel × MebelFlow AI <span aria-hidden="true">↗</span></a><span>Алматы · 2026</span></footer>
+  <script>window.onTurnstileSuccess=function(t){window.dispatchEvent(new CustomEvent('turnstile-success',{detail:t}))};window.onTurnstileExpired=function(){window.dispatchEvent(new Event('turnstile-expired'))}</script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

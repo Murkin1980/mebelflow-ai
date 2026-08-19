@@ -1,0 +1,13 @@
+.git
+.github
+node_modules
+dist
+output
+.env
+.env.*
+*.log
+docs
+spikes
+packages/**/demo
+packages/**/*.test.ts
+packages/**/*.property.test.ts

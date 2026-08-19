@@ -1,0 +1,44 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: mebelflow-api-staging
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "20"
+    spec:
+      containerConcurrency: 100
+      timeoutSeconds: 60
+      serviceAccountName: mebelflow-api@PROJECT_ID.iam.gserviceaccount.com
+      containers:
+        - image: REGION-docker.pkg.dev/PROJECT_ID/mebelflow/api:IMAGE_TAG
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          env:
+            - name: OPENAI_MODEL
+              value: gpt-5-mini
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mebelflow-openai-api-key
+                  key: latest
+            - name: PILOT_TENANT_ID
+              value: salamat-mebel-pilot
+            - name: PILOT_ALLOWED_ORIGIN
+              value: https://ai.salamat-mebel.kz
+            - name: TURNSTILE_VERIFY_URL
+              value: https://turnstile-siteverify-mebelflow-ai.muriktl.workers.dev/
+            - name: TURNSTILE_EXPECTED_HOSTNAME
+              value: ai.salamat-mebel.kz
+            - name: TENANT_BUDGET_KZT
+              value: "50000"
+            - name: TENANT_RPM
+              value: "400"
+            - name: USD_KZT_RATE
+              value: "470"

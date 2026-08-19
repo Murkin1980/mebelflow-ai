@@ -1,3 +1,3 @@
 # Intent Parser
 
-Модуль запланирован. Реализация должна следовать `FOUNDATION.md`, `ARCHITECTURE.md` и `TECH_SPEC.md`.
+Безопасный provider-neutral parser естественного текста. Передаёт только compact state, принимает команду белого списка или `CLARIFY`, учитывает confidence и token usage. Реальный AI provider не подключён.

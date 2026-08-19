@@ -102,4 +102,4 @@ npm.cmd ci
 npm.cmd run check
 ```
 
-Stage 0/1 реализованы в `packages/project-state` и `packages/command-schema`. Текущий набор проверок включает typecheck и 74 unit-теста.
+Stage 0–8 приняты; Stage 9 pilot readiness, публичный landing, Cloud Run gateway и Turnstile gate развёрнуты. Текущий набор проверок включает domain/widget typecheck и 244 unit/property/snapshot/contract теста. Real-token text E2E на `ai.salamat-mebel.kz` прошёл, а Firestore ledger подтвердил фактический commit стоимости. Перед controlled pilot остаётся ручной real-microphone voice E2E; полевая выборка пилота ещё не выполнена.

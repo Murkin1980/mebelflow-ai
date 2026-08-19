@@ -1,3 +1,5 @@
 # Style Presets
 
-Модуль запланирован. Реализация должна следовать `FOUNDATION.md`, `ARCHITECTURE.md` и `TECH_SPEC.md`.
+Каталог пяти стилей Stage 6: modern minimal, japandi, neoclassic, warm modern и scandinavian. Каждый стиль содержит три палитры, совместимые фасады, ручки, столешницу и описание. Шесть фасадных пресетов имеют детерминированный ценовой коэффициент.
+
+`getTenantStyles` ограничивает каталог настройками мебельщика, а `applyStyleSelection` отклоняет чужие палитры, фасады и выключенные tenant-стили.
