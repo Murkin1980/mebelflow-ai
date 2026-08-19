@@ -206,6 +206,18 @@
 - [ ] Funnel report
 - [ ] Go/no-go decision
 
+## Хардненинг после независимого аудита (2026-08-19)
+
+- [x] Кумулятивная линия этапов 2–9 смержена в main; PR #1–#8 и #10 упорядочены/закрыты
+- [x] Разорвана циклическая зависимость пакетов (`packages/domain-types`)
+- [x] Строгая валидация команд (`.strict()`) — лишние поля от LLM отклоняются
+- [x] Идемпотентность переживает восстановление сессии
+- [x] Кэпы истории: `MAX_HISTORY`, `MAX_APPLIED_COMMAND_IDS`, `MAX_METADATA_BYTES`
+- [x] Docs examples валидируются схемами в CI (`docs-contract.test.ts`)
+- [x] `npm audit` — 0 vulnerabilities (audit-шаг в CI предложен: `docs/internal/ci.yml.proposed`)
+- [x] Biome: формат и линт в `npm run check`; coverage-джоба предложена в `docs/internal/ci.yml.proposed`
+- [x] 296 unit/property/snapshot/contract тестов проходят
+
 ## UI Quality Gate — для каждого клиентского среза
 
 - [ ] Применён `mebelflow-conversational-interface`

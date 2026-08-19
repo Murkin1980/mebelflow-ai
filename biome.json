@@ -1,0 +1,41 @@
+{
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": [
+      "packages/**/*.ts",
+      "apps/**/*.{ts,mjs}",
+      "scripts/**/*.mjs",
+      "spikes/**/*.mjs",
+      "package.json",
+      "tsconfig.json",
+      "tsconfig.runtime.json",
+      "docs/templates/**/*.json",
+      "!packages/svg-renderer/demo"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 120
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "style": {
+        "noNonNullAssertion": "off"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always"
+    }
+  }
+}

@@ -274,3 +274,41 @@ TECH_SPEC §5 задаёт состав 720+100+38=858 мм как итог ни
 Основной вывод аудита: **риск не в доменном ядре, а в начавшемся дрейфе «документация ↔ код» и в трёх дефектах, которые проявятся именно тогда, когда их дороже всего чинить**: восстановление сессии (Stage 7), autosave в D1 (рост `appliedCommandIds`) и долгие сессии (рост истории). Все они чинятся за полдня до старта Stage 2.
 
 **Следующий безопасный шаг (по AGENTS.md):** закрыть пункты P0-1…P0-5 одним PR, затем начинать Stage 2 — Layout Engine прямой стены: расчёт остатка, `INSERT_BEFORE`, правила filler и техники, property-based тесты. Никаких UI/AI/voice до завершения Stage 2 — это соответствует FOUNDATION и текущему плану.
+
+---
+
+## 11. Статус исправлений P0/P1 на актуальной линии (2026-08-19)
+
+Все P0-пункты из §9 закрыты, но **не на Stage 0/1, а на актуальной линии этапов 2–9** после её слияния в main:
+
+- **P0-1 (D1/D2)** — оба шаблона `docs/templates/` приведены в соответствие схемам; постоянный тест-гейт `docs-contract.test.ts` валидирует примеры и проверяет, что реплей команд воспроизводит пример состояния. Выполняется в `npm run check` и CI.
+- **P0-3** — кэпы в `packages/project-state/src/limits.ts`: `MAX_HISTORY=100` (past/future в reducer, `layout-engine` и in-memory адаптере), `MAX_APPLIED_COMMAND_IDS=500` (с тестом на принятый trade-off), `MAX_METADATA_BYTES=8192`.
+- **P0-2** — `createHistory` инициализирует `processedCommandIds` из `historyMeta.appliedCommandIds`; идемпотентность переживает save/reload (тесты).
+- **P0-4** — все 15 вариантов `CommandSchema` переведены на `.strict()`; проверено, что `intent-parser` отделяет `confidence/explanation/needsConfirmation` до валидации команды — LLM-конвейер не ломается, граница безопасности усилена.
+- **P0-5 (D5)** — `overrides: nanoid ^3.3.18`; `npm audit` — 0 vulnerabilities; шаг `npm audit --audit-level=high` в CI предложен (`docs/internal/ci.yml.proposed`; пуш workflow ограничен правами токена).
+- **P1-6** — циклическая зависимость `command-schema ↔ project-state` разорвана новым нейтральным пакетом `packages/domain-types`.
+- **P1-8** — Biome 2: форматирование 70 файлов, линт в `npm run check`, coverage-джоба с артефактом в CI предложена (`docs/internal/ci.yml.proposed`; пуш workflow ограничен правами токена). `noNonNullAssertion` отключено осознанно (14 legacy-использований — тех-долг).
+- **P1-9 (D3)** — TECH_SPEC §5 уточнён: расчётные 858 мм vs принятый tenant-tunable default 900 мм (смена default — продуктовое решение владельца, поведение деплоя не тронуто).
+- **P2-10/15** — `toMillimetres` принимает строки и исправляет артефакты плавающей точки; лимит `metadata`; `.gitignore` дополнен `output/`; `engines` в package.json.
+
+Итог: `npm ci` — успешно, `npm run check` — typecheck + Biome + **296/296 тестов**, `npm audit` — 0, `build:runtime`/`build:widget`/`coverage` — зелёные.
+
+---
+
+## 12. Порядок в ветках и PR
+
+`main` был на Stage 0/1, при том что этапы 2–9 были реализованы и развёрнуты в кумулятивной ветке `agent/stage-9-pilot-readiness` (53 коммита, 15 пакетов, 3 приложения, 277 тестов, CI зелёный), а вокруг висели 10 draft-PR, включая параллельную развилку `agent/stage-10-3d-viewer`.
+
+Выполнено:
+
+- PR #9 переведён из draft и смержен в `main` (squash `1a1d580`) — main теперь содержит актуальные этапы 2–9.
+- Draft-PR #1–#8 закрыты как поглощённые #9 (ветки сохранены).
+- Draft-PR #10 (`agent/stage-10-3d-viewer`, visual-asset-library) закрыт с пояснением: GLB-ассеты уже в принятой линии (ADR-005), ветка сохранена как задел asset pipeline.
+- Хардненинг из §11 применён поверх смерженной линии в отдельном PR.
+
+**Остатки, требующие решения владельца (кодом не закрываются):**
+
+1. **FOUNDATION.md 5.4 vs ADR-005**: фундамент говорит «полноценный 3D допускается только после доказанного спроса», а ленивый Three.js viewer уже развёрнут и покрыт ADR-005. Нужно либо зафиксировать ADR-005 в фундаменте, либо демонтировать 3D из MVP.
+2. **totalHeight 900 vs 858**: default оставлен 900 (деплойное поведение не тронуто); смена на расчётные 858 — продуктовое решение.
+3. **Гейты пилота**: real-microphone voice E2E и полевая выборка пилота (Stage 9) — единственные оставшиеся внешние проверки перед controlled pilot.
+4. **Тех-долг**: 14 legacy `noNonNullAssertion`; npm workspaces; разделение каталогов LOWER/TALL/UPPER; `agent/stage-10-3d-viewer` как задел asset pipeline.

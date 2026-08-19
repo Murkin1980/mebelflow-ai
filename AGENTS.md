@@ -27,7 +27,7 @@
 
 Запрещено самовольно добавлять:
 
-- 3D;
+- 3D (единственное исключение — принятый ADR-005: ленивый Three.js viewer в widget);
 - SketchUp;
 - PRO100;
 - БАЗИС;
@@ -61,6 +61,8 @@
 - Pricing versioned.
 - Network sender injected.
 - Production actions gated.
+- Формат и линт — Biome (`npm run lint`, `npm run format`); CI падает на lint-ошибках.
+- Примеры в `docs/templates/` валидируются схемами тестом `docs-contract.test.ts` — менять их только вместе с тестами.
 
 ## 5. Pascal
 

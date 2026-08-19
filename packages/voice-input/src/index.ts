@@ -1,7 +1,7 @@
 import { z } from "zod";
-import type { ProjectHistory } from "../../project-state/src/reducer.js";
+import type { ApplyResult, IntentSession } from "../../intent-parser/src/conversation.js";
 import type { IntentResult } from "../../intent-parser/src/index.js";
-import { IntentSession, type ApplyResult } from "../../intent-parser/src/conversation.js";
+import type { ProjectHistory } from "../../project-state/src/reducer.js";
 
 export type VoiceStatus =
   | "idle"
@@ -115,31 +115,60 @@ export class VoiceSession {
     this.historyValue = history;
   }
 
-  state() { return structuredClone(this.stateValue); }
-  history() { return this.historyValue; }
-  setOnline(online: boolean) { this.online = online; }
+  state() {
+    return structuredClone(this.stateValue);
+  }
+  history() {
+    return this.historyValue;
+  }
+  setOnline(online: boolean) {
+    this.online = online;
+  }
 
   async requestPermission(resolve: () => Promise<"granted" | "denied">) {
-    this.stateValue = { ...this.stateValue, status: "requesting_permission", message: "Разрешите доступ к микрофону.", errorCode: null };
+    this.stateValue = {
+      ...this.stateValue,
+      status: "requesting_permission",
+      message: "Разрешите доступ к микрофону.",
+      errorCode: null,
+    };
     const permission = await resolve();
     if (permission === "denied") {
-      this.fail("permission_denied", "Доступ к микрофону запрещён. Разрешите его в браузере или введите команду текстом.", false);
+      this.fail(
+        "permission_denied",
+        "Доступ к микрофону запрещён. Разрешите его в браузере или введите команду текстом.",
+        false,
+      );
       this.stateValue.permission = "denied";
       return;
     }
-    this.stateValue = { ...initialVoiceState(), permission: "granted", message: "Микрофон готов. Нажмите ещё раз, чтобы начать запись." };
+    this.stateValue = {
+      ...initialVoiceState(),
+      permission: "granted",
+      message: "Микрофон готов. Нажмите ещё раз, чтобы начать запись.",
+    };
   }
 
   startRecording() {
     if (!this.online) return this.fail("offline", "Нет сети. Голос пока недоступен — введите команду текстом.", false);
     if (this.stateValue.permission !== "granted") throw new Error("Microphone permission is required.");
     this.retainedAudio = null;
-    this.stateValue = { ...this.stateValue, status: "listening", transcript: "", transcriptConfidence: null, interpretation: null, message: "Идёт запись. Нажмите «Стоп», когда закончите.", errorCode: null, canRetry: false };
+    this.stateValue = {
+      ...this.stateValue,
+      status: "listening",
+      transcript: "",
+      transcriptConfidence: null,
+      interpretation: null,
+      message: "Идёт запись. Нажмите «Стоп», когда закончите.",
+      errorCode: null,
+      canRetry: false,
+    };
   }
 
   async stopRecording(audio: AudioCapture) {
     if (this.stateValue.status !== "listening") throw new Error("Recording is not active.");
-    if (audio.bytes.byteLength === 0) return this.fail("empty_recording", "Запись пустая. Попробуйте ещё раз или введите команду текстом.", false);
+    if (audio.bytes.byteLength === 0)
+      return this.fail("empty_recording", "Запись пустая. Попробуйте ещё раз или введите команду текстом.", false);
     this.retainedAudio = structuredClone(audio);
     await this.transcribe(audio);
   }
@@ -148,12 +177,21 @@ export class VoiceSession {
     if (this.stateValue.status !== "transcript_ready") throw new Error("Transcript is not ready.");
     const clean = transcript.trim();
     if (!clean) throw new Error("Transcript cannot be empty.");
-    this.stateValue = { ...this.stateValue, transcript: clean, transcriptConfidence: 1, message: "Проверьте исправленный текст и подтвердите применение." };
+    this.stateValue = {
+      ...this.stateValue,
+      transcript: clean,
+      transcriptConfidence: 1,
+      message: "Проверьте исправленный текст и подтвердите применение.",
+    };
   }
 
   async confirm(): Promise<ApplyResult | null> {
     if (this.stateValue.status !== "transcript_ready") throw new Error("Transcript confirmation is unavailable.");
-    this.stateValue = { ...this.stateValue, status: "applying", message: "AI интерпретирует команду. Схема ещё не изменена." };
+    this.stateValue = {
+      ...this.stateValue,
+      status: "applying",
+      message: "AI интерпретирует команду. Схема ещё не изменена.",
+    };
     const parsed: IntentResult = await this.intent.interpret(this.stateValue.transcript, this.historyValue.present);
     const applied = this.intent.apply(this.historyValue, parsed, true);
     this.stateValue.interpretation = applied.message;
@@ -163,7 +201,13 @@ export class VoiceSession {
     }
     this.historyValue = applied.history;
     this.retainedAudio = null;
-    this.stateValue = { ...this.stateValue, status: "idle", message: `${applied.message}. Изменение применено; его можно отменить.`, errorCode: null, canRetry: false };
+    this.stateValue = {
+      ...this.stateValue,
+      status: "idle",
+      message: `${applied.message}. Изменение применено; его можно отменить.`,
+      errorCode: null,
+      canRetry: false,
+    };
     return applied;
   }
 
@@ -175,20 +219,52 @@ export class VoiceSession {
 
   async retry() {
     if (!this.stateValue.canRetry || !this.retainedAudio) throw new Error("There is no recording to retry.");
-    if (!this.online) return this.fail("offline", "Сеть всё ещё недоступна. Запись сохранена в этой сессии; повторите позже или используйте текст.", true);
+    if (!this.online)
+      return this.fail(
+        "offline",
+        "Сеть всё ещё недоступна. Запись сохранена в этой сессии; повторите позже или используйте текст.",
+        true,
+      );
     await this.transcribe(this.retainedAudio);
   }
 
   private async transcribe(audio: AudioCapture) {
-    if (!this.online) return this.fail("offline", "Нет сети. Запись не потеряна: повторите отправку или используйте текст.", true);
-    this.stateValue = { ...this.stateValue, status: "processing", message: "Распознаю речь. Схема ещё не изменена.", errorCode: null, canRetry: false };
+    if (!this.online)
+      return this.fail("offline", "Нет сети. Запись не потеряна: повторите отправку или используйте текст.", true);
+    this.stateValue = {
+      ...this.stateValue,
+      status: "processing",
+      message: "Распознаю речь. Схема ещё не изменена.",
+      errorCode: null,
+      canRetry: false,
+    };
     let raw: SttResponse;
-    try { raw = await this.stt.transcribe({ audio, locale: this.locale }); }
-    catch { return this.fail("stt_failed", "Не удалось распознать речь. Запись не применена — повторите отправку или используйте текст.", true); }
+    try {
+      raw = await this.stt.transcribe({ audio, locale: this.locale });
+    } catch {
+      return this.fail(
+        "stt_failed",
+        "Не удалось распознать речь. Запись не применена — повторите отправку или используйте текст.",
+        true,
+      );
+    }
     const parsed = SttResponseSchema.safeParse(raw);
-    if (!parsed.success) return this.fail("invalid_stt_response", "Сервис речи вернул некорректный ответ. Схема не изменена; попробуйте снова.", true);
+    if (!parsed.success)
+      return this.fail(
+        "invalid_stt_response",
+        "Сервис речи вернул некорректный ответ. Схема не изменена; попробуйте снова.",
+        true,
+      );
     this.costs.record(parsed.data.billedSeconds);
-    this.stateValue = { ...this.stateValue, status: "transcript_ready", transcript: parsed.data.transcript, transcriptConfidence: parsed.data.confidence, message: "Проверьте распознанный текст. Команда применится только после подтверждения.", errorCode: null, canRetry: false };
+    this.stateValue = {
+      ...this.stateValue,
+      status: "transcript_ready",
+      transcript: parsed.data.transcript,
+      transcriptConfidence: parsed.data.confidence,
+      message: "Проверьте распознанный текст. Команда применится только после подтверждения.",
+      errorCode: null,
+      canRetry: false,
+    };
   }
 
   private fail(code: VoiceErrorCode, message: string, canRetry: boolean) {
@@ -206,10 +282,16 @@ export type VoiceViewModel = {
 };
 
 export function createVoiceViewModel(state: VoiceState): VoiceViewModel {
-  const primaryAction = state.status === "listening" ? "Стоп"
-    : state.status === "transcript_ready" ? "Подтвердить"
-    : state.status === "error" && state.canRetry ? "Повторить"
-    : state.permission === "granted" ? "Записать" : "Разрешить микрофон";
+  const primaryAction =
+    state.status === "listening"
+      ? "Стоп"
+      : state.status === "transcript_ready"
+        ? "Подтвердить"
+        : state.status === "error" && state.canRetry
+          ? "Повторить"
+          : state.permission === "granted"
+            ? "Записать"
+            : "Разрешить микрофон";
   return {
     primaryAction,
     secondaryAction: "Ввести текст",

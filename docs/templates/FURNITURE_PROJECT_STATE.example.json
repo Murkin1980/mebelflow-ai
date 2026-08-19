@@ -48,12 +48,7 @@
     "repeatLowerWidths": true
   },
   "style": {
-    "presetId": "japandi-03",
-    "lowerFront": "cashmere",
-    "upperFront": "warm_white",
-    "woodAccent": "light_oak",
-    "countertop": "light_stone",
-    "facadePreset": "smooth"
+    "presetId": "japandi-03"
   },
   "pricing": {
     "currency": "KZT",
@@ -62,5 +57,9 @@
     "formulaVersion": 1,
     "status": "preliminary"
   },
-  "warnings": []
+  "warnings": [],
+  "historyMeta": {
+    "revision": 4,
+    "appliedCommandIds": ["cmd-001", "cmd-002", "cmd-003", "cmd-004"]
+  }
 }

@@ -1,5 +1,45 @@
 # SESSION NOTES — MebelFlow AI
 
+## 2026-08-19 — Аудит актуального HEAD, порядок в PR и хардненинг
+
+### Контекст
+
+Независимый аудит (`docs/internal/2026-08-19-deep-analysis-report.md`) и разбор веток показали: принятая кумулятивная линия этапов 2–9 (`agent/stage-9-pilot-readiness`) жила в draft-PR #9 при main на Stage 0/1; параллельная линия stage-10-3d-viewer противоречила порядку PR. На актуальной линии отсутствовали хардненинг-фиксы аудита.
+
+### Выполнено — ветки и PR
+
+- PR #9 (этапы 2–9) переведён из draft и смержен в main squash-коммитом `1a1d580`.
+- Draft-PR #1–#8 закрыты как поглощённые #9; PR #10 (stage-10-3d-viewer, visual-asset-library) закрыт с пояснением — ветки сохранены.
+
+### Выполнено — хардненинг актуальной линии
+
+- Новый нейтральный пакет `packages/domain-types` (типы модулей + геометрические константы) — разорвана циклическая зависимость `command-schema ↔ project-state`.
+- `CommandSchema` переведён на `.strict()`: лишние поля от LLM отклоняются; intent-parser отделяет confidence/explanation до валидации, конвейер не ломается.
+- Идемпотентность переживает восстановление сессии: `createHistory` инициализирует `processedCommandIds` из `historyMeta.appliedCommandIds`.
+- Кэпы в `limits.ts`: `MAX_HISTORY=100` (past/future в reducer, layout-engine и in-memory адаптере), `MAX_APPLIED_COMMAND_IDS=500`, `MAX_METADATA_BYTES=8192`.
+- `toMillimetres` принимает строки (LLM/STT) и исправляет артефакты плавающей точки (1.005 м → 1005 мм).
+- Docs-контракт-гейт: примеры `docs/templates/` исправлены и валидируются тестом `docs-contract.test.ts` в `npm run check` и CI (реплей команд воспроизводит пример состояния).
+- `overrides: nanoid ^3.3.18` — `npm audit` 0 vulnerabilities. Обновлённый CI (audit-шаг, матрица Node 20/22, coverage-джоба с артефактом) подготовлен, но пуш `.github/workflows/ci.yml` ограничен правами токена — предложение сохранено в `docs/internal/ci.yml.proposed` и PR-описании; до применения CI выполняет `npm run check`, который уже включает линт.
+- Biome 2: форматирование всего кода (70 файлов), линт в `npm run check`; правило `noNonNullAssertion` отключено осознанно (14 legacy-использований — отдельный рефакторинг).
+- Исправлены ошибки линта в prod-коде (forEach-колбэки, неиспользуемый параметр SVG-рендера, optional chain) — поведение не менялось.
+- AGENTS.md: исключение ADR-005 для 3D, правила Biome и docs-гейта. TECH_SPEC §5: уточнён default totalHeight 900 vs расчётные 858. `.gitignore`: добавлен `output/`.
+
+### Проверки
+
+- `npm ci` — успешно; `npm audit` — 0 vulnerabilities.
+- `npm run check` — typecheck + Biome + **296/296 тестов**.
+- `build:runtime`, `build:widget`, `coverage` — успешно; coverage отчёт генерируется.
+
+### Ограничения и решения для владельца
+
+- `totalHeight` default 900 оставлен без изменения (деплойная линия): смена на 858 — продуктовое решение.
+- FOUNDATION.md (5.4 «полноценный 3D после доказанного спроса») не редактировался — нужен вердикт владельца по принятию ADR-005 в фундамент.
+- Ветка `agent/stage-10-3d-viewer` (visual-asset-library) сохранена для будущей работы над asset pipeline.
+
+### Следующий безопасный шаг
+
+Real-microphone voice E2E и полевая выборка пилота (Stage 9) — единственные оставшиеся внешние гейты.
+
 ## 2026-08-09 — 3D orbit and camera-control hints
 
 - Cloudflare Worker `mebelflow-ai-landing` deployed as version `1093b572-30bc-4f3d-9eed-01739ef5e953`; production assets reference the new viewer chunk and contain orbit badge, desktop/touch legends, cursor tooltip and grab/grabbing styles.

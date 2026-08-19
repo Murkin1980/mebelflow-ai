@@ -1,20 +1,66 @@
-import{describe,expect,it}from"vitest";import{createInitialProject}from"../../project-state/src/schema.js";import{createModule}from"../../project-state/src/catalog.js";import{renderKitchenSvg,svgToDataUrl,svgToPngBlob}from"./index.js";
-const sample=()=>{const s=createInitialProject("p","t");s.room.wallWidth=3000;s.room.roomHeight=2700;s.lowerRow.modules=[createModule("sink","sink_cabinet",800),{...createModule("dw","dishwasher_600",600),position:800},{...createModule("drawers","base_cabinet_drawers",600),position:1400}];return s};
-describe("SVG renderer",()=>{
- it("renders accessible title and description",()=>{const svg=renderKitchenSvg(sample());expect(svg).toContain('role="img"');expect(svg).toContain('<title id="kitchen-title">');expect(svg).toContain('<desc id="kitchen-desc">')});
- it("uses responsive viewBox",()=>expect(renderKitchenSvg(sample())).toContain('viewBox="-180 -180 3360 3060"'));
- it("renders every lower module",()=>expect((renderKitchenSvg(sample()).match(/data-module-id=/g)??[])).toHaveLength(3));
- it("renders module widths",()=>{const svg=renderKitchenSvg(sample());expect(svg).toContain('>800<');expect(svg).toContain('>600<')});
- it("renders total wall dimension",()=>expect(renderKitchenSvg(sample())).toContain('3000 мм'));
- it("renders free remainder",()=>expect(renderKitchenSvg(sample())).toContain('Свободно 1000'));
- it("marks selected without color alone",()=>{const svg=renderKitchenSvg(sample(),{selectedId:"dw"});expect(svg).toContain('выбран');expect(svg).toContain('>Выбрано<');expect(svg).toContain('stroke-width="10"')});
- it("renders appliance icon",()=>expect(renderKitchenSvg(sample())).toContain('<circle'));
- it("renders warnings",()=>{const s=sample();s.warnings=[{code:"x",message:"Проверьте размер"}];expect(renderKitchenSvg(s)).toContain('Проверьте размер')});
- it("limits visible warnings to three",()=>{const s=sample();s.warnings=[1,2,3,4].map(n=>({code:`x${n}`,message:`W${n}`}));expect(renderKitchenSvg(s)).not.toContain('W4')});
- it("escapes user-controlled text",()=>expect(renderKitchenSvg(sample(),{title:'<script>"'})).not.toContain('<script>'));
- it("renders upper row and mezzanine",()=>{const s=sample();s.upperRow.enabled=true;s.upperRow.mainCabinetHeight=800;s.upperRow.mezzanineHeight=400;expect((renderKitchenSvg(s).match(/fill="#c8c0b2"/g)??[]).length).toBeGreaterThan(0)});
- it("is deterministic",()=>expect(renderKitchenSvg(sample())).toBe(renderKitchenSvg(sample())));
- it("matches visual SVG snapshot",()=>expect(renderKitchenSvg(sample(),{selectedId:"dw"})).toMatchSnapshot());
- it("creates an SVG data URL",()=>expect(svgToDataUrl("<svg></svg>")).toBe("data:image/svg+xml;charset=utf-8,%3Csvg%3E%3C%2Fsvg%3E"));
- it("rejects PNG export outside browser",async()=>await expect(svgToPngBlob("<svg></svg>")).rejects.toThrow("browser document"));
+import { describe, expect, it } from "vitest";
+import { createModule } from "../../project-state/src/catalog.js";
+import { createInitialProject } from "../../project-state/src/schema.js";
+import { renderKitchenSvg, svgToDataUrl, svgToPngBlob } from "./index.js";
+
+const sample = () => {
+  const s = createInitialProject("p", "t");
+  s.room.wallWidth = 3000;
+  s.room.roomHeight = 2700;
+  s.lowerRow.modules = [
+    createModule("sink", "sink_cabinet", 800),
+    { ...createModule("dw", "dishwasher_600", 600), position: 800 },
+    { ...createModule("drawers", "base_cabinet_drawers", 600), position: 1400 },
+  ];
+  return s;
+};
+describe("SVG renderer", () => {
+  it("renders accessible title and description", () => {
+    const svg = renderKitchenSvg(sample());
+    expect(svg).toContain('role="img"');
+    expect(svg).toContain('<title id="kitchen-title">');
+    expect(svg).toContain('<desc id="kitchen-desc">');
+  });
+  it("uses responsive viewBox", () => expect(renderKitchenSvg(sample())).toContain('viewBox="-180 -180 3360 3060"'));
+  it("renders every lower module", () =>
+    expect(renderKitchenSvg(sample()).match(/data-module-id=/g) ?? []).toHaveLength(3));
+  it("renders module widths", () => {
+    const svg = renderKitchenSvg(sample());
+    expect(svg).toContain(">800<");
+    expect(svg).toContain(">600<");
+  });
+  it("renders total wall dimension", () => expect(renderKitchenSvg(sample())).toContain("3000 мм"));
+  it("renders free remainder", () => expect(renderKitchenSvg(sample())).toContain("Свободно 1000"));
+  it("marks selected without color alone", () => {
+    const svg = renderKitchenSvg(sample(), { selectedId: "dw" });
+    expect(svg).toContain("выбран");
+    expect(svg).toContain(">Выбрано<");
+    expect(svg).toContain('stroke-width="10"');
+  });
+  it("renders appliance icon", () => expect(renderKitchenSvg(sample())).toContain("<circle"));
+  it("renders warnings", () => {
+    const s = sample();
+    s.warnings = [{ code: "x", message: "Проверьте размер" }];
+    expect(renderKitchenSvg(s)).toContain("Проверьте размер");
+  });
+  it("limits visible warnings to three", () => {
+    const s = sample();
+    s.warnings = [1, 2, 3, 4].map((n) => ({ code: `x${n}`, message: `W${n}` }));
+    expect(renderKitchenSvg(s)).not.toContain("W4");
+  });
+  it("escapes user-controlled text", () =>
+    expect(renderKitchenSvg(sample(), { title: '<script>"' })).not.toContain("<script>"));
+  it("renders upper row and mezzanine", () => {
+    const s = sample();
+    s.upperRow.enabled = true;
+    s.upperRow.mainCabinetHeight = 800;
+    s.upperRow.mezzanineHeight = 400;
+    expect((renderKitchenSvg(s).match(/fill="#c8c0b2"/g) ?? []).length).toBeGreaterThan(0);
+  });
+  it("is deterministic", () => expect(renderKitchenSvg(sample())).toBe(renderKitchenSvg(sample())));
+  it("matches visual SVG snapshot", () => expect(renderKitchenSvg(sample(), { selectedId: "dw" })).toMatchSnapshot());
+  it("creates an SVG data URL", () =>
+    expect(svgToDataUrl("<svg></svg>")).toBe("data:image/svg+xml;charset=utf-8,%3Csvg%3E%3C%2Fsvg%3E"));
+  it("rejects PNG export outside browser", async () =>
+    await expect(svgToPngBlob("<svg></svg>")).rejects.toThrow("browser document"));
 });

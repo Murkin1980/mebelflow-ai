@@ -3,9 +3,11 @@ import { consumeTurnstile, requestFreshTurnstile } from "./turnstile-lifecycle.j
 
 describe("Turnstile lifecycle", () => {
   it("consumes a used token without resetting the widget", () => {
-    const clear = vi.fn(); const reset = vi.fn();
+    const clear = vi.fn();
+    const reset = vi.fn();
     consumeTurnstile(clear);
-    expect(clear).toHaveBeenCalledOnce(); expect(reset).not.toHaveBeenCalled();
+    expect(clear).toHaveBeenCalledOnce();
+    expect(reset).not.toHaveBeenCalled();
   });
 
   it("requests a fresh challenge only on the next explicit action", () => {
