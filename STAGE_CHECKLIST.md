@@ -215,6 +215,7 @@
 - [x] Кэпы истории: `MAX_HISTORY`, `MAX_APPLIED_COMMAND_IDS`, `MAX_METADATA_BYTES`
 - [x] Docs examples валидируются схемами в CI (`docs-contract.test.ts`)
 - [x] `npm audit` — 0 vulnerabilities (audit-шаг в CI предложен: `docs/internal/ci.yml.proposed`)
+- [x] Владелец undo/redo зафиксирован: `ProjectHistory`; `SceneStoreAdapter` — изолированный low-level слой + regression-тест
 - [x] Biome: формат и линт в `npm run check`; coverage-джоба предложена в `docs/internal/ci.yml.proposed`
 - [x] 296 unit/property/snapshot/contract тестов проходят
 

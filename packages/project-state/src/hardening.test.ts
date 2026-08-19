@@ -129,6 +129,27 @@ describe("history caps", () => {
   });
 });
 
+describe("undo ownership: domain history and adapter history are independent", () => {
+  it("adapter undo does not touch domain history", () => {
+    let history = applyCommand(fresh(), { commandId: "wall", type: "SET_WALL_WIDTH", payload: { width: 3000 } });
+    const adapter = new MemorySceneStoreAdapter();
+    adapter.createNode(createModule("n1", "sink_cabinet", 600));
+    adapter.undo();
+    expect(history.present.room.wallWidth).toBe(3000);
+    expect(history.past).toHaveLength(1);
+    expect(adapter.listNodes()).toHaveLength(0);
+  });
+
+  it("domain undo does not touch adapter nodes", () => {
+    let history = applyCommand(fresh(), { commandId: "wall", type: "SET_WALL_WIDTH", payload: { width: 3000 } });
+    const adapter = new MemorySceneStoreAdapter();
+    adapter.createNode(createModule("n1", "sink_cabinet", 600));
+    history = applyCommand(history, { commandId: "u", type: "UNDO" });
+    expect(history.present.room.wallWidth).toBeNull();
+    expect(adapter.listNodes()).toHaveLength(1);
+  });
+});
+
 describe("metadata size cap", () => {
   it("rejects oversized module metadata", () => {
     const module = createModule("m", "sink_cabinet", 600);

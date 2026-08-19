@@ -17,6 +17,7 @@
 - `CommandSchema` переведён на `.strict()`: лишние поля от LLM отклоняются; intent-parser отделяет confidence/explanation до валидации, конвейер не ломается.
 - Идемпотентность переживает восстановление сессии: `createHistory` инициализирует `processedCommandIds` из `historyMeta.appliedCommandIds`.
 - Кэпы в `limits.ts`: `MAX_HISTORY=100` (past/future в reducer, layout-engine и in-memory адаптере), `MAX_APPLIED_COMMAND_IDS=500`, `MAX_METADATA_BYTES=8192`.
+- **Единый владелец undo/redo зафиксирован: `ProjectHistory`** (reducer + layout-engine). `SceneStoreAdapter` документирован как изолированный низкоуровневый Pascal-совместимый CRUD-слой (adapter.ts, ARCHITECTURE.md §7, AGENTS.md); добавлен regression-тест независимости двух историй.
 - `toMillimetres` принимает строки (LLM/STT) и исправляет артефакты плавающей точки (1.005 м → 1005 мм).
 - Docs-контракт-гейт: примеры `docs/templates/` исправлены и валидируются тестом `docs-contract.test.ts` в `npm run check` и CI (реплей команд воспроизводит пример состояния).
 - `overrides: nanoid ^3.3.18` — `npm audit` 0 vulnerabilities. Обновлённый CI (audit-шаг, матрица Node 20/22, coverage-джоба с артефактом) подготовлен, но пуш `.github/workflows/ci.yml` ограничен правами токена — предложение сохранено в `docs/internal/ci.yml.proposed` и PR-описании; до применения CI выполняет `npm run check`, который уже включает линт.

@@ -63,6 +63,7 @@
 - Production actions gated.
 - Формат и линт — Biome (`npm run lint`, `npm run format`); CI падает на lint-ошибках.
 - Примеры в `docs/templates/` валидируются схемами тестом `docs-contract.test.ts` — менять их только вместе с тестами.
+- Владелец undo/redo — `ProjectHistory` (reducer + layout-engine). `SceneStoreAdapter` — низкоуровневый Pascal-совместимый CRUD-слой; его внутренняя история не участвует в доменном undo и в runtime-потоке не используется.
 
 ## 5. Pascal
 

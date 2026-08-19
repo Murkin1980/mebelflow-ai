@@ -2,6 +2,13 @@ import type { SceneStoreAdapter } from "./adapter.js";
 import { MAX_HISTORY } from "./limits.js";
 import { type FurnitureModule, FurnitureModuleSchema } from "./schema.js";
 
+/**
+ * In-memory реализация SceneStoreAdapter для тестов и локальных демо.
+ *
+ * Изолирована от доменной истории: доменный undo/redo принадлежит
+ * ProjectHistory (reducer/layout-engine), а собственные past/future адаптера
+ * действуют только на прямые CRUD-мутации через него. См. adapter.ts.
+ */
 export class MemorySceneStoreAdapter implements SceneStoreAdapter {
   private nodes = new Map<string, FurnitureModule>();
   private past: FurnitureModule[][] = [];

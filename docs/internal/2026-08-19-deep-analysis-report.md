@@ -287,7 +287,8 @@ TECH_SPEC §5 задаёт состав 720+100+38=858 мм как итог ни
 - **P0-4** — все 15 вариантов `CommandSchema` переведены на `.strict()`; проверено, что `intent-parser` отделяет `confidence/explanation/needsConfirmation` до валидации команды — LLM-конвейер не ломается, граница безопасности усилена.
 - **P0-5 (D5)** — `overrides: nanoid ^3.3.18`; `npm audit` — 0 vulnerabilities; шаг `npm audit --audit-level=high` в CI предложен (`docs/internal/ci.yml.proposed`; пуш workflow ограничен правами токена).
 - **P1-6** — циклическая зависимость `command-schema ↔ project-state` разорвана новым нейтральным пакетом `packages/domain-types`.
-- **P1-8** — Biome 2: форматирование 70 файлов, линт в `npm run check`, coverage-джоба с артефактом в CI предложена (`docs/internal/ci.yml.proposed`; пуш workflow ограничен правами токена). `noNonNullAssertion` отключено осознанно (14 legacy-использований — тех-долг).
+- **P1-7 (undo ownership)** — закрыт во второй итерации ревью: владелец undo/redo — `ProjectHistory` (reducer + layout-engine); `SceneStoreAdapter` документирован как изолированный низкоуровневый Pascal-совместимый CRUD-слой, его история не участвует в доменном undo; добавлен regression-тест независимости двух историй (adapter.ts, memory-adapter.ts, ARCHITECTURE.md §7, AGENTS.md).
+- **P1-8** — Biome 2: форматирование 70 файлов, линт в `npm run check`, coverage-джоба с артефактом предложена (`docs/internal/ci.yml.proposed` — НЕ установлена из-за ограничения прав токена; активный CI выполняет `npm run check` с линтом). `noNonNullAssertion` отключено осознанно (14 legacy-использований — тех-долг).
 - **P1-9 (D3)** — TECH_SPEC §5 уточнён: расчётные 858 мм vs принятый tenant-tunable default 900 мм (смена default — продуктовое решение владельца, поведение деплоя не тронуто).
 - **P2-10/15** — `toMillimetres` принимает строки и исправляет артефакты плавающей точки; лимит `metadata`; `.gitignore` дополнен `output/`; `engines` в package.json.
 
@@ -311,4 +312,4 @@ TECH_SPEC §5 задаёт состав 720+100+38=858 мм как итог ни
 1. **FOUNDATION.md 5.4 vs ADR-005**: фундамент говорит «полноценный 3D допускается только после доказанного спроса», а ленивый Three.js viewer уже развёрнут и покрыт ADR-005. Нужно либо зафиксировать ADR-005 в фундаменте, либо демонтировать 3D из MVP.
 2. **totalHeight 900 vs 858**: default оставлен 900 (деплойное поведение не тронуто); смена на расчётные 858 — продуктовое решение.
 3. **Гейты пилота**: real-microphone voice E2E и полевая выборка пилота (Stage 9) — единственные оставшиеся внешние проверки перед controlled pilot.
-4. **Тех-долг**: 14 legacy `noNonNullAssertion`; npm workspaces; разделение каталогов LOWER/TALL/UPPER; `agent/stage-10-3d-viewer` как задел asset pipeline.
+4. **Тех-долг**: 14 legacy `noNonNullAssertion`; npm workspaces; разделение каталогов LOWER/TALL/UPPER; `agent/stage-10-3d-viewer` как задел asset pipeline; обновлённый CI остаётся предложением (`docs/internal/ci.yml.proposed`) до применения владельцем.
