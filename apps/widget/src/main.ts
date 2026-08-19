@@ -8,8 +8,25 @@ import { VISUAL_ASSETS } from "./visual-assets.js";
 
 const API_URL = "https://mebelflow-api-staging-1013284205128.europe-central2.run.app";
 const TENANT_ID = "salamat-mebel-pilot";
-type IntentEnvelope = { intent: { type?: "CLARIFY"; question?: string; options?: string[]; command?: unknown; confidence?: number; explanation?: string }; cost?: { kzt?: number } };
-class VoiceCommandError extends Error { constructor(message: string, readonly transcript = "") { super(message); } }
+type IntentEnvelope = {
+  intent: {
+    type?: "CLARIFY";
+    question?: string;
+    options?: string[];
+    command?: unknown;
+    confidence?: number;
+    explanation?: string;
+  };
+  cost?: { kzt?: number };
+};
+class VoiceCommandError extends Error {
+  constructor(
+    message: string,
+    readonly transcript = "",
+  ) {
+    super(message);
+  }
+}
 type SpeechRecognitionEventLike = { results: ArrayLike<{ 0?: { transcript?: string }; isFinal?: boolean }> };
 type SpeechRecognitionErrorLike = { error?: string };
 type SpeechRecognitionLike = {
@@ -40,7 +57,7 @@ const transcriptPreview = byId<HTMLParagraphElement>("transcript-preview");
 const conversationLog = byId<HTMLElement>("conversation-log");
 const restoredProject = loadStoredProject(localStorage, TENANT_ID);
 let history: ProjectHistory = createHistory(restoredProject ?? createInitialProject(crypto.randomUUID(), TENANT_ID));
-let sessionId = `session_${crypto.randomUUID().replaceAll("-", "")}`;
+const sessionId = `session_${crypto.randomUUID().replaceAll("-", "")}`;
 let turnstileToken = "";
 let turnstileRefreshRequested = false;
 let pendingCommand: unknown;
@@ -67,35 +84,59 @@ function addChatMessage(role: "ai" | "user", text: string, thinking = false) {
   return message;
 }
 
-const moduleLabel = (type: string) => type === "sink_cabinet" ? "Мойка" : type.startsWith("dishwasher") ? "ПММ" : "Модуль";
+const moduleLabel = (type: string) =>
+  type === "sink_cabinet" ? "Мойка" : type.startsWith("dishwasher") ? "ПММ" : "Модуль";
 
 function renderTopView(state: ProjectHistory["present"]) {
   const wall = state.room.wallWidth ?? 3000;
-  const modules = state.lowerRow.modules.map(module => `<g><rect x="${module.position}" y="110" width="${module.width}" height="560" rx="8" fill="#f6e9fe" stroke="#5b347f" stroke-width="8"/><text x="${module.position + module.width / 2}" y="410" text-anchor="middle" font-family="Manrope" font-size="54" fill="#1f1927">${moduleLabel(module.type)}</text><text x="${module.position + module.width / 2}" y="720" text-anchor="middle" font-family="Manrope" font-size="42" fill="#4b444f">${module.width}</text></g>`).join("");
+  const modules = state.lowerRow.modules
+    .map(
+      (module) =>
+        `<g><rect x="${module.position}" y="110" width="${module.width}" height="560" rx="8" fill="#f6e9fe" stroke="#5b347f" stroke-width="8"/><text x="${module.position + module.width / 2}" y="410" text-anchor="middle" font-family="Manrope" font-size="54" fill="#1f1927">${moduleLabel(module.type)}</text><text x="${module.position + module.width / 2}" y="720" text-anchor="middle" font-family="Manrope" font-size="42" fill="#4b444f">${module.width}</text></g>`,
+    )
+    .join("");
   return `<svg viewBox="-100 0 ${wall + 200} 850" role="img" aria-label="План кухни сверху"><path d="M0 70H${wall}" stroke="#431b67" stroke-width="18"/>${modules}<text x="${wall / 2}" y="820" text-anchor="middle" font-family="Manrope" font-size="48" fill="#431b67">Стена ${wall} мм</text></svg>`;
 }
 
 function perspectiveFeature(type: string, x: number, width: number, depth: number) {
   const center = x + width / 2;
-  if (type === "sink_cabinet") return `<g aria-label="Чаша мойки и смеситель"><ellipse cx="${center + depth / 2}" cy="${120 - depth / 2}" rx="${Math.min(width * .26, 150)}" ry="${Math.max(depth * .2, 24)}" fill="#fff7ff" stroke="#431b67" stroke-width="8"/><path d="M${center} ${105 - depth / 2}v-${Math.max(depth * .38, 54)}q0-42 48-42h38" fill="none" stroke="#431b67" stroke-width="12" stroke-linecap="round"/></g>`;
-  if (type.startsWith("dishwasher")) return `<g aria-label="Фасад посудомоечной машины"><rect x="${x + width * .12}" y="190" width="${width * .76}" height="390" rx="18" fill="#fff7ff" stroke="#431b67" stroke-width="8"/><path d="M${x + width * .2} 250h${width * .6}" stroke="#c79a3b" stroke-width="12"/><circle cx="${center}" cy="430" r="${Math.min(width * .16, 80)}" fill="none" stroke="#5b347f" stroke-width="8"/></g>`;
-  if (type === "oven_base") return `<g aria-label="Духовой шкаф"><rect x="${x + width * .12}" y="205" width="${width * .76}" height="350" rx="16" fill="#1f1927" stroke="#431b67" stroke-width="8"/><rect x="${x + width * .22}" y="315" width="${width * .56}" height="170" rx="8" fill="#f6e9fe"/><circle cx="${x + width * .3}" cy="260" r="18" fill="#c79a3b"/><circle cx="${x + width * .7}" cy="260" r="18" fill="#c79a3b"/></g>`;
-  if (type === "cooktop_base") return `<g aria-label="Варочная панель"><ellipse cx="${center - width * .18 + depth / 2}" cy="${120 - depth / 2}" rx="44" ry="18" fill="none" stroke="#431b67" stroke-width="8"/><ellipse cx="${center + width * .18 + depth / 2}" cy="${120 - depth / 2}" rx="44" ry="18" fill="none" stroke="#431b67" stroke-width="8"/></g>`;
+  if (type === "sink_cabinet")
+    return `<g aria-label="Чаша мойки и смеситель"><ellipse cx="${center + depth / 2}" cy="${120 - depth / 2}" rx="${Math.min(width * 0.26, 150)}" ry="${Math.max(depth * 0.2, 24)}" fill="#fff7ff" stroke="#431b67" stroke-width="8"/><path d="M${center} ${105 - depth / 2}v-${Math.max(depth * 0.38, 54)}q0-42 48-42h38" fill="none" stroke="#431b67" stroke-width="12" stroke-linecap="round"/></g>`;
+  if (type.startsWith("dishwasher"))
+    return `<g aria-label="Фасад посудомоечной машины"><rect x="${x + width * 0.12}" y="190" width="${width * 0.76}" height="390" rx="18" fill="#fff7ff" stroke="#431b67" stroke-width="8"/><path d="M${x + width * 0.2} 250h${width * 0.6}" stroke="#c79a3b" stroke-width="12"/><circle cx="${center}" cy="430" r="${Math.min(width * 0.16, 80)}" fill="none" stroke="#5b347f" stroke-width="8"/></g>`;
+  if (type === "oven_base")
+    return `<g aria-label="Духовой шкаф"><rect x="${x + width * 0.12}" y="205" width="${width * 0.76}" height="350" rx="16" fill="#1f1927" stroke="#431b67" stroke-width="8"/><rect x="${x + width * 0.22}" y="315" width="${width * 0.56}" height="170" rx="8" fill="#f6e9fe"/><circle cx="${x + width * 0.3}" cy="260" r="18" fill="#c79a3b"/><circle cx="${x + width * 0.7}" cy="260" r="18" fill="#c79a3b"/></g>`;
+  if (type === "cooktop_base")
+    return `<g aria-label="Варочная панель"><ellipse cx="${center - width * 0.18 + depth / 2}" cy="${120 - depth / 2}" rx="44" ry="18" fill="none" stroke="#431b67" stroke-width="8"/><ellipse cx="${center + width * 0.18 + depth / 2}" cy="${120 - depth / 2}" rx="44" ry="18" fill="none" stroke="#431b67" stroke-width="8"/></g>`;
   return "";
 }
 
 function renderPerspective(state: ProjectHistory["present"]) {
   const wall = state.room.wallWidth ?? 3000;
-  const depth = Math.max(90, wall * .055);
+  const depth = Math.max(90, wall * 0.055);
   const occupied = state.lowerRow.modules.reduce((sum, module) => sum + module.width, 0);
-  const previewModules: Array<{ position: number; width: number; type: string; preview?: boolean }> = [...state.lowerRow.modules];
-  if (wall > occupied) previewModules.push({ position: occupied, width: wall - occupied, type: "preview", preview: true });
-  const modules = previewModules.map(module => { const x = module.position; const w = module.width; const preview = module.preview; return `<g opacity="${preview ? ".58" : "1"}"><rect x="${x}" y="120" width="${w}" height="530" fill="${preview ? "#fff7ff" : "#f6e9fe"}" stroke="#5b347f" stroke-width="7" ${preview ? 'stroke-dasharray="22 14"' : ""}/><polygon points="${x},120 ${x + depth},${120 - depth} ${x + w + depth},${120 - depth} ${x + w},120" fill="#fff1c9" stroke="#5b347f" stroke-width="7"/><polygon points="${x + w},120 ${x + w + depth},${120 - depth} ${x + w + depth},${650 - depth} ${x + w},650" fill="#e5d1ef" stroke="#5b347f" stroke-width="7"/>${preview ? "" : perspectiveFeature(module.type, x, w, depth)}<text x="${x + w / 2}" y="${preview ? 390 : 610}" text-anchor="middle" font-family="Manrope" font-size="${preview ? 48 : 34}" fill="#1f1927">${preview ? "Свободное место" : moduleLabel(module.type)}</text><text x="${x + w / 2}" y="${preview ? 465 : 690}" text-anchor="middle" font-family="Manrope" font-size="34" fill="#4b444f">${w} мм</text></g>`; }).join("");
+  const previewModules: Array<{ position: number; width: number; type: string; preview?: boolean }> = [
+    ...state.lowerRow.modules,
+  ];
+  if (wall > occupied)
+    previewModules.push({ position: occupied, width: wall - occupied, type: "preview", preview: true });
+  const modules = previewModules
+    .map((module) => {
+      const x = module.position;
+      const w = module.width;
+      const preview = module.preview;
+      return `<g opacity="${preview ? ".58" : "1"}"><rect x="${x}" y="120" width="${w}" height="530" fill="${preview ? "#fff7ff" : "#f6e9fe"}" stroke="#5b347f" stroke-width="7" ${preview ? 'stroke-dasharray="22 14"' : ""}/><polygon points="${x},120 ${x + depth},${120 - depth} ${x + w + depth},${120 - depth} ${x + w},120" fill="#fff1c9" stroke="#5b347f" stroke-width="7"/><polygon points="${x + w},120 ${x + w + depth},${120 - depth} ${x + w + depth},${650 - depth} ${x + w},650" fill="#e5d1ef" stroke="#5b347f" stroke-width="7"/>${preview ? "" : perspectiveFeature(module.type, x, w, depth)}<text x="${x + w / 2}" y="${preview ? 390 : 610}" text-anchor="middle" font-family="Manrope" font-size="${preview ? 48 : 34}" fill="#1f1927">${preview ? "Свободное место" : moduleLabel(module.type)}</text><text x="${x + w / 2}" y="${preview ? 465 : 690}" text-anchor="middle" font-family="Manrope" font-size="34" fill="#4b444f">${w} мм</text></g>`;
+    })
+    .join("");
   return `<svg viewBox="-180 -120 ${wall + depth + 360} 980" role="img" aria-label="Автоматический предварительный контур кухни в перспективе"><defs><linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff7ff"/><stop offset="1" stop-color="#f3e7d1"/></linearGradient></defs><rect x="-${depth}" y="-${depth}" width="${wall + depth * 2}" height="${780 + depth}" fill="#fff7ff" stroke="#cdc3d1" stroke-width="6"/><polygon points="-${depth},650 ${wall + depth},650 ${wall + depth * 2},850 -${depth * 2},850" fill="url(#floor)" stroke="#c79a3b" stroke-width="6"/><path d="M0 90H${wall}" stroke="#c79a3b" stroke-width="12"/>${modules}<path d="M0 650H${wall}" stroke="#431b67" stroke-width="12"/><text x="${wall / 2}" y="790" text-anchor="middle" font-family="Manrope" font-size="46" fill="#431b67">Предварительный контур · ${wall} мм</text></svg>`;
 }
 
 async function render3D(state: ProjectHistory["present"]) {
-  if (viewer3d) { viewer3d.update(state, VISUAL_ASSETS); viewer3d.setSelectedModule(selectedModuleId); return; }
+  if (viewer3d) {
+    viewer3d.update(state, VISUAL_ASSETS);
+    viewer3d.setSelectedModule(selectedModuleId);
+    return;
+  }
   if (viewer3dLoading) return;
   viewer3dLoading = true;
   const scheme = byId("scheme");
@@ -104,16 +145,31 @@ async function render3D(state: ProjectHistory["present"]) {
     const { createKitchen3DViewer } = await import("./kitchen-3d-viewer.js");
     if (currentView !== "3d") return;
     viewer3d = await createKitchen3DViewer({
-      container: scheme, state, visualAssets: VISUAL_ASSETS, selectedModuleId,
-      onModuleSelect(id) { selectedModuleId = id; viewer3d?.setSelectedModule(id); setStatus(`Выбран модуль ${moduleLabel(history.present.lowerRow.modules.find(module => module.id === id)?.type ?? "")}.`, "success"); },
-      onError(error) { console.warn("MebelFlow 3D asset fallback", error); },
+      container: scheme,
+      state,
+      visualAssets: VISUAL_ASSETS,
+      selectedModuleId,
+      onModuleSelect(id) {
+        selectedModuleId = id;
+        viewer3d?.setSelectedModule(id);
+        setStatus(
+          `Выбран модуль ${moduleLabel(history.present.lowerRow.modules.find((module) => module.id === id)?.type ?? "")}.`,
+          "success",
+        );
+      },
+      onError(error) {
+        console.warn("MebelFlow 3D asset fallback", error);
+      },
     });
     viewer3d.update(history.present, VISUAL_ASSETS);
   } catch (error) {
     console.warn("MebelFlow 3D unavailable", error);
-    scheme.innerHTML = '<div class="viewer-error" role="status"><strong>3D-вид недоступен</strong><span>Схема и все команды продолжают работать.</span></div>';
+    scheme.innerHTML =
+      '<div class="viewer-error" role="status"><strong>3D-вид недоступен</strong><span>Схема и все команды продолжают работать.</span></div>';
     setStatus("Не удалось включить 3D-вид. Используйте фасад, вид сверху или перспективу.", "error");
-  } finally { viewer3dLoading = false; }
+  } finally {
+    viewer3dLoading = false;
+  }
 }
 
 function render() {
@@ -122,9 +178,18 @@ function render() {
   scheme.classList.toggle("is-3d", currentView === "3d");
   if (currentView === "3d" && state.room.wallWidth) void render3D(state);
   else {
-    viewer3d?.dispose(); viewer3d = undefined;
+    viewer3d?.dispose();
+    viewer3d = undefined;
     scheme.innerHTML = state.room.wallWidth
-      ? currentView === "front" ? renderKitchenSvg(state, { title: "Предварительная схема кухни", description: "Схема обновляется после подтверждённых команд.", selectedId: selectedModuleId }) : currentView === "top" ? renderTopView(state) : renderPerspective(state)
+      ? currentView === "front"
+        ? renderKitchenSvg(state, {
+            title: "Предварительная схема кухни",
+            description: "Схема обновляется после подтверждённых команд.",
+            selectedId: selectedModuleId,
+          })
+        : currentView === "top"
+          ? renderTopView(state)
+          : renderPerspective(state)
       : '<div class="scheme-empty"><strong>Укажите длину кухни</strong><span>Например: «кухня 3 метра»</span></div>';
   }
   const remaining = calculateRemainingWidth(state);
@@ -140,7 +205,11 @@ function setStatus(message: string, kind: "normal" | "error" | "success" = "norm
 }
 
 function consumeCurrentTurnstile() {
-  consumeTurnstile(() => { turnstileToken = ""; turnstileRefreshRequested = false; send.disabled = true; });
+  consumeTurnstile(() => {
+    turnstileToken = "";
+    turnstileRefreshRequested = false;
+    send.disabled = true;
+  });
 }
 
 function requestNewTurnstile() {
@@ -149,15 +218,28 @@ function requestNewTurnstile() {
   turnstileRefreshRequested = requestFreshTurnstile(api ? () => api.reset() : undefined);
 }
 
-window.addEventListener("turnstile-success", event => {
+window.addEventListener("turnstile-success", (event) => {
   turnstileToken = (event as CustomEvent<string>).detail;
   turnstileRefreshRequested = false;
   send.disabled = !commandInput.value.trim();
   setStatus("Проверка пройдена. Команду можно отправить.", "success");
 });
-window.addEventListener("turnstile-expired", () => { consumeCurrentTurnstile(); setStatus("Проверка истекла. Новая проверка появится при следующей отправке. Распознанный текст сохранён.", "error"); });
-commandInput.addEventListener("input", () => { if (!turnstileToken && commandInput.value.trim()) requestNewTurnstile(); send.disabled = !turnstileToken || !commandInput.value.trim(); });
-document.querySelectorAll<HTMLButtonElement>("[data-example]").forEach(button => button.addEventListener("click", () => { commandInput.value = button.dataset.example ?? ""; commandInput.focus(); if (!turnstileToken && commandInput.value.trim()) requestNewTurnstile(); send.disabled = !turnstileToken || !commandInput.value.trim(); }));
+window.addEventListener("turnstile-expired", () => {
+  consumeCurrentTurnstile();
+  setStatus("Проверка истекла. Новая проверка появится при следующей отправке. Распознанный текст сохранён.", "error");
+});
+commandInput.addEventListener("input", () => {
+  if (!turnstileToken && commandInput.value.trim()) requestNewTurnstile();
+  send.disabled = !turnstileToken || !commandInput.value.trim();
+});
+document.querySelectorAll<HTMLButtonElement>("[data-example]").forEach((button) => {
+  button.addEventListener("click", () => {
+    commandInput.value = button.dataset.example ?? "";
+    commandInput.focus();
+    if (!turnstileToken && commandInput.value.trim()) requestNewTurnstile();
+    send.disabled = !turnstileToken || !commandInput.value.trim();
+  });
+});
 
 async function callAi(utterance: string) {
   const idempotencyKey = `request_${crypto.randomUUID().replaceAll("-", "")}`;
@@ -166,8 +248,17 @@ async function callAi(utterance: string) {
   let response: Response;
   try {
     response = await fetch(`${API_URL}/v1/intent`, {
-    method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ tenantId: TENANT_ID, sessionId, idempotencyKey, turnstileToken, locale: "ru-KZ", utterance, projectSummary: compactProjectState(history.present) }),
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        tenantId: TENANT_ID,
+        sessionId,
+        idempotencyKey,
+        turnstileToken,
+        locale: "ru-KZ",
+        utterance,
+        projectSummary: compactProjectState(history.present),
+      }),
       signal: controller.signal,
     });
   } catch (error) {
@@ -176,7 +267,7 @@ async function callAi(utterance: string) {
   } finally {
     window.clearTimeout(timeout);
   }
-  const body = await response.json() as IntentEnvelope & { error?: { message?: string } };
+  const body = (await response.json()) as IntentEnvelope & { error?: { message?: string } };
   if (!response.ok) throw new Error(body.error?.message ?? "Сервис временно недоступен.");
   return body;
 }
@@ -186,10 +277,15 @@ function apply(command: unknown, explanation?: string) {
   const stored = storeProject(localStorage, history.present);
   render();
   assistant.textContent = explanation ?? "Изменение применено. Что добавим дальше?";
-  setStatus(stored ? "Схема обновлена и сохранена в этом браузере. Изменение можно отменить." : "Схема обновлена, но браузер не разрешил локальное сохранение.", stored ? "success" : "error");
+  setStatus(
+    stored
+      ? "Схема обновлена и сохранена в этом браузере. Изменение можно отменить."
+      : "Схема обновлена, но браузер не разрешил локальное сохранение.",
+    stored ? "success" : "error",
+  );
 }
 
-form.addEventListener("submit", async event => {
+form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const utterance = commandInput.value.trim();
   if (!utterance) return;
@@ -200,7 +296,9 @@ form.addEventListener("submit", async event => {
   }
   addChatMessage("user", utterance);
   const thinkingMessage = addChatMessage("ai", "Обрабатываю запрос…", true);
-  send.disabled = true; commandInput.disabled = true; confirm.classList.add("hidden");
+  send.disabled = true;
+  commandInput.disabled = true;
+  confirm.classList.add("hidden");
   setStatus("AI проверяет пожелание и готовит безопасную команду…");
   assistant.textContent = `Вы сказали: «${utterance}»`;
   try {
@@ -214,7 +312,8 @@ form.addEventListener("submit", async event => {
       setStatus("AI не менял схему: требуется уточнение.");
     } else if (result.intent.command) {
       apply(result.intent.command, result.intent.explanation);
-      thinkingMessage.querySelector("p")!.textContent = result.intent.explanation ?? "Изменение применено. Что добавим дальше?";
+      thinkingMessage.querySelector("p")!.textContent =
+        result.intent.explanation ?? "Изменение применено. Что добавим дальше?";
       thinkingMessage.classList.remove("thinking");
     }
     commandInput.value = "";
@@ -224,17 +323,37 @@ form.addEventListener("submit", async event => {
     thinkingMessage.classList.remove("thinking");
     setStatus(message, "error");
   } finally {
-    commandInput.disabled = false; consumeCurrentTurnstile(); commandInput.focus();
+    commandInput.disabled = false;
+    consumeCurrentTurnstile();
+    commandInput.focus();
   }
 });
 
-confirm.addEventListener("click", () => { if (pendingCommand) apply(pendingCommand); pendingCommand = undefined; confirm.classList.add("hidden"); });
-undo.addEventListener("click", () => { history = applyLayoutCommandToHistory(history, { commandId: crypto.randomUUID(), type: "UNDO" }); const stored = storeProject(localStorage, history.present); render(); setStatus(stored ? "Последнее изменение отменено и сохранено." : "Изменение отменено, но браузер не разрешил локальное сохранение.", stored ? "success" : "error"); });
-document.querySelectorAll<HTMLButtonElement>("[data-view]").forEach(button => button.addEventListener("click", () => {
-  currentView = button.dataset.view as typeof currentView;
-  document.querySelectorAll("[data-view]").forEach(item => item.classList.toggle("active", item === button));
+confirm.addEventListener("click", () => {
+  if (pendingCommand) apply(pendingCommand);
+  pendingCommand = undefined;
+  confirm.classList.add("hidden");
+});
+undo.addEventListener("click", () => {
+  history = applyLayoutCommandToHistory(history, { commandId: crypto.randomUUID(), type: "UNDO" });
+  const stored = storeProject(localStorage, history.present);
   render();
-}));
+  setStatus(
+    stored
+      ? "Последнее изменение отменено и сохранено."
+      : "Изменение отменено, но браузер не разрешил локальное сохранение.",
+    stored ? "success" : "error",
+  );
+});
+document.querySelectorAll<HTMLButtonElement>("[data-view]").forEach((button) => {
+  button.addEventListener("click", () => {
+    currentView = button.dataset.view as typeof currentView;
+    document.querySelectorAll("[data-view]").forEach((item) => {
+      item.classList.toggle("active", item === button);
+    });
+    render();
+  });
+});
 
 let mediaRecorder: MediaRecorder | null = null;
 let recordingStream: MediaStream | null = null;
@@ -243,15 +362,26 @@ let audioChunks: Blob[] = [];
 async function callVoiceCommand(audio: Blob) {
   const bytes = new Uint8Array(await audio.arrayBuffer());
   let binary = "";
-  for (let index = 0; index < bytes.length; index += 0x8000) binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
+  for (let index = 0; index < bytes.length; index += 0x8000)
+    binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
   const idempotencyKey = `voice_${crypto.randomUUID().replaceAll("-", "")}`;
   const response = await fetch(`${API_URL}/v1/voice`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ tenantId: TENANT_ID, sessionId, audioBase64: btoa(binary), mimeType: audio.type || "audio/webm", turnstileToken, idempotencyKey, locale: "ru-KZ", projectSummary: compactProjectState(history.present) }),
+    body: JSON.stringify({
+      tenantId: TENANT_ID,
+      sessionId,
+      audioBase64: btoa(binary),
+      mimeType: audio.type || "audio/webm",
+      turnstileToken,
+      idempotencyKey,
+      locale: "ru-KZ",
+      projectSummary: compactProjectState(history.present),
+    }),
   });
-  const result = await response.json() as IntentEnvelope & { transcript?: string; error?: { message?: string } };
-  if (!response.ok || !result.transcript) throw new VoiceCommandError(result.error?.message ?? "AI не смог обработать голосовую команду.", result.transcript);
+  const result = (await response.json()) as IntentEnvelope & { transcript?: string; error?: { message?: string } };
+  if (!response.ok || !result.transcript)
+    throw new VoiceCommandError(result.error?.message ?? "AI не смог обработать голосовую команду.", result.transcript);
   return result;
 }
 
@@ -272,15 +402,21 @@ mic.addEventListener("click", async () => {
   try {
     recordingStream = await navigator.mediaDevices.getUserMedia({ audio: true });
     audioChunks = [];
-    mediaRecorder = new MediaRecorder(recordingStream, { mimeType: MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus" : "audio/webm" });
-    mediaRecorder.ondataavailable = event => { if (event.data.size) audioChunks.push(event.data); };
+    mediaRecorder = new MediaRecorder(recordingStream, {
+      mimeType: MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus" : "audio/webm",
+    });
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size) audioChunks.push(event.data);
+    };
     mediaRecorder.onstop = async () => {
       voiceTranscriptionInProgress = true;
       mic.disabled = true;
       commandInput.disabled = true;
       mic.classList.remove("listening");
       voiceTranscript.classList.remove("is-listening");
-      recordingStream?.getTracks().forEach(track => track.stop());
+      recordingStream?.getTracks().forEach((track) => {
+        track.stop();
+      });
       voiceStateLabel.textContent = "AI расшифровывает запись";
       transcriptPreview.textContent = "Обрабатываю голос…";
       setStatus("AI расшифровывает голосовую команду…");
@@ -335,7 +471,10 @@ mic.addEventListener("legacy-speech-disabled", () => {
   };
   const Recognition = speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
   if (!Recognition) {
-    setStatus("В этом браузере голосовой ввод недоступен. Откройте страницу в Chrome или напишите пожелание текстом.", "error");
+    setStatus(
+      "В этом браузере голосовой ввод недоступен. Откройте страницу в Chrome или напишите пожелание текстом.",
+      "error",
+    );
     return;
   }
 
@@ -357,8 +496,8 @@ mic.addEventListener("legacy-speech-disabled", () => {
   transcriptPreview.textContent = speechInitialText || "Говорите — распознанный текст появится здесь.";
   setStatus("Слушаю… Скажите размер стены или пожелание к кухне.");
 
-  activeRecognition.onresult = event => {
-    const parts = Array.from(event.results, result => result[0]?.transcript?.trim() ?? "").filter(Boolean);
+  activeRecognition.onresult = (event) => {
+    const parts = Array.from(event.results, (result) => result[0]?.transcript?.trim() ?? "").filter(Boolean);
     const transcript = parts.join(" ").trim();
     const visibleText = [speechInitialText, transcript].filter(Boolean).join(" ");
     speechWasRecognized = Boolean(transcript);
@@ -366,12 +505,18 @@ mic.addEventListener("legacy-speech-disabled", () => {
     commandInput.scrollTop = commandInput.scrollHeight;
     transcriptPreview.textContent = visibleText || "Слушаю…";
     send.disabled = !turnstileToken || !visibleText;
-    const hasInterimResult = Array.from(event.results).some(result => !result.isFinal);
-    setStatus(hasInterimResult ? "Записываю и расшифровываю… Текст уже можно видеть в поле." : "Текст распознан. Проверьте его или продолжайте говорить.", hasInterimResult ? "normal" : "success");
+    const hasInterimResult = Array.from(event.results).some((result) => !result.isFinal);
+    setStatus(
+      hasInterimResult
+        ? "Записываю и расшифровываю… Текст уже можно видеть в поле."
+        : "Текст распознан. Проверьте его или продолжайте говорить.",
+      hasInterimResult ? "normal" : "success",
+    );
   };
-  activeRecognition.onerror = event => {
+  activeRecognition.onerror = (event) => {
     const messages: Record<string, string> = {
-      "not-allowed": "Разрешите доступ к микрофону для ai.salamat-mebel.kz в настройках браузера и нажмите микрофон ещё раз.",
+      "not-allowed":
+        "Разрешите доступ к микрофону для ai.salamat-mebel.kz в настройках браузера и нажмите микрофон ещё раз.",
       "service-not-allowed": "Браузер запретил сервис распознавания речи. Разрешите микрофон или используйте Chrome.",
       "audio-capture": "Микрофон не найден или занят другой программой. Проверьте микрофон и повторите.",
       network: "Сервис распознавания речи временно недоступен. Проверьте интернет или введите пожелание текстом.",
@@ -381,7 +526,10 @@ mic.addEventListener("legacy-speech-disabled", () => {
     voiceTranscript.classList.remove("is-listening");
     voiceStateLabel.textContent = "Запись не завершена";
     transcriptPreview.textContent = messages[event.error ?? ""] ?? "Не удалось распознать голос.";
-    setStatus(messages[event.error ?? ""] ?? "Не удалось распознать голос. Попробуйте ещё раз или напишите текстом.", "error");
+    setStatus(
+      messages[event.error ?? ""] ?? "Не удалось распознать голос. Попробуйте ещё раз или напишите текстом.",
+      "error",
+    );
   };
   activeRecognition.onend = () => {
     activeRecognition = null;

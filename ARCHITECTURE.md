@@ -214,6 +214,8 @@ interface SceneStoreAdapter {
 }
 ```
 
+> **Владелец доменного undo/redo — `ProjectHistory`** (reducer в `project-state` и `applyLayoutCommandToHistory` в `layout-engine`). `undo()/redo()` адаптера — низкоуровневые операции store (Pascal-совместимость), они не участвуют в доменном потоке команд и в runtime-потоке widget/API не используются.
+
 Первая реализация может использовать Zustand/Zundo. Позже возможно подключить `@pascal-app/core`, если он проходит spike и не утяжеляет приложение.
 
 ## 8. Хранилище

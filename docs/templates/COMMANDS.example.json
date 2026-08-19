@@ -11,6 +11,7 @@
       "commandId": "cmd-002",
       "type": "ADD_MODULE",
       "payload": {
+        "id": "sink-1",
         "moduleType": "sink_cabinet",
         "width": 800,
         "edge": "left"
@@ -21,7 +22,18 @@
       "type": "INSERT_AFTER",
       "referenceId": "sink-1",
       "payload": {
+        "id": "dw-1",
         "moduleType": "dishwasher_600",
+        "width": 600
+      }
+    },
+    {
+      "commandId": "cmd-004",
+      "type": "INSERT_AFTER",
+      "referenceId": "dw-1",
+      "payload": {
+        "id": "drawers-1",
+        "moduleType": "base_cabinet_drawers",
         "width": 600
       }
     }

@@ -1,4 +1,4 @@
-import { FurnitureProjectStateSchema, type FurnitureProjectState } from "../../../packages/project-state/src/index.js";
+import { type FurnitureProjectState, FurnitureProjectStateSchema } from "../../../packages/project-state/src/index.js";
 
 export type StorageLike = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
@@ -9,10 +9,17 @@ export function loadStoredProject(storage: StorageLike, tenantId: string): Furni
     const raw = storage.getItem(projectStorageKey(tenantId));
     if (!raw) return undefined;
     const parsed = FurnitureProjectStateSchema.safeParse(JSON.parse(raw));
-    if (!parsed.success || parsed.data.tenantId !== tenantId) { storage.removeItem(projectStorageKey(tenantId)); return undefined; }
+    if (!parsed.success || parsed.data.tenantId !== tenantId) {
+      storage.removeItem(projectStorageKey(tenantId));
+      return undefined;
+    }
     return parsed.data;
   } catch {
-    try { storage.removeItem(projectStorageKey(tenantId)); } catch { /* storage may be unavailable */ }
+    try {
+      storage.removeItem(projectStorageKey(tenantId));
+    } catch {
+      /* storage may be unavailable */
+    }
     return undefined;
   }
 }

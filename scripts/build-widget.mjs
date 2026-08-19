@@ -1,5 +1,5 @@
-import { build } from "esbuild";
 import { cp, mkdir, rm } from "node:fs/promises";
+import { build } from "esbuild";
 
 const outdir = "apps/widget/dist";
 await rm(outdir, { recursive: true, force: true });

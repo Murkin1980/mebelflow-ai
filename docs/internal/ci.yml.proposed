@@ -1,0 +1,46 @@
+# =============================================================================
+# PROPOSAL — НЕ УСТАНОВЛЕН.
+#
+# Обновлённый CI (audit-шаг, матрица Node 20/22, отдельная coverage-джоба
+# с артефактом). Пуш .github/workflows/ci.yml отклоняется правами токена
+# GitHub App (нет `workflows` permission), поэтому файл хранится здесь.
+#
+# Применение: владелец заменяет содержимое .github/workflows/ci.yml этим
+# файлом одним коммитом (или мержит PR с соответствующим правом).
+# До применения активный CI: npm ci + npm run check (typecheck + Biome +
+# все тесты, включая docs-contract gate).
+# =============================================================================
+name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20, 22]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: npm run check
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run coverage
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
