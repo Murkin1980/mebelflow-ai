@@ -26,7 +26,7 @@ Lazy 3D Viewer              █████████░  90%
 
 ## Current phase
 
-**Этапы 0–9 объединены в main (PR #9, squash 1a1d580). Проведён независимый аудит, PR/ветки упорядочены, хардненинг применён. Перед controlled pilot остаются real-microphone voice E2E и полевая выборка.**
+**Этапы 0–9 объединены в main (PR #9, squash 1a1d580). Проведён независимый аудит, PR/ветки упорядочены, хардненинг применён и принят ревью (PASS WITH FIXES → fixes внесены). 3D governance синхронизирован решением владельца (FOUNDATION §5.4 ↔ ADR-005 ↔ AGENTS). Перед controlled pilot остаются только внешние гейты: real-microphone voice E2E → 20 controlled sessions → 5 real prospect sessions → funnel report и GO/NO_GO.**
 
 ## Completed
 
@@ -111,6 +111,9 @@ Lazy 3D Viewer              █████████░  90%
 - [x] Кумулятивная линия этапов 2–9 смержена в main; draft-PR #1–#8 и #10 закрыты с пояснениями
 - [x] Хардненинг актуальной линии: `packages/domain-types` (разрыв цикла пакетов), строгая `CommandSchema` (`.strict()`), идемпотентность после восстановления сессии, кэпы истории (`MAX_HISTORY`, `MAX_APPLIED_COMMAND_IDS`, `MAX_METADATA_BYTES`), docs-контракт-гейт, 0 vulnerabilities, Biome-линт; обновлённый CI предложен в `docs/internal/ci.yml.proposed`
 - [x] 296 unit/property/snapshot/contract тестов проходят
+- [x] Ревью второго исполнителя: PASS WITH FIXES; fixes внесены (единый владелец undo — `ProjectHistory`, адаптер изолирован; proposed CI помечен как НЕ установленный)
+- [x] 3D governance синхронизирован решением владельца: FOUNDATION §5.4 принял ADR-005 как ограниченное исключение
+- [x] 298 unit/property/snapshot/contract тестов проходят
 
 ## Next actions
 

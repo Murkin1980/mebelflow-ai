@@ -216,6 +216,7 @@
 - [x] Docs examples валидируются схемами в CI (`docs-contract.test.ts`)
 - [x] `npm audit` — 0 vulnerabilities (audit-шаг в CI предложен: `docs/internal/ci.yml.proposed`)
 - [x] Владелец undo/redo зафиксирован: `ProjectHistory`; `SceneStoreAdapter` — изолированный low-level слой + regression-тест
+- [x] 3D governance: FOUNDATION §5.4 ↔ ADR-005 ↔ AGENTS синхронизированы решением владельца
 - [x] Biome: формат и линт в `npm run check`; coverage-джоба предложена в `docs/internal/ci.yml.proposed`
 - [x] 296 unit/property/snapshot/contract тестов проходят
 
